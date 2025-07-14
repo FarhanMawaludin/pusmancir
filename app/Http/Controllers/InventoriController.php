@@ -49,7 +49,6 @@ class InventoriController extends Controller
             }
         }
 
-        // Filter berdasarkan kategori jika bukan 'all'
         // misal id_kategori_buku sesuai kebutuhan, sesuaikan kalau perlu
         if ($category !== 'all' && in_array($category, ['judul_buku', 'tanggal_pembelian']) === false) {
             $query->where('id_kategori_buku', $category);

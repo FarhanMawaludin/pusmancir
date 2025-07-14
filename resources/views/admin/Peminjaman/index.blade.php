@@ -9,51 +9,70 @@
             <form action="{{ route('admin.peminjaman.store') }}" method="POST" class="p-4 border rounded bg-white shadow-sm">
                 @csrf
 
+                {{-- === FORM UTAMA === --}}
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {{-- Input NISN Anggota --}}
+
+                    {{-- NISN Anggota --}}
                     <div>
                         <label for="anggota_id_input" class="block text-sm font-medium text-gray-700">NISN Anggota</label>
                         <div class="flex gap-2 mt-1">
                             <input type="text" name="anggota_id" id="anggota_id_input" required
-                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                                class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300 "
                                 placeholder="Masukkan NISN" autocomplete="off" autofocus>
                             <button type="button" onclick="cekAnggota()"
-                                class="bg-blue-700 text-white px-2 rounded hover:bg-blue-800">Cek</button>
+                                class="bg-blue-700 text-white px-2 rounded hover:bg-blue-800 text-sm">Cek</button>
                         </div>
                         <div id="anggota_info" class="text-sm text-gray-800 mt-1 font-semibold"></div>
                     </div>
 
-                    {{-- Input ID Eksemplar --}}
+                    {{-- Kode RFID Eksemplar --}}
                     <div>
-                        <label for="eksemplar_id_input" class="block text-sm font-medium text-gray-700">Kode Buku</label>
+                        <label for="eksemplar_id_input" class="block text-sm font-medium text-gray-700">Kode Buku
+                            (RFID/Barcode)</label>
                         <div class="flex gap-2 mt-1">
                             <input type="text" name="eksemplar_id" id="eksemplar_id_input" required
-                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                                class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300 "
                                 placeholder="Masukkan RFID Eksemplar" autocomplete="off">
                             <button type="button" onclick="cekEksemplar()"
-                                class="bg-blue-700 text-white px-2 rounded hover:bg-blue-800">Cek</button>
+                                class="bg-blue-700 text-white px-2 rounded hover:bg-blue-800 text-sm">Cek</button>
                         </div>
                         <div id="eksemplar_info" class="text-sm text-gray-800 mt-1 font-semibold"></div>
+                        @error('eksemplar_id')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                    {{-- Input Tanggal Pinjam --}}
+                    {{-- Tanggal Pinjam --}}
                     <div>
                         <label for="tanggal_pinjam" class="block text-sm font-medium text-gray-700">Tanggal Pinjam</label>
                         <input type="date" name="tanggal_pinjam" id="tanggal_pinjam" required
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 mt-1">
+                            class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300 mt-1 ">
                     </div>
 
-                    {{-- Input Tanggal Kembali --}}
+                    {{-- Tanggal Kembali --}}
                     <div>
                         <label for="tanggal_kembali" class="block text-sm font-medium text-gray-700">Tanggal Kembali</label>
                         <input type="date" name="tanggal_kembali" id="tanggal_kembali" required
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 mt-1">
+                            class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300 mt-1 ">
                     </div>
                 </div>
 
+                {{-- === SCAN BARCODE DENGAN KAMERA === --}}
+                <div class="mt-6">
+                    <label class="block font-medium text-sm mb-2 text-gray-700">Scan Barcode RFID Buku (Via Kamera)</label>
+
+                    {{-- Area kamera --}}
+                    <div id="reader" class="mx-auto mb-3 border border-gray-300 rounded-md shadow" style="width: 400px;">
+                    </div>
+
+                    {{-- Otomatis isi ke input utama --}}
+                    <small class="text-gray-500 block mb-1">Barcode akan otomatis dimasukkan ke kolom "Kode Buku".</small>
+                </div>
+
+                {{-- Tombol Simpan --}}
                 <div class="mt-6">
                     <button type="submit"
-                        class="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 transition duration-150">
+                        class="w-full md:w-auto px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 transition duration-150">
                         Simpan Peminjaman
                     </button>
                 </div>
@@ -67,49 +86,105 @@
             <thead class="text-xs uppercase bg-gray-100 text-text">
                 <tr>
                     <th scope="col" class="px-6 py-3 w-43 md:w-12">No</th>
-                    <th scope="col" class="px-6 py-3">Nama peminjam</th>
+                    <th scope="col" class="px-6 py-3">Nama Peminjam</th>
                     <th scope="col" class="px-6 py-3">Judul Buku</th>
                     <th scope="col" class="px-6 py-3">Tanggal Pinjam</th>
                     <th scope="col" class="px-6 py-3">Tanggal Kembali</th>
                     <th scope="col" class="px-6 py-3">Status</th>
+                    <th scope="col" class="px-6 py-3">Aksi</th>
                 </tr>
             </thead>
+
             <tbody>
                 @forelse ($peminjaman as $key => $peminjamanItem)
+                    @php
+                        $pinjam = $peminjamanItem->peminjaman; // relasi Peminjaman
+                        $status = $pinjam->status; // menunggu | berhasil | tolak
+                    @endphp
+
                     <tr class="bg-white border-b border-gray-200">
                         <td class="px-6 py-4">{{ $peminjaman->firstItem() + $key }}</td>
+
                         <td class="px-6 py-4">
-                            <div class="min-w-0">
-                                <div class="font-medium md:text-base break-words truncate md:whitespace-normal">
-                                    {{ $peminjamanItem->peminjaman->anggota->user->name }}
-                                </div>
+                            <div class="font-medium md:text-base truncate md:whitespace-normal">
+                                {{ $pinjam->anggota->user->name ?? '-' }}
                             </div>
                         </td>
-                        <td class="px-6 py-4">{{ $peminjamanItem->eksemplar->inventori->judul_buku }}</td>
-                        <td class="px-6 py-4">{{ \Carbon\Carbon::parse($peminjamanItem->tanggal_pinjam)->format('d-m-Y') }}
+
+                        <td class="px-6 py-4">
+                            {{ $peminjamanItem->eksemplar->inventori->judul_buku ?? '-' }}
                         </td>
-                        <td class="px-6 py-4">{{ \Carbon\Carbon::parse($peminjamanItem->tanggal_kembali)->format('d-m-Y') }}
+
+                        <td class="px-6 py-4">
+                            {{ \Carbon\Carbon::parse($pinjam->tanggal_pinjam)->format('d-m-Y') }}
                         </td>
+
+                        <td class="px-6 py-4">
+                            {{ \Carbon\Carbon::parse($pinjam->tanggal_kembali)->format('d-m-Y') }}
+                        </td>
+
+                        {{-- Status (tanpa border, hanya warna bg) --}}
                         <td class="px-6 py-4">
                             <span
-                                class="
-                                px-3 py-1 text-sm rounded-full border 
-                                {{ $peminjamanItem->eksemplar->status === 'dipinjam'
-                                    ? 'text-white border-orange-600 bg-orange-600 font-semibold'
-                                    : 'text-gray-600 border-gray-300 bg-gray-100' }}">
-                                {{ ucfirst($peminjamanItem->eksemplar->status) }}
+                                class="px-3 py-1 text-sm rounded-full
+                                @if ($status === 'berhasil') bg-green-600 text-white
+                                @elseif ($status === 'tolak') bg-red-600 text-white
+                                @else bg-yellow-400 text-gray-900 @endif">
+                                {{ ucfirst($status) }}
                             </span>
+                        </td>
+
+                        {{-- Aksi --}}
+                        <td class="px-6 py-4">
+                            @if ($status === 'menunggu')
+                                {{-- ===============  BUTTON APPROVE  =============== --}}
+                                <button type="button"
+                                    class="btn-approve p-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                                    data-id="{{ $pinjam->id }}" title="Approve">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </button>
+
+                                <form id="approve-form-{{ $pinjam->id }}" class="hidden"
+                                    action="{{ route('admin.peminjaman.updateStatus', $pinjam->id) }}" method="POST">
+                                    @csrf @method('PATCH')
+                                    <input type="hidden" name="aksi" value="berhasil">
+                                </form>
+
+                                {{-- ===============  BUTTON TOLAK  =============== --}}
+                                <button type="button"
+                                    class="btn-tolak p-2 bg-red-600 text-white rounded hover:bg-red-700 transition ml-2"
+                                    data-id="{{ $pinjam->id }}" title="Tolak">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+
+                                <form id="tolak-form-{{ $pinjam->id }}" class="hidden"
+                                    action="{{ route('admin.peminjaman.updateStatus', $pinjam->id) }}" method="POST">
+                                    @csrf @method('PATCH')
+                                    <input type="hidden" name="aksi" value="tolak">
+                                </form>
+                            @else
+                                <span class="italic text-gray-500">Selesai diperiksa</span>
+                            @endif
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                            Tidak ada pengguna ditemukan.
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                            Tidak ada data peminjaman ditemukan.
                         </td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
+
 
         <!-- Pagination -->
         <div class="p-4">
@@ -117,32 +192,77 @@
         </div>
     </div>
 
-    <script>
-        document.querySelectorAll('.btn-delete').forEach(button => {
-            button.addEventListener('click', function() {
-                const userId = this.getAttribute('data-id'); // Ambil ID dari data-id tombol
 
-                // Menampilkan konfirmasi SweetAlert
-                Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: 'Data yang dihapus tidak dapat dikembalikan!',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Hapus',
-                    cancelButtonText: 'Batal',
-                    reverseButtons: true,
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Jika ya, submit form untuk menghapus data
-                        document.getElementById('delete-form-' + userId).submit();
-                    }
+    <!-- JavaScript -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ------------ APPROVE ---------------
+            document.querySelectorAll('.btn-approve').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const form = document.getElementById('approve-form-' + id);
+
+                    Swal.fire({
+                        title: 'Approve peminjaman?',
+                        text: 'Setelah disetujui, buku akan dianggap dipinjam.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, approve',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true
+                    }).then(first => {
+                        if (first.isConfirmed) {
+                            Swal.fire({
+                                title: 'Konfirmasi akhir!',
+                                text: 'Tindakan ini tidak dapat dibatalkan.',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: 'Approve Sekarang',
+                                cancelButtonText: 'Batal',
+                                reverseButtons: true
+                            }).then(second => {
+                                if (second.isConfirmed) form.submit();
+                            });
+                        }
+                    });
+                });
+            });
+
+            // ------------ TOLAK ---------------
+            document.querySelectorAll('.btn-tolak').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const form = document.getElementById('tolak-form-' + id);
+
+                    Swal.fire({
+                        title: 'Tolak peminjaman?',
+                        text: 'Peminjaman akan ditolak.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, tolak',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true
+                    }).then(first => {
+                        if (first.isConfirmed) {
+                            Swal.fire({
+                                title: 'Konfirmasi terakhir!',
+                                text: 'Tindakan ini tidak dapat dibatalkan.',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: 'Tolak Sekarang',
+                                cancelButtonText: 'Batal',
+                                reverseButtons: true
+                            }).then(second => {
+                                if (second.isConfirmed) form.submit();
+                            });
+                        }
+                    });
                 });
             });
         });
     </script>
 
-
-    <!-- JavaScript -->
     <script>
         const dropdownButton = document.getElementById('dropdown-button');
         const dropdownMenu = document.getElementById('dropdown');
@@ -249,5 +369,27 @@
 
             document.getElementById('tanggal_kembali').value = tanggalKembaliFormatted;
         });
+    </script>
+
+    <script>
+        function onScanSuccess(decodedText, decodedResult) {
+            // Ubah: targetkan ke input utama
+            document.getElementById('eksemplar_id_input').value = decodedText;
+
+            // Optional: trigger auto cekEksemplar setelah scan
+            cekEksemplar();
+
+            // Hentikan scanner
+            html5QrcodeScanner.clear();
+        }
+
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", {
+                fps: 10,
+                qrbox: 250
+            },
+            false
+        );
+        html5QrcodeScanner.render(onScanSuccess);
     </script>
 @endsection

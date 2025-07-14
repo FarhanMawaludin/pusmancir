@@ -20,8 +20,8 @@ class PeminjamanController extends Controller
         $category = $request->input('category', 'all');
 
         $query = DetailPeminjaman::with(['eksemplar', 'peminjaman.anggota.user'])
-            ->whereHas('eksemplar', function ($q) {
-                $q->where('status', 'dipinjam');
+            ->whereHas('peminjaman', function ($q) {
+                $q->where('status', 'menunggu');          // status peminjaman
             });
 
         if ($search) {
@@ -53,60 +53,92 @@ class PeminjamanController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi: cek apakah NISN ada di kolom `nisn` pada tabel anggota
         $request->validate([
-            'anggota_id' => 'required|exists:anggota,nisn',
-            'eksemplar_id' => 'required|string|exists:eksemplar,no_rfid',
-            'tanggal_pinjam' => 'required|date',
+            'anggota_id'      => 'required|exists:anggota,nisn',
+            'eksemplar_id'    => 'required|string|exists:eksemplar,no_rfid',
+            'tanggal_pinjam'  => 'required|date',
             'tanggal_kembali' => 'required|date|after_or_equal:tanggal_pinjam',
         ]);
 
+        // ── Lookup awal ───────────────────────
+        $anggota   = \App\Models\Anggota::where('nisn', $request->anggota_id)->first();
+        $eksemplar = \App\Models\Eksemplar::where('no_rfid', trim($request->eksemplar_id))->first();
+
+        if (!$anggota || !$eksemplar) {
+            return back()->withInput()
+                ->with('error', 'Anggota atau Eksemplar tidak ditemukan.');
+        }
+
+        if ($eksemplar->status === 'dipinjam') {
+            return back()->withInput()
+                ->with('warning', "Buku dengan RFID '{$request->eksemplar_id}' sedang dipinjam.");
+        }
+
+        // ── Tentukan status awal berdasarkan role ─
+        $role   = Auth::user()->role;          // pastikan kolom 'role' ada di tabel users
+        $status = in_array($role, ['admin', 'pustakawan']) ? 'berhasil' : 'menunggu';
+
         DB::beginTransaction();
         try {
-            // Ambil ID anggota berdasarkan NISN
-            $anggota = \App\Models\Anggota::where('nisn', $request->anggota_id)->first();
-
-            if (!$anggota) {
-                throw new \Exception("Anggota dengan NISN {$request->anggota_id} tidak ditemukan.");
-            }
-
-            // Simpan ke tabel peminjaman dengan ID anggota
             $peminjaman = \App\Models\Peminjaman::create([
-                'anggota_id' => $anggota->id, // ← gunakan id, bukan nisn
-                'user_id' => Auth::id(),
+                'anggota_id'     => $anggota->id,
+                'user_id'        => Auth::id(),
                 'tanggal_pinjam' => $request->tanggal_pinjam,
                 'tanggal_kembali' => $request->tanggal_kembali,
+                'status'         => $status,
             ]);
 
-            // Ambil eksemplar berdasarkan no_rfid
-            $noRfid = trim($request->eksemplar_id);
-            $eksemplar = \App\Models\Eksemplar::where('no_rfid', $noRfid)->first();
-
-            if (!$eksemplar) {
-                throw new \Exception("Eksemplar dengan RFID '{$noRfid}' tidak ditemukan.");
-            }
-
-            // Simpan ke detail_peminjaman
             \App\Models\DetailPeminjaman::create([
                 'peminjaman_id' => $peminjaman->id,
-                'eksemplar_id' => $eksemplar->id,
+                'eksemplar_id'  => $eksemplar->id,
             ]);
 
-            // Update status eksemplar
-            $eksemplar->update(['status' => 'dipinjam']);
+            // Jika langsung diset berhasil, tandai buku “dipinjam”
+            if ($status === 'berhasil') {
+                $eksemplar->update(['status' => 'dipinjam']);
+            }
 
             DB::commit();
-
             return redirect()->route('admin.peminjaman.index')
                 ->with('success', 'Data peminjaman berhasil disimpan.');
-        } catch (\Exception $e) {
+        } catch (\Throwable $th) {
             DB::rollBack();
-            return back()->withInput()->withErrors([
-                'error' => 'Gagal menyimpan data: ' . $e->getMessage()
-            ]);
+            return back()->withInput()
+                ->with('error', 'Gagal menyimpan data: ' . $th->getMessage());
         }
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate(['aksi' => 'required|in:berhasil,tolak']);
+
+        DB::beginTransaction();
+        try {
+            $pinjam = Peminjaman::with('detailPeminjaman.eksemplar')->findOrFail($id);
+
+            if ($pinjam->status !== 'menunggu') {
+                return back()->with('warning', 'Status sudah diproses.');
+            }
+
+            // update status + catat id petugas
+            $pinjam->update([
+                'status'  => $request->aksi,
+                'user_id' => Auth::id(),             // ← petugas yang memproses
+            ]);
+
+            if ($request->aksi === 'berhasil') {
+                foreach ($pinjam->detailPeminjaman as $detail) {
+                    $detail->eksemplar->update(['status' => 'dipinjam']);
+                }
+            }
+
+            DB::commit();
+            return back()->with('success', 'Status berhasil diperbarui.');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal: ' . $th->getMessage());
+        }
+    }
 
 
 

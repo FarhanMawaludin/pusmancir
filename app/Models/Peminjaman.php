@@ -16,6 +16,7 @@ class Peminjaman extends Model
         'user_id',
         'tanggal_pinjam',
         'tanggal_kembali',
+        'status',
     ];
 
     /**

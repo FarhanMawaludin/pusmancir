@@ -16,7 +16,7 @@
                 <a href="#" class="flex items-center ms-2 md:me-24">
                     <img src="{{ asset('img/logo-smancir.png') }}" class="h-10 me-3 md:ml-6" alt="PUSMANCIR Logo" />
 
-                    <span class="hidden md:inline self-center text-[18px] font-medium whitespace-nowrap text-text">
+                    <span class="hidden md:inline self-center text-[18px] font-bold whitespace-nowrap text-text">
                         PUSMANCIR
                     </span>
                 </a>
@@ -34,12 +34,17 @@
                             aria-expanded="false" data-dropdown-toggle="dropdown-user">
                             <span class="sr-only">Open user menu</span>
                             @if (Auth::user()->foto)
-                                <img class="w-10 h-10 rounded-full" src="{{ asset('storage/' . Auth::user()->foto) }}"
-                                    alt="user photo">
+                                <div class="w-10 h-10 rounded-full overflow-hidden">
+                                    <img src="{{ asset('storage/' . Auth::user()->foto) }}" alt="Foto Profil"
+                                        class="w-full h-full object-cover object-center">
+                                </div>
                             @else
-                                <img src="{{ asset('img/Profile.jpg') }}" alt="Foto Default"
-                                    class="w-10 h-10 rounded-full object-cover border border-gray-300">
+                                <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-300">
+                                    <img src="{{ asset('img/Profile.jpg') }}" alt="Foto Default"
+                                        class="w-full h-full object-cover object-center">
+                                </div>
                             @endif
+
                         </button>
                     </div>
                     <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-sm border border-gray-200 dark:bg-gray-700 dark:divide-gray-600"

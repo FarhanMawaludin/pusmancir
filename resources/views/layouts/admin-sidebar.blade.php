@@ -1,13 +1,13 @@
 <aside id="logo-sidebar"
-    class="fixed top-0 left-0 z-40 w-64 h-full sm:h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+    class="fixed top-0 left-0 z-40 w-64 h-full sm:h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 "
     aria-label="Sidebar">
-    <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800 ">
+    <div class="h-full px-3 pb-4 overflow-y-auto bg-white ">
         <ul class="space-y-2 font-medium ">
             <!-- Dashboard -->
             <li class="mb-4">
                 <a href="{{ route('admin.dashboard.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'dashboard' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700' }}">
-                    <svg class="w-5 h-5 {{ $activeMenu == 'dashboard' ? 'text-white' : 'text-base300 dark:text-white' }}"
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'dashboard' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                    <svg class="w-5 h-5 {{ $activeMenu == 'dashboard' ? 'text-white' : 'text-base300 ' }}"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9.143 4H4.857A.857.857 0 0 0 4 4.857v4.286c0 .473.384.857.857.857h4.286A.857.857 0 0 0 10 9.143V4.857A.857.857 0 0 0 9.143 4Zm10 0h-4.286a.857.857 0 0 0-.857.857v4.286c0 .473.384.857.857.857h4.286A.857.857 0 0 0 20 9.143V4.857A.857.857 0 0 0 19.143 4Zm-10 10H4.857a.857.857 0 0 0-.857.857v4.286c0 .473.384.857.857.857h4.286a.857.857 0 0 0 .857-.857v-4.286A.857.857 0 0 0 9.143 14Zm10 0h-4.286a.857.857 0 0 0-.857.857v4.286c0 .473.384.857.857.857h4.286a.857.857 0 0 0 .857-.857v-4.286a.857.857 0 0 0-.857-.857Z" />
@@ -22,8 +22,8 @@
             @if (Auth::user()->role !== 'pustakawan')
                 <li>
                     <a href="{{ route('admin.kelas.index') }}"
-                        class="flex items-center p-2 rounded group {{ $activeMenu == 'kelas' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700' }}">
-                        <svg class="w-5 h-5 {{ $activeMenu == 'kelas' ? 'text-white' : 'text-gray-400 dark:text-white' }}"
+                        class="flex items-center p-2 rounded group {{ $activeMenu == 'kelas' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                        <svg class="w-5 h-5 {{ $activeMenu == 'kelas' ? 'text-white' : 'text-gray-400 ' }}"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                             fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -36,8 +36,8 @@
 
                 <li>
                     <a href="{{ route('admin.pengguna.index') }}"
-                        class="flex items-center p-2 rounded group {{ $activeMenu == 'pengguna' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700' }}">
-                        <svg class="w-6 h-6 {{ $activeMenu == 'pengguna' ? 'text-white' : 'text-base300 dark:text-white' }}"
+                        class="flex items-center p-2 rounded group {{ $activeMenu == 'pengguna' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                        <svg class="w-6 h-6 {{ $activeMenu == 'pengguna' ? 'text-white' : 'text-base300 ' }}"
                             fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor"
                             stroke-width="2" stroke-linecap="square" stroke-linejoin="round">
                             <path
@@ -53,8 +53,8 @@
 
             <li>
                 <a href="{{ route('admin.anggota.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'anggota' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700' }}">
-                    <svg class="w- h-5 {{ $activeMenu == 'anggota' ? 'text-white' : 'text-base300 dark:text-white' }}"
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'anggota' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                    <svg class="w- h-5 {{ $activeMenu == 'anggota' ? 'text-white' : 'text-base300 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -71,9 +71,9 @@
 
             <li class="mb-4">
                 <button type="button"
-                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'master' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700' }}"
+                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'master' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}"
                     aria-controls="dropdown-example" data-collapse-toggle="dropdown-example">
-                    <svg class="w-5 h-5 {{ $activeMenu == 'master' ? 'text-white' : 'text-gray-400 dark:text-white' }}"
+                    <svg class="w-5 h-5 {{ $activeMenu == 'master' ? 'text-white' : 'text-gray-400 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linejoin="round" stroke-width="2"
@@ -92,32 +92,32 @@
                 <ul id="dropdown-example" class="hidden py-2 space-y-2">
                     <li>
                         <a href="{{ route('admin.jenis-media.index') }}"
-                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
                             Jenis Media</a>
                     </li>
                     <li>
                         <a href="{{ route('admin.jenis-sumber.index') }}"
-                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
                             Jenis Sumber</a>
                     </li>
                     <li>
                         <a href="{{ route('admin.sumber.index') }}"
-                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
                             Sumber</a>
                     </li>
                     <li>
                         <a href="{{ route('admin.kategori-buku.index') }}"
-                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
                             Kategori</a>
                     </li>
                     <li>
                         <a href="{{ route('admin.penerbit.index') }}"
-                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
                             Penerbit</a>
                     </li>
                     <li>
                         <a href="{{ route('admin.sekolah.index') }}"
-                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
                             Sekolah</a>
                     </li>
                 </ul>
@@ -125,8 +125,8 @@
 
             <li>
                 <a href="{{ route('admin.inventori.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'inventori' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700' }}">
-                    <svg class="w-5 h-5 {{ $activeMenu == 'inventori' ? 'text-white' : 'text-base300 dark:text-white' }}"
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'inventori' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                    <svg class="w-5 h-5 {{ $activeMenu == 'inventori' ? 'text-white' : 'text-base300 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -144,8 +144,8 @@
 
             <li>
                 <a href="{{ route('admin.katalog.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'katalog' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700' }}">
-                    <svg class="w-5 h-5 {{ $activeMenu == 'katalog' ? 'text-white' : 'text-base300 dark:text-white' }}"
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'katalog' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                    <svg class="w-5 h-5 {{ $activeMenu == 'katalog' ? 'text-white' : 'text-base300 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -158,8 +158,8 @@
 
             <li>
                 <a href="{{ route('admin.eksemplar.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'eksemplar' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700' }}">
-                    <svg class="w-5 h-5 {{ $activeMenu == 'eksemplar' ? 'text-white' : 'text-base300 dark:text-white' }}"
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'eksemplar' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                    <svg class="w-5 h-5 {{ $activeMenu == 'eksemplar' ? 'text-white' : 'text-base300 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
@@ -177,8 +177,8 @@
 
             <li>
                 <a href="{{ route('admin.peminjaman.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'peminjaman' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700' }}">
-                    <svg class="w-5 h-5 {{ $activeMenu == 'peminjaman' ? 'text-white' : 'text-base300 dark:text-white' }}"
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'peminjaman' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                    <svg class="w-5 h-5 {{ $activeMenu == 'peminjaman' ? 'text-white' : 'text-base300 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -192,8 +192,8 @@
 
             <li>
                 <a href="{{ route('admin.pengembalian.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'pengembalian' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700' }}">
-                    <svg class="w-5 h-5 {{ $activeMenu == 'pengembalian' ? 'text-white' : 'text-base300 dark:text-white' }}"
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'pengembalian' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                    <svg class="w-5 h-5 {{ $activeMenu == 'pengembalian' ? 'text-white' : 'text-base300 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -215,7 +215,7 @@
                     <button type="submit"
                         onclick="event.preventDefault(); localStorage.removeItem('auth_token'); this.closest('form').submit();"
                         class="w-full flex items-center p-2 text-red-600 rounded hover:bg-red-200 group cursor-pointer">
-                        <svg class="w-6 h-6 text-red-600 dark:text-white" fill="none" viewBox="0 0 24 24">
+                        <svg class="w-6 h-6 text-red-600 " fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                 stroke-width="2"
                                 d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2" />

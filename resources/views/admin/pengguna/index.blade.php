@@ -13,7 +13,7 @@
 
                 <!-- Tombol Dropdown -->
                 <button id="dropdown-button" type="button"
-                    class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-text bg-gray-100 border border-gray-300 rounded-l hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600">
+                    class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-text bg-gray-100 border border-gray-300 rounded-l hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 ">
                     {{ $category === 'all' ? 'Semua Posisi' : ucfirst(str_replace('_', ' ', $category)) }}
                     <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                         viewBox="0 0 10 6">
@@ -24,29 +24,29 @@
 
                 <!-- Dropdown Menu -->
                 <div id="dropdown"
-                    class="z-10 hidden absolute mt-12 bg-white divide-y divide-gray-100 rounded shadow-sm w-44 dark:bg-gray-700">
-                    <ul class="py-2 text-sm text-text dark:text-gray-200" aria-labelledby="dropdown-button">
+                    class="z-10 hidden absolute mt-12 bg-white divide-y divide-gray-100 rounded shadow-sm w-44">
+                    <ul class="py-2 text-sm text-text" aria-labelledby="dropdown-button">
                         <li>
                             <button type="button" data-value="all"
-                                class="category-btn w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                class="category-btn w-full text-left px-4 py-2 hover:bg-gray-100">
                                 Semua Posisi
                             </button>
                         </li>
                         <li>
                             <button type="button" data-value="admin"
-                                class="category-btn w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                class="category-btn w-full text-left px-4 py-2 hover:bg-gray-100">
                                 Admin
                             </button>
                         </li>
                         <li>
                             <button type="button" data-value="pustakawan"
-                                class="category-btn w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                class="category-btn w-full text-left px-4 py-2 hover:bg-gray-100">
                                 Pustakawan
                             </button>
                         </li>
                         <li>
                             <button type="button" data-value="anggota"
-                                class="category-btn w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                class="category-btn w-full text-left px-4 py-2 hover:bg-gray-100">
                                 Anggota
                             </button>
                         </li>
@@ -56,10 +56,10 @@
                 <!-- Input Pencarian -->
                 <div class="relative w-full">
                     <input type="search" id="search-dropdown" name="search"
-                        class="block p-2.5 w-full z-20 text-sm text-text bg-gray-50 rounded-r-md border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
+                        class="block p-2.5 w-full z-20 text-sm text-text bg-gray-50 rounded-r-md border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 "
                         placeholder="Cari pengguna berdasarkan nama atau NISN..." value="{{ $search ?? '' }}" />
                     <button type="submit"
-                        class="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-primary700 border rounded border-primary700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-primary700 dark:hover:bg-primary700 dark:focus:ring-blue-800">
+                        class="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-primary700 border rounded border-primary700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
                         <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 20 20">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -74,7 +74,7 @@
         <div class="flex flex-wrap gap-2">
             <!-- Button Import Excel -->
             <button id="importExcelButton"
-                class="flex items-center gap-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded text-sm px-4 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                class="flex items-center gap-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded text-sm px-4 py-2.5 text-center "
                 type="button">
 
                 <svg class="w-5 h-5 md:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
@@ -148,7 +148,7 @@
 
             <!-- Button Tambah -->
             <button id="dropdownDividerButton" data-dropdown-toggle="dropdownDivider"
-                class="flex items-center gap-2 text-white bg-primary700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2.5 text-center dark:bg-primary700 dark:hover:bg-primary700 dark:focus:ring-blue-800"
+                class="flex items-center gap-2 text-white bg-primary700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2.5 text-center"
                 type="button" onclick="location.href='{{ route('admin.pengguna.create') }}'">
 
                 <svg class="w-5 h-5 md:hidden" fill="none" stroke="currentColor" stroke-width="2"
@@ -252,7 +252,8 @@
         </table>
 
         <!-- Pagination -->
-        <div class="p-4">
+        <!-- Pagination -->
+        <div class="p-4 bg-white rounded border border-gray-200 mt-4">
             {{ $user->links('pagination::tailwind') }}
         </div>
     </div>

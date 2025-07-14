@@ -20,11 +20,27 @@ use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\EksemplarController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengembalianController;
-
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\ProfilAnggotaController;
+use App\Http\Controllers\KatalogAnggotaController;
+use App\Http\Controllers\PeminjamanAnggotaController;
+use Illuminate\Support\Facades\Http;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 Route::get('/katalog/{id}', [WelcomeController::class, 'show'])->name('detail-buku');
+
+Route::get('/debug-gemini', function () {
+    $key = env('GEMINI_API_KEY');
+    $model = env('GEMINI_MODEL', 'gemini-1.5-flash-latest');
+    $response = Http::withHeaders([
+        'X-Goog-Api-Key' => $key,
+        'Content-Type' => 'application/json'
+    ])->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent", [
+        'contents' => [['parts' => [['text' => 'Halo']]]]
+    ]);
+
+    return $response->json();
+});
 
 
 Route::get('/informasi', function () {
@@ -124,6 +140,10 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     Route::get('/katalog/{id}/edit', [KatalogController::class, 'edit'])->name('katalog.edit');
     Route::put('/katalog/{id}', [KatalogController::class, 'update'])->name('katalog.update');
     Route::delete('/katalog/{id}', [KatalogController::class, 'destroy'])->name('katalog.destroy');
+    Route::post('/generate-ringkasan', [KatalogController::class, 'generateRingkasan'])->name('katalog.generate-ringkasan');
+    Route::get('/katalog/fetch-cover/{isbn}', [KatalogController::class, 'fetchCoverByIsbn'])->name('katalog.fetch-cover');
+
+
 
 
     //Eksemplar
@@ -142,13 +162,13 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     //Peminjaman
     Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
     Route::post('/peminjaman/store', [PeminjamanController::class, 'store'])->name('peminjaman.store');
+    Route::patch('/peminjaman/{id}/status', [PeminjamanController::class, 'updateStatus'])
+        ->name('peminjaman.updateStatus');
 
 
     //Pengembalian
     Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('pengembalian.index');
     Route::put('/pengembalian/update/{id}', [PengembalianController::class, 'update'])->name('pengembalian.update');
-
-    
 });
 
 // Cek anggota berdasarkan NISN
@@ -191,6 +211,20 @@ Route::get('/api/eksemplar/{no_rfid}', function ($no_rfid) {
 // Anggota
 Route::middleware(['auth', 'role:anggota'])->prefix('anggota')->name('anggota.')->group(function () {
     Route::get('/dashboard', [DashboardAnggotaController::class, 'index'])->name('dashboard.index');
+
+    //Profil
+    Route::get('/profil', [ProfilAnggotaController::class, 'index'])->name('profil.index');
+    Route::get('/profil/{id}/edit', [ProfilAnggotaController::class, 'edit'])->name('profil.edit');
+    Route::put('/profil/{id}', [ProfilAnggotaController::class, 'update'])->name('profil.update');
+
+    //Katalog
+    Route::get('/katalog', [KatalogAnggotaController::class, 'index'])->name('katalog.index');
+    Route::get('/katalog/{id}', [KatalogAnggotaController::class, 'show'])->name('katalog.show');
+
+    //Peminjaman
+    Route::get('/peminjaman', [PeminjamanAnggotaController::class, 'index'])->name('peminjaman.index');
+    Route::post('/peminjaman/store', [PeminjamanAnggotaController::class, 'store'])->name('peminjaman.store');
+
 });
 
 

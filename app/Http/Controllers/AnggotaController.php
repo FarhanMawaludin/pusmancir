@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 
+
 class AnggotaController extends Controller
 {
 
@@ -39,4 +40,6 @@ class AnggotaController extends Controller
 
         return view('admin.anggota.index', compact('users', 'search', 'category', 'activeMenu'));
     }
+
+
 }

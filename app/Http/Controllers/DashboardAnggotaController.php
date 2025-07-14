@@ -8,7 +8,8 @@ class DashboardAnggotaController extends Controller
 {
     public function index()
     {
-        return view('anggota.dashboard');
+        $activeMenu = 'dashboard';
+        return view('anggota.dashboard' , compact('activeMenu'));
     }
 }
 

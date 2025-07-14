@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Katalog;
+use Illuminate\Support\Facades\Auth;
 
-class WelcomeController extends Controller
+class KatalogAnggotaController extends Controller
 {
-
     public function index(Request $request)
     {
+        $activeMenu = "katalog";
         // ── query string ───────────────────────────────
         $search      = $request->input('search');        // kata kunci
         $searchBy    = $request->input('search_by', 'all'); // kolom mana (judul, pengarang, dll.)
@@ -46,20 +47,37 @@ class WelcomeController extends Controller
             ->orderBy('kategori_buku')
             ->pluck('kategori_buku');
 
-        return view('welcome', compact(
+        return view('anggota.katalog.index', compact(
             'katalogList',  // data buku
             'kategoriList', // daftar tombol kategori
             'kategori',     // kategori terpilih
             'search',       // kata kunci
-            'searchBy'      // kolom pencarian
+            'searchBy',      // kolom pencarian
+            'activeMenu'
         ));
     }
 
-
-
     public function show($id)
     {
+        $activeMenu = "katalog";
         $buku = Katalog::with('inventori.eksemplar')->findOrFail($id);
-        return view('detail-buku', compact('buku'));
+        $profilLengkap = $this->isProfilLengkap();
+        return view('anggota.katalog.show', compact('buku', 'activeMenu', 'profilLengkap'));
+    }
+
+    private function isProfilLengkap(): bool
+    {
+        $anggota = Auth::user()->anggota; // relasi hasOne
+
+        if (!$anggota) return false;
+
+        $wajib = [
+            $anggota->nisn,
+            $anggota->no_telp,
+            $anggota->email,
+            $anggota->kelas_id,
+        ];
+
+        return collect($wajib)->every(fn($v) => !empty($v));
     }
 }

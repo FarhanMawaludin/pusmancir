@@ -41,10 +41,10 @@
 
 <body class="text-text font-Inter bg-white">
     {{-- Navigation --}}
-    @include('layouts.admin-navigation')
+    @include('layouts.anggota-navigation')
 
     {{-- Sidebar --}}
-    @include('layouts.admin-sidebar')
+    @include('layouts.anggota-sidebar')
 
 
     {{-- <!-- Content --> --}}
