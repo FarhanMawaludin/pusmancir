@@ -72,6 +72,7 @@
                         <th class="px-4 py-2 border">No Inventori</th>
                         <th class="px-4 py-2 border">RFID</th>
                         <th class="px-4 py-2 border">Status</th>
+                        <th class="px-4 py-2 border">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -82,6 +83,12 @@
                             <td class="px-4 py-2 border">{{ $eks->no_inventori }}</td>
                             <td class="px-4 py-2 border">{{ $eks->no_rfid }}</td>
                             <td class="px-4 py-2 border">{{ ucfirst($eks->status) }}</td>
+                            <td class="px-4 py-2 border text-center">
+                                <a href="{{ route('admin.eksemplar.edit', $eks->id) }}"
+                                    class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                                    Ubah Status
+                                </a>
+                            </td>
                         </tr>
                     @empty
                         <tr>

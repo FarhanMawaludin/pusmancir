@@ -83,4 +83,30 @@ class EksemplarController extends Controller
 
         return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
     }
+
+    public function edit($id)
+    {
+        $activeMenu = "inventori";
+        $eksemplar = Eksemplar::findOrFail($id);
+        return view('admin.eksemplar.edit', [
+            'activeMenu' => $activeMenu,
+            'eksemplar' => $eksemplar
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:tersedia,dipinjam,rusak,hilang',
+        ]);
+
+        $eksemplar = Eksemplar::findOrFail($id);
+        $eksemplar->update(['status' => $request->status]);
+
+        return redirect()
+            ->route('admin.inventori.show', $eksemplar->id_inventori)
+            ->with('success', 'Status eksemplar berhasil diperbarui.');
+    }
+
+    
 }

@@ -148,16 +148,16 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
 
     //Eksemplar
     Route::get('/eksemplar', [EksemplarController::class, 'index'])->name('eksemplar.index');
-    Route::get('/eksemplar/create', [EksemplarController::class, 'create'])->name('eksemplar.create');
-    Route::post('/eksemplar', [EksemplarController::class, 'store'])->name('eksemplar.store');
-    Route::get('/eksemplar/{id}', [EksemplarController::class, 'show'])->name('eksemplar.show');
+    // Route::get('/eksemplar/create', [EksemplarController::class, 'create'])->name('eksemplar.create');
+    // Route::post('/eksemplar', [EksemplarController::class, 'store'])->name('eksemplar.store');
+    // Route::get('/eksemplar/{id}', [EksemplarController::class, 'show'])->name('eksemplar.show');
     Route::get('/eksemplar/{id}/edit', [EksemplarController::class, 'edit'])->name('eksemplar.edit');
     Route::put('/eksemplar/{id}', [EksemplarController::class, 'update'])->name('eksemplar.update');
-    Route::delete('/eksemplar/{id}', [EksemplarController::class, 'destroy'])->name('eksemplar.destroy');
+    // Route::delete('/eksemplar/{id}', [EksemplarController::class, 'destroy'])->name('eksemplar.destroy');
     Route::get('/admin/eksemplar/{id}/cetak-barcode', [EksemplarController::class, 'cetakBarcode'])
         ->name('eksemplar.cetakBarcode');
     Route::post('/eksemplar/cetak-batch', [EksemplarController::class, 'cetakBatch'])->name('eksemplar.cetak-batch');
-
+    // Route::get('/admin/eksemplar/export', [EksemplarController::class, 'export'])->name('eksemplar.export');
 
     //Peminjaman
     Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
