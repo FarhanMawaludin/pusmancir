@@ -20,21 +20,26 @@ class PeminjamanController extends Controller
         $category = $request->input('category', 'all');
 
         $query = DetailPeminjaman::with(['eksemplar', 'peminjaman.anggota.user'])
-            ->whereHas('peminjaman', function ($q) {
-                $q->where('status', 'menunggu');          // status peminjaman
+            ->whereHas('peminjaman', function ($q) use ($search) {
+                $q->where('status', 'menunggu');
+
+                // Filter berdasarkan NISN jika ada pencarian
+                if (!empty($search)) {
+                    $q->whereHas('anggota', function ($q2) use ($search) {
+                        $q2->where('nisn', 'like', "%{$search}%");
+                    });
+                }
             });
 
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nama_kelas', 'like', "%{$search}%");
-            });
-        }
-
+        // Filter kategori kelas jika ada
         if ($category !== 'all') {
-            preg_match('/(\d+) (IPA|IPS|Bahasa)/', $category, $match);
-            if ($match) {
-                $query->where('nama_kelas', 'like', $match[1] . ' ' . $match[2] . '%');
-            }
+            $query->whereHas('peminjaman.anggota.kelas', function ($q) use ($category) {
+                preg_match('/(\d+) (IPA|IPS|Bahasa)/', $category, $match);
+                if ($match) {
+                    $kelas = $match[1] . ' ' . $match[2];
+                    $q->where('nama_kelas', 'like', $kelas . '%');
+                }
+            });
         }
 
         $peminjaman = $query->paginate(10)->appends([
@@ -49,6 +54,8 @@ class PeminjamanController extends Controller
             'search' => $search,
         ]);
     }
+
+
 
 
     public function store(Request $request)

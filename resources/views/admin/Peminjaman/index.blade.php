@@ -1,23 +1,25 @@
 @extends('layouts.admin-app')
 
 @section('content')
-    <div class="flex justify-between items-center min-w-full">
-        <!-- Judul -->
-        <section class="mb-6">
+    <div class="flex justify-between items-center w-full">
+        <!-- Judul + Form -->
+        <section class="mb-2 w-full"> <!-- ✅ DITAMBAHKAN w-full -->
+
+            <!-- Judul -->
             <h1 class="text-2xl font-bold text-text mb-4">Data Peminjaman</h1>
 
             <form action="{{ route('admin.peminjaman.store') }}" method="POST" class="p-4 border rounded bg-white shadow-sm">
                 @csrf
 
                 {{-- === FORM UTAMA === --}}
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full"> <!-- ✅ Tambah w-full agar grid penuh -->
 
                     {{-- NISN Anggota --}}
                     <div>
                         <label for="anggota_id_input" class="block text-sm font-medium text-gray-700">NISN Anggota</label>
                         <div class="flex gap-2 mt-1">
                             <input type="text" name="anggota_id" id="anggota_id_input" required
-                                class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300 "
+                                class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300"
                                 placeholder="Masukkan NISN" autocomplete="off" autofocus>
                             <button type="button" onclick="cekAnggota()"
                                 class="bg-blue-700 text-white px-2 rounded hover:bg-blue-800 text-sm">Cek</button>
@@ -27,11 +29,12 @@
 
                     {{-- Kode RFID Eksemplar --}}
                     <div>
-                        <label for="eksemplar_id_input" class="block text-sm font-medium text-gray-700">Kode Buku
-                            (RFID/Barcode)</label>
+                        <label for="eksemplar_id_input" class="block text-sm font-medium text-gray-700">
+                            Kode Buku (RFID/Barcode)
+                        </label>
                         <div class="flex gap-2 mt-1">
                             <input type="text" name="eksemplar_id" id="eksemplar_id_input" required
-                                class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300 "
+                                class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300"
                                 placeholder="Masukkan RFID Eksemplar" autocomplete="off">
                             <button type="button" onclick="cekEksemplar()"
                                 class="bg-blue-700 text-white px-2 rounded hover:bg-blue-800 text-sm">Cek</button>
@@ -46,27 +49,48 @@
                     <div>
                         <label for="tanggal_pinjam" class="block text-sm font-medium text-gray-700">Tanggal Pinjam</label>
                         <input type="date" name="tanggal_pinjam" id="tanggal_pinjam" required
-                            class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300 mt-1 ">
+                            class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300 mt-1">
                     </div>
 
                     {{-- Tanggal Kembali --}}
                     <div>
                         <label for="tanggal_kembali" class="block text-sm font-medium text-gray-700">Tanggal Kembali</label>
                         <input type="date" name="tanggal_kembali" id="tanggal_kembali" required
-                            class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300 mt-1 ">
+                            class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300 mt-1">
                     </div>
                 </div>
 
                 {{-- === SCAN BARCODE DENGAN KAMERA === --}}
                 <div class="mt-6">
-                    <label class="block font-medium text-sm mb-2 text-gray-700">Scan Barcode RFID Buku (Via Kamera)</label>
+                    <label class="block font-medium text-sm mb-2 text-gray-700">Scan Barcode (Via Kamera)</label>
 
                     {{-- Area kamera --}}
                     <div id="reader" class="mx-auto mb-3 border border-gray-300 rounded-md shadow" style="width: 400px;">
                     </div>
 
-                    {{-- Otomatis isi ke input utama --}}
-                    <small class="text-gray-500 block mb-1">Barcode akan otomatis dimasukkan ke kolom "Kode Buku".</small>
+                    {{-- Tombol Pilih Mode Scan --}}
+                    <div class="flex gap-2 justify-center mb-2">
+                        <button type="button" onclick="setScanMode('anggota')"
+                            class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 transition">
+                            Scan Anggota
+                        </button>
+                        <button type="button" onclick="setScanMode('buku')"
+                            class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition">
+                            Scan Buku
+                        </button>
+                        <button type="button" onclick="setScanMode('cari_anggota')"
+                            class="bg-orange-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 transition">
+                            Cari Anggota
+                        </button>
+                    </div>
+
+                    {{-- Info Mode --}}
+                    <p id="scan_mode_info" class="text-center text-sm text-gray-500 mb-1">
+                        Mode Scan: Buku
+                    </p>
+                    <small class="text-gray-500 block text-center">
+                        Barcode otomatis dimasukkan sesuai mode pilihan.
+                    </small>
                 </div>
 
                 {{-- Tombol Simpan --}}
@@ -77,9 +101,30 @@
                     </button>
                 </div>
             </form>
+
         </section>
     </div>
 
+
+    <div class="flex justify-between items-center">
+        <form id="searchForm" method="GET" action="{{ route('admin.peminjaman.index') }}"
+            class="flex w-full max-w-lg my-6">
+            <div class="relative w-full">
+                <input type="search" id="search-dropdown" name="search"
+                    class="block p-2.5 w-full z-20 text-sm text-text bg-gray-50 rounded-md border border-gray-300
+                   focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Cari siswa" value="{{ $search ?? '' }}" />
+                <button type="submit"
+                    class="absolute top-0 end-0 p-2.5 h-full text-white bg-primary700 rounded border-primary700
+                   hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
 
     <div class="overflow-x-auto relative rounded border border-gray-200">
         <table class="min-w-full text-sm text-left text-text">
@@ -129,7 +174,7 @@
                                 class="px-3 py-1 text-sm rounded-full
                                 @if ($status === 'berhasil') bg-green-600 text-white
                                 @elseif ($status === 'tolak') bg-red-600 text-white
-                                @else bg-yellow-400 text-gray-900 @endif">
+                                @else bg-orange-600 text-white @endif">
                                 {{ ucfirst($status) }}
                             </span>
                         </td>
@@ -354,40 +399,73 @@
     </script>
 
     <script>
-        document.getElementById('tanggal_pinjam').addEventListener('change', function() {
-            const tanggalPinjam = new Date(this.value);
-            if (isNaN(tanggalPinjam.getTime())) return;
+        window.addEventListener('DOMContentLoaded', () => {
+            const tanggalPinjamInput = document.getElementById('tanggal_pinjam');
+            const tanggalKembaliInput = document.getElementById('tanggal_kembali');
 
-            // Tambah 7 hari
-            tanggalPinjam.setDate(tanggalPinjam.getDate() + 7);
+            // Auto set tanggal pinjam hari ini
+            const today = new Date();
+            const todayFormatted = today.toISOString().split('T')[0];
+            tanggalPinjamInput.value = todayFormatted;
 
-            // Format ke YYYY-MM-DD
-            const year = tanggalPinjam.getFullYear();
-            const month = String(tanggalPinjam.getMonth() + 1).padStart(2, '0');
-            const day = String(tanggalPinjam.getDate()).padStart(2, '0');
-            const tanggalKembaliFormatted = `${year}-${month}-${day}`;
+            // Auto set tanggal kembali +7 hari
+            const kembaliDate = new Date(today);
+            kembaliDate.setDate(kembaliDate.getDate() + 7);
+            tanggalKembaliInput.value = kembaliDate.toISOString().split('T')[0];
 
-            document.getElementById('tanggal_kembali').value = tanggalKembaliFormatted;
+            // Update tanggal kembali jika tanggal pinjam diganti manual
+            tanggalPinjamInput.addEventListener('change', function() {
+                const tanggalPinjam = new Date(this.value);
+                if (isNaN(tanggalPinjam.getTime())) return;
+
+                tanggalPinjam.setDate(tanggalPinjam.getDate() + 7);
+                tanggalKembaliInput.value = tanggalPinjam.toISOString().split('T')[0];
+            });
         });
     </script>
 
+
     <script>
-        function onScanSuccess(decodedText, decodedResult) {
-            // Ubah: targetkan ke input utama
-            document.getElementById('eksemplar_id_input').value = decodedText;
+        let scanMode = 'buku'; // default
 
-            // Optional: trigger auto cekEksemplar setelah scan
-            cekEksemplar();
-
-            // Hentikan scanner
-            html5QrcodeScanner.clear();
+        function setScanMode(mode) {
+            scanMode = mode;
+            const label = (mode === 'anggota') ?
+                'Anggota' :
+                (mode === 'cari_anggota' ? 'Cari Anggota' : 'Buku');
+            document.getElementById('scan_mode_info').innerText =
+                'Mode Scan: ' + label;
         }
 
+        function onScanSuccess(decodedText) {
+
+            if (scanMode === 'anggota') {
+                document.getElementById('anggota_id_input').value = decodedText;
+                cekAnggota(); // fungsi milikmu
+            } else if (scanMode === 'buku') {
+                document.getElementById('eksemplar_id_input').value = decodedText;
+                cekEksemplar(); // fungsi milikmu
+            } else if (scanMode === 'cari_anggota') {
+                // isi kolom pencarian & (opsional) auto‑submit
+                const searchBox = document.getElementById('search-dropdown');
+                searchBox.value = decodedText;
+
+                // auto‑submit (jika diinginkan)
+                document.getElementById('searchForm').submit();
+            }
+
+            /* Jangan clear scanner supaya kamera tetap aktif
+               html5QrcodeScanner.clear();
+            */
+        }
+
+        // Inisialisasi scanner
         const html5QrcodeScanner = new Html5QrcodeScanner(
             "reader", {
                 fps: 10,
                 qrbox: 250
             },
+            /* verbose=*/
             false
         );
         html5QrcodeScanner.render(onScanSuccess);

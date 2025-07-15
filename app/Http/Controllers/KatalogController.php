@@ -104,14 +104,15 @@ class KatalogController extends Controller
         $judul = $request->input('judul');
         $pengarang = $request->input('pengarang');
 
-        $prompt = "Buat sinopsis untuk buku berjudul \"$judul\" yang ditulis oleh \"$pengarang\".";
+        $prompt = "Tuliskan sinopsis singkat dan langsung ke inti cerita dari buku berjudul \"$judul\" karya \"$pengarang\". 
+                    Hindari penjelasan tambahan seperti kata 'Sinopsis', 'Inti Cerita', atau heading lainnya. Langsung tuliskan ringkasannya saja dalam paragraf yang rapi dan natural.";
 
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . config('services.openrouter.api_key'),
             ])->post('https://openrouter.ai/api/v1/chat/completions', [
-                'model' => 'cognitivecomputations/dolphin-mistral-24b-venice-edition:free',
+                'model' => 'google/gemma-3n-e2b-it:free',
                 'messages' => [
                     ['role' => 'user', 'content' => $prompt]
                 ]

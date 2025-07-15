@@ -7,6 +7,7 @@ use App\Models\Anggota;
 use App\Models\Kelas;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 use Illuminate\Http\Request;
 
@@ -98,5 +99,17 @@ class ProfilAnggotaController extends Controller
                     'error' => 'Terjadi kesalahan saat mengupdate profil: ' . $e->getMessage()
                 ]);
         }
+    }
+
+    public function showKartu()
+    {
+        $activeMenu = 'profil';
+        $user = Auth::user();
+        $anggota = $user->anggota;
+
+        // Generate QRCode sebagai SVG langsung (tanpa route terpisah)
+        $qrCode = QrCode::size(100)->generate($anggota->nisn);
+
+        return view('anggota.profil.kartu', compact('user', 'anggota', 'activeMenu', 'qrCode'));
     }
 }

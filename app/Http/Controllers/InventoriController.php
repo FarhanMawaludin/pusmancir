@@ -297,17 +297,21 @@ class InventoriController extends Controller
             ->with('success', 'Inventori berhasil dihapus.');
     }
 
-
-
+    /**
+     * Export laporan inventori per eksemplar (dengan kolom Jumlah Judul & Jumlah Eksemplar di paling kanan).
+     */
     public function export()
     {
+        /* =============================================================
+         * 1. Ambil data inventori + eksemplar
+         * ===========================================================*/
         $data = DB::table('eksemplar')
             ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
-            ->join('sekolah', 'inventori.id_sekolah', '=', 'sekolah.id')
-            ->join('penerbit', 'inventori.id_penerbit', '=', 'penerbit.id')
+            ->join('sekolah',   'inventori.id_sekolah',  '=', 'sekolah.id')
+            ->join('penerbit',  'inventori.id_penerbit', '=', 'penerbit.id')
             ->join('kategori_buku', 'inventori.id_kategori_buku', '=', 'kategori_buku.id')
-            ->join('jenis_sumber', 'inventori.id_jenis_sumber', '=', 'jenis_sumber.id')
-            ->leftJoin('katalog', 'katalog.id_inventori', '=', 'inventori.id')
+            ->join('jenis_sumber',  'inventori.id_jenis_sumber',  '=', 'jenis_sumber.id')
+            ->leftJoin('katalog',   'katalog.id_inventori', '=', 'inventori.id')
             ->select(
                 'inventori.id as id_inventori',
                 'eksemplar.no_induk',
@@ -318,39 +322,39 @@ class InventoriController extends Controller
                 'kategori_buku.nama_kategori',
                 'inventori.tanggal_pembelian',
                 'inventori.harga_satuan',
-                'sekolah.nama_sekolah',
-                'jenis_sumber.nama_sumber AS jenis_sumber',
+                'jenis_sumber.nama_sumber as jenis_sumber',
                 'katalog.no_panggil'
             )
             ->orderBy('eksemplar.no_induk')
             ->get();
 
+        /* =============================================================
+         * 2. Inisialisasi Spreadsheet
+         * ===========================================================*/
         $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
+        $sheet       = $spreadsheet->getActiveSheet();
 
-        // ========================
-        // Logo di pojok kiri atas
-        // ========================
-        $logoPath = public_path('logo-smancir.png'); // ganti sesuai nama file di /public
+        /* =============================================================
+         * 3. Logo + Kop Surat
+         * ===========================================================*/
+        $logoPath = public_path('logo-smancir.png');            // JANGAN DIHILANGKAN
         if (file_exists($logoPath)) {
             $drawing = new Drawing();
-            $drawing->setName('Logo');
-            $drawing->setDescription('Logo Sekolah');
-            $drawing->setPath($logoPath);
-            $drawing->setHeight(100); // Ukuran logo agar sejajar vertikal
-            $drawing->setCoordinates('B2'); // Posisi horizontal (B2)
-            $drawing->setOffsetX(10);
-            $drawing->setWorksheet($sheet);
+            $drawing->setName('Logo')
+                    ->setDescription('Logo Sekolah')
+                    ->setPath($logoPath)
+                    ->setHeight(100)
+                    ->setCoordinates('B2')
+                    ->setOffsetX(10)
+                    ->setWorksheet($sheet);
 
-            // Atur tinggi baris-baris teks kop
+            // Tinggi baris kop
             for ($i = 2; $i <= 6; $i++) {
                 $sheet->getRowDimension($i)->setRowHeight(20);
             }
         }
 
-        // ========================
-        // Kop surat
-        // ========================
+        // Teks kop
         $sheet->mergeCells('C1:M1')->setCellValue('C1', 'PEMERINTAH PROVINSI BANTEN');
         $sheet->mergeCells('C2:M2')->setCellValue('C2', 'DINAS PENDIDIKAN DAN KEBUDAYAAN');
         $sheet->mergeCells('C3:M3')->setCellValue('C3', 'UPT SMA NEGERI 1 CIRUAS');
@@ -359,93 +363,78 @@ class InventoriController extends Controller
         $sheet->mergeCells('A7:M7')->setCellValue('A7', 'BUKU INVENTARIS/INDUK');
 
         $sheet->getStyle('C1:C5')->applyFromArray([
-            'font' => ['bold' => true, 'size' => 12],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+            'font'      => ['bold' => true, 'size' => 12],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
-
         $sheet->getStyle('A7')->applyFromArray([
-            'font' => ['bold' => true, 'size' => 11],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT]
+            'font'      => ['bold' => true, 'size' => 11],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
         ]);
-
-        // Garis pembatas antara kop surat dan tabel
         $sheet->getStyle('A5:M5')->applyFromArray([
             'borders' => [
                 'bottom' => [
-                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_MEDIUM,
-                    'color' => ['rgb' => '000000'],
+                    'borderStyle' => Border::BORDER_MEDIUM,
+                    'color'       => ['rgb' => '000000'],
                 ],
             ],
         ]);
 
-        // ========================
-        // Header tabel
-        // ========================
+        /* =============================================================
+         * 4. Header Tabel (kolom L & M = Jumlah Judul & Jumlah Eksemplar)
+         * ===========================================================*/
         $headers = [
-            'No',
-            'No Induk',
-            'No Inventori',
-            'Judul Buku',
-            'Pengarang',
-            'Penerbit',
-            'Kategori',
-            'Tanggal Pembelian',
-            'Harga Satuan',
-            'Jumlah Eksemplar',
-            'Jenis Sumber',
-            'No Panggil'
+            'No', 'No Induk', 'No Inventori', 'Judul Buku', 'Pengarang',
+            'Penerbit', 'Kategori', 'Tanggal Pembelian', 'Harga Satuan',
+            'Jenis Sumber', 'No Panggil',
+            'Jumlah Judul',          // L
+            'Jumlah Eksemplar'       // M
         ];
         $startRow = 9;
         $sheet->fromArray($headers, null, "A{$startRow}");
 
         $headerStyle = [
-            'font' => [
-                'bold' => true,
-                'name' => 'Calibri',
-                'size' => 11,
-            ],
+            'font' => ['bold' => true, 'name' => 'Calibri', 'size' => 11],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
-                'vertical' => Alignment::VERTICAL_CENTER,
-                'wrapText' => true,
+                'vertical'   => Alignment::VERTICAL_CENTER,
+                'wrapText'   => true,
             ],
             'fill' => [
-                'fillType' => Fill::FILL_SOLID,
+                'fillType'   => Fill::FILL_SOLID,
                 'startColor' => ['rgb' => 'BDD7EE'],
             ],
             'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                ],
+                'allBorders' => ['borderStyle' => Border::BORDER_THIN],
             ],
         ];
         $sheet->getStyle("A{$startRow}:M{$startRow}")->applyFromArray($headerStyle);
 
-        // ========================
-        // Isi data
-        // ========================
+        /* =============================================================
+         * 5. Isi Data
+         * ===========================================================*/
         $cellStyle = [
-            'font' => [
-                'name' => 'Calibri',
-                'size' => 11,
-            ],
+            'font' => ['name' => 'Calibri', 'size' => 11],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_LEFT,
-                'vertical' => Alignment::VERTICAL_CENTER,
-                'wrapText' => true,
+                'vertical'   => Alignment::VERTICAL_CENTER,
+                'wrapText'   => true,
             ],
             'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                ],
+                'allBorders' => ['borderStyle' => Border::BORDER_THIN],
             ],
         ];
 
-        $grouped = collect($data)->groupBy('id_inventori');
-        $row = $startRow + 1;
-        $no = 1;
+        $grouped        = collect($data)->groupBy('id_inventori');
+        $row            = $startRow + 1;
+        $no             = 1;
+        $totalJudul     = 0;
+        $totalEksemplar = 0;
+
         foreach ($grouped as $group) {
-            $jumlahBaris = $group->count();
+            $jumlahBaris = $group->count();      // eksemplar per judul
+            $totalJudul++;
+            $totalEksemplar += $jumlahBaris;
+
             foreach ($group as $item) {
                 $sheet->fromArray([
                     $no,
@@ -456,10 +445,11 @@ class InventoriController extends Controller
                     $item->nama_penerbit,
                     $item->nama_kategori,
                     $item->tanggal_pembelian,
-                    'Rp. ' . number_format($item->harga_satuan, 0, ',', '.'),
-                    '',
+                    'Rp. '.number_format($item->harga_satuan, 0, ',', '.'),
                     $item->jenis_sumber,
                     $item->no_panggil,
+                    '',   // L (Jumlah Judul)
+                    '',   // M (Jumlah Eksemplar)
                 ], null, "A{$row}");
 
                 $sheet->getStyle("A{$row}:M{$row}")->applyFromArray($cellStyle);
@@ -467,29 +457,57 @@ class InventoriController extends Controller
                 $no++;
             }
 
-            // Merge kolom Jumlah Eksemplar (kolom J)
+            /* ===== Merge & Isi kolom L & M ===== */
             $mergeStart = $row - $jumlahBaris;
-            $sheet->setCellValue("J{$mergeStart}", $jumlahBaris);
+
+            // L = Jumlah Judul (selalu 1)
+            $sheet->setCellValue("L{$mergeStart}", 1);
             if ($jumlahBaris > 1) {
-                $mergeRange = "J{$mergeStart}:J" . ($mergeStart + $jumlahBaris - 1);
-                $sheet->mergeCells($mergeRange);
-                $sheet->getStyle($mergeRange)->getAlignment()
-                    ->setHorizontal(Alignment::HORIZONTAL_CENTER)
-                    ->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->mergeCells("L{$mergeStart}:L".($mergeStart + $jumlahBaris - 1));
             }
+            $sheet->getStyle("L{$mergeStart}")->getAlignment()
+                  ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                  ->setVertical(Alignment::VERTICAL_CENTER);
+
+            // M = Jumlah Eksemplar
+            $sheet->setCellValue("M{$mergeStart}", $jumlahBaris);
+            if ($jumlahBaris > 1) {
+                $sheet->mergeCells("M{$mergeStart}:M".($mergeStart + $jumlahBaris - 1));
+            }
+            $sheet->getStyle("M{$mergeStart}")->getAlignment()
+                  ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                  ->setVertical(Alignment::VERTICAL_CENTER);
         }
 
-        // ========================
-        // Auto-size kolom
-        // ========================
+        /* =============================================================
+         * 6. Baris Total
+         * ===========================================================*/
+        $sheet->setCellValue("K{$row}", 'TOTAL');
+        $sheet->setCellValue("L{$row}", $totalJudul);
+        $sheet->setCellValue("M{$row}", $totalEksemplar);
+
+        $sheet->getStyle("K{$row}:M{$row}")->applyFromArray([
+            'font' => ['bold' => true],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical'   => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => ['borderStyle' => Border::BORDER_THIN],
+            ],
+        ]);
+
+        /* =============================================================
+         * 7. Auto‑size kolom
+         * ===========================================================*/
         foreach (range('A', 'M') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        // ========================
-        // Export
-        // ========================
-        $writer = new Xlsx($spreadsheet);
+        /* =============================================================
+         * 8. Export ke XLSX
+         * ===========================================================*/
+        $writer   = new Xlsx($spreadsheet);
         $filename = 'laporan-inventori-per-eksemplar.xlsx';
 
         ob_start();
@@ -497,8 +515,10 @@ class InventoriController extends Controller
         $excelOutput = ob_get_clean();
 
         return response($excelOutput, 200, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
 }
+
+

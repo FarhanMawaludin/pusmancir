@@ -61,7 +61,7 @@ class PenggunaController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'username' => ['required', 'string', 'max:255', 'unique:users'],
+            'username' => ['required', 'string', 'max:255', 'unique:users'], // Asumsi username = NISN untuk anggota
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', Rule::in(['admin', 'pustakawan', 'anggota'])],
         ], [
@@ -86,12 +86,17 @@ class PenggunaController extends Controller
 
             // Jika role-nya "anggota", simpan ke tabel anggota
             if ($validated['role'] === 'anggota') {
+
+                // Gunakan username sebagai NISN dan QR code (karena diasumsikan unik)
+                $nisn = $validated['username'];
+
                 Anggota::create([
                     'user_id' => $user->id,
                     'no_telp' => null,
                     'email' => null,
                     'kelas_id' => null,
-                    'nisn' => $validated['username'], // anggap field 'nisn' tersedia
+                    'nisn' => $nisn,
+                    'qr_code' => $nisn, // Simpan NISN sebagai QR code
                 ]);
             }
 
@@ -100,7 +105,7 @@ class PenggunaController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Gagal menyimpan pengguna.');
+                ->with('error', 'Gagal menyimpan pengguna. Pesan: ' . $e->getMessage());
         }
     }
 
@@ -190,22 +195,26 @@ class PenggunaController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
         $rows = $sheet->toArray();
 
+        $jumlahBerhasil = 0;
+        $jumlahDuplikat = 0;
+
         foreach (array_slice($rows, 1) as $row) {
             $name = $row[0] ?? null;
             $username = $row[1] ?? null;
             $password = $row[2] ?? null;
 
-            // Lewati jika ada data penting yang kosong
+            // Cek jika ada data penting yang kosong
             if (!$name || !$username || !$password) {
                 continue;
             }
 
-            // Lewati jika username sudah ada
+            // Cek apakah username sudah ada
             if (User::where('username', $username)->exists()) {
-                continue;
+                $jumlahDuplikat++;
+                continue; // Lewati jika duplikat
             }
 
-            // Buat user dengan role tetap = anggota
+            // Buat user baru
             $user = User::create([
                 'name' => $name,
                 'username' => $username,
@@ -213,7 +222,7 @@ class PenggunaController extends Controller
                 'role' => 'anggota',
             ]);
 
-            // Tambahkan ke tabel anggota
+            // Buat data anggota
             Anggota::create([
                 'user_id' => $user->id,
                 'nisn' => $username,
@@ -221,8 +230,11 @@ class PenggunaController extends Controller
                 'email' => null,
                 'kelas_id' => null,
             ]);
+
+            $jumlahBerhasil++;
         }
 
-        return redirect()->back()->with('success', 'Data anggota berhasil diimpor.');
+        // Kirim feedback ke user
+        return redirect()->back()->with('success', "Import selesai. Berhasil ditambahkan: $jumlahBerhasil, Duplikat dilewati: $jumlahDuplikat.");
     }
 }

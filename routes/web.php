@@ -216,6 +216,8 @@ Route::middleware(['auth', 'role:anggota'])->prefix('anggota')->name('anggota.')
     Route::get('/profil', [ProfilAnggotaController::class, 'index'])->name('profil.index');
     Route::get('/profil/{id}/edit', [ProfilAnggotaController::class, 'edit'])->name('profil.edit');
     Route::put('/profil/{id}', [ProfilAnggotaController::class, 'update'])->name('profil.update');
+    Route::get('/anggota/kartu', [ProfilAnggotaController::class, 'showKartu'])->name('profil.kartu');
+
 
     //Katalog
     Route::get('/katalog', [KatalogAnggotaController::class, 'index'])->name('katalog.index');

@@ -20,6 +20,10 @@
             </thead>
             <tbody>
                 @forelse ($peminjaman as $key => $peminjamanItem)
+                    @php
+                        $pinjam = $peminjamanItem->peminjaman; // relasi Peminjaman
+                        $status = $pinjam->status; // menunggu | berhasil | tolak
+                    @endphp
                     <tr class="bg-white border-b border-gray-200">
                         <td class="px-6 py-4">{{ $peminjaman->firstItem() + $key }}</td>
                         <td class="px-6 py-4">
@@ -33,7 +37,15 @@
                         <td class="px-6 py-4">{{ $peminjamanItem->eksemplar->inventori->judul_buku ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $peminjamanItem->peminjaman->tanggal_pinjam ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $peminjamanItem->peminjaman->tanggal_kembali ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $peminjamanItem->peminjaman->status }}</td>
+                        <td class="px-6 py-4">
+                            <span
+                                class="px-3 py-1 text-sm rounded-full
+                                @if ($status === 'berhasil') bg-green-600 text-white
+                                @elseif ($status === 'tolak') bg-red-600 text-white
+                                @else bg-orange-600 text-white @endif">
+                                {{ ucfirst($status) }}
+                            </span>
+                        </td>
                     </tr>
                 @empty
                     <tr>

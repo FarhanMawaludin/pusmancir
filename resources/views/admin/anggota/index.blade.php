@@ -14,7 +14,7 @@
                 <!-- Tombol Dropdown -->
                 <button id="dropdown-button" type="button"
                     class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-text bg-gray-100 border border-gray-300 rounded-l hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600">
-                    {{ $category === 'all' ? 'Semua Kategori' : ucfirst(str_replace('_', ' ', $category)) }}
+                    {{ $category === 'all' ? 'Pilih Kategori' : ucfirst(str_replace('_', ' ', $category)) }}
                     <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                         viewBox="0 0 10 6">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -29,7 +29,7 @@
                         <li>
                             <button type="button" data-value="all"
                                 class="category-btn w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                                Semua Kategori
+                                Pilih Kategori
                             </button>
                         </li>
                         <li>
