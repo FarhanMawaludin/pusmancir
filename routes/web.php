@@ -23,6 +23,7 @@ use App\Http\Controllers\PengembalianController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ProfilAnggotaController;
 use App\Http\Controllers\KatalogAnggotaController;
+use App\Http\Controllers\PaketBukuController;
 use App\Http\Controllers\PeminjamanAnggotaController;
 use Illuminate\Support\Facades\Http;
 
@@ -136,28 +137,34 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     Route::get('/katalog', [KatalogController::class, 'index'])->name('katalog.index');
     Route::get('/katalog/create', [KatalogController::class, 'create'])->name('katalog.create');
     Route::post('/katalog', [KatalogController::class, 'store'])->name('katalog.store');
-    Route::get('/katalog/{id}', [KatalogController::class, 'show'])->name('katalog.show');
     Route::get('/katalog/{id}/edit', [KatalogController::class, 'edit'])->name('katalog.edit');
     Route::put('/katalog/{id}', [KatalogController::class, 'update'])->name('katalog.update');
     Route::delete('/katalog/{id}', [KatalogController::class, 'destroy'])->name('katalog.destroy');
     Route::post('/generate-ringkasan', [KatalogController::class, 'generateRingkasan'])->name('katalog.generate-ringkasan');
     Route::get('/katalog/fetch-cover/{isbn}', [KatalogController::class, 'fetchCoverByIsbn'])->name('katalog.fetch-cover');
 
+    
+    //Katalog-Paket Buku
+    Route::get('/paket-buku', [PaketBukuController::class, 'index'])->name('paket.index');
+    Route::get('/paket-buku/create', [PaketBukuController::class, 'create'])->name('paket.create');
+    Route::post('/paket-buku', [PaketBukuController::class, 'store'])->name('paket.store');
+    Route::get('/paket-buku/{id}/edit', [PaketBukuController::class, 'edit'])->name('paket.edit');
+    Route::put('/paket-buku/{id}', [PaketBukuController::class, 'update'])->name('paket.update');
+    Route::delete('/paket-buku/{id}', [PaketBukuController::class, 'destroy'])->name('paket.destroy');
+
 
 
 
     //Eksemplar
     Route::get('/eksemplar', [EksemplarController::class, 'index'])->name('eksemplar.index');
-    // Route::get('/eksemplar/create', [EksemplarController::class, 'create'])->name('eksemplar.create');
-    // Route::post('/eksemplar', [EksemplarController::class, 'store'])->name('eksemplar.store');
-    // Route::get('/eksemplar/{id}', [EksemplarController::class, 'show'])->name('eksemplar.show');
     Route::get('/eksemplar/{id}/edit', [EksemplarController::class, 'edit'])->name('eksemplar.edit');
     Route::put('/eksemplar/{id}', [EksemplarController::class, 'update'])->name('eksemplar.update');
-    // Route::delete('/eksemplar/{id}', [EksemplarController::class, 'destroy'])->name('eksemplar.destroy');
     Route::get('/admin/eksemplar/{id}/cetak-barcode', [EksemplarController::class, 'cetakBarcode'])
         ->name('eksemplar.cetakBarcode');
     Route::post('/eksemplar/cetak-batch', [EksemplarController::class, 'cetakBatch'])->name('eksemplar.cetak-batch');
-    // Route::get('/admin/eksemplar/export', [EksemplarController::class, 'export'])->name('eksemplar.export');
+    
+    //Eksemplar Status Buku
+    Route::get('/eksemplar/buku', [EksemplarController::class, 'indexBuku'])->name('eksemplar.buku');
 
     //Peminjaman
     Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');

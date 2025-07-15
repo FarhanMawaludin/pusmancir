@@ -108,5 +108,55 @@ class EksemplarController extends Controller
             ->with('success', 'Status eksemplar berhasil diperbarui.');
     }
 
-    
+    public function indexBuku(Request $request)
+    {
+        /* ---------- Parameter URL ---------- */
+        $activeMenu = 'statusbuku';
+        $search     = $request->input('search');
+        $status     = $request->input('status', 'all');   // dropdown
+
+        /* ---------- Query dasar (tanpa status) ---------- */
+        $baseQuery = Eksemplar::with('inventori')
+            ->orderByDesc('no_induk')
+            ->orderByDesc('created_at');
+
+        // terapkan pencarian judul / pengarang / no_induk
+        if ($search) {
+            $baseQuery->where(function ($q) use ($search) {
+                $q->whereHas('inventori', function ($sub) use ($search) {
+                    $sub->where('judul_buku', 'like', "%{$search}%")
+                        ->orWhere('pengarang',  'like', "%{$search}%");
+                })
+                    ->orWhere('no_induk', 'like', "%{$search}%");
+            });
+        }
+
+        /* ---------- Hitung per‑status (masih pakai filter search) ---------- */
+        $tersediaCount = (clone $baseQuery)->where('status', 'tersedia')->count();
+        $dipinjamCount = (clone $baseQuery)->where('status', 'dipinjam')->count();
+        $rusakCount    = (clone $baseQuery)->where('status', 'rusak')->count();
+        $hilangCount   = (clone $baseQuery)->where('status', 'hilang')->count();
+
+        /* ---------- Daftar eksemplar untuk tabel ---------- */
+        $listQuery = clone $baseQuery;              // kloning lagi untuk listing
+        if ($status !== 'all') {
+            $listQuery->where('status', $status);
+        }
+        $eksemplar = $listQuery->paginate(10)->appends([
+            'search' => $search,
+            'status' => $status,
+        ]);
+
+        /* ---------- Kirim ke view ---------- */
+        return view('admin.eksemplar.buku', [
+            'eksemplar'      => $eksemplar,
+            'activeMenu'     => $activeMenu,
+            'search'         => $search,
+            'status'         => $status,
+            'tersediaCount'  => $tersediaCount,
+            'dipinjamCount'  => $dipinjamCount,
+            'rusakCount'     => $rusakCount,
+            'hilangCount'    => $hilangCount,
+        ]);
+    }
 }
