@@ -26,7 +26,8 @@
                 <div class="sm:col-span-3">
                     <label for="nisn" class="block text-sm font-medium text-text">NISN</label>
                     <div class="mt-2">
-                        <input type="text" name="nisn" id="nisn" value="{{ old('nisn', $user->anggota->nisn ?? '') }}"
+                        <input type="text" name="nisn" id="nisn"
+                            value="{{ old('nisn', $user->anggota->nisn ?? '') }}"
                             class="block w-full rounded-md bg-gray-100 px-3 py-1.5 text-base text-gray-500 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none sm:text-sm">
                         @error('nisn')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -49,11 +50,13 @@
 
                 {{-- No Telepon --}}
                 <div class="sm:col-span-3">
-                    <label for="no_telp" class="block text-sm font-medium text-text">No Telepon</label>
+                    <label for="no_telp" class="block text-sm font-medium text-text">No Telepon (WhatsApp)</label>
                     <div class="mt-2">
                         <input type="text" name="no_telp" id="no_telp"
                             value="{{ old('no_telp', $user->anggota->no_telp ?? '') }}"
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 sm:text-sm">
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 sm:text-sm"
+                            oninput="formatNoTelp(this)">
+
                         @error('no_telp')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -103,7 +106,8 @@
 
                 {{-- Password Confirmation --}}
                 <div class="col-span-full sm:col-span-6">
-                    <label for="password_confirmation" class="block text-sm font-medium text-text">Konfirmasi Kata Sandi</label>
+                    <label for="password_confirmation" class="block text-sm font-medium text-text">Konfirmasi Kata
+                        Sandi</label>
                     <div class="mt-2">
                         <input type="password" name="password_confirmation" id="password_confirmation"
                             class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 sm:text-sm">
@@ -127,4 +131,13 @@
             </div>
         </div>
     </form>
+
+    <script>
+        function formatNoTelp(input) {
+            let val = input.value.trim();
+            if (val.startsWith('0')) {
+                input.value = val.replace(/^0/, '+62');
+            }
+        }
+    </script>
 @endsection

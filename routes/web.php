@@ -25,6 +25,11 @@ use App\Http\Controllers\ProfilAnggotaController;
 use App\Http\Controllers\KatalogAnggotaController;
 use App\Http\Controllers\PaketBukuController;
 use App\Http\Controllers\PeminjamanAnggotaController;
+use App\Http\Controllers\PeminjamanPaketController;
+use App\Http\Controllers\PengembalianPaketController;
+use App\Http\Controllers\KatalogPaketAnggotaController;
+use App\Http\Controllers\PeminjamanPaketAnggotaController;
+
 use Illuminate\Support\Facades\Http;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
@@ -73,6 +78,9 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
 
     //Daftar Anggota
     Route::get('/anggota', [AnggotaController::class, 'index'])->name('anggota.index');
+    Route::get('/anggota/alumni', [AnggotaController::class, 'indexAlumni'])->name('anggota.indexAlumni');
+    Route::post('/anggota/set-alumni', [AnggotaController::class, 'setAlumni'])->name('anggota.setAlumni');
+    Route::post('/anggota/set-aktif', [AnggotaController::class, 'setAktif'])->name('anggota.setAktif');
 
     //Data Master Inventori
     //Jenis Media
@@ -143,7 +151,7 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     Route::post('/generate-ringkasan', [KatalogController::class, 'generateRingkasan'])->name('katalog.generate-ringkasan');
     Route::get('/katalog/fetch-cover/{isbn}', [KatalogController::class, 'fetchCoverByIsbn'])->name('katalog.fetch-cover');
 
-    
+
     //Katalog-Paket Buku
     Route::get('/paket-buku', [PaketBukuController::class, 'index'])->name('paket.index');
     Route::get('/paket-buku/create', [PaketBukuController::class, 'create'])->name('paket.create');
@@ -162,20 +170,36 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     Route::get('/admin/eksemplar/{id}/cetak-barcode', [EksemplarController::class, 'cetakBarcode'])
         ->name('eksemplar.cetakBarcode');
     Route::post('/eksemplar/cetak-batch', [EksemplarController::class, 'cetakBatch'])->name('eksemplar.cetak-batch');
-    
     //Eksemplar Status Buku
     Route::get('/eksemplar/buku', [EksemplarController::class, 'indexBuku'])->name('eksemplar.buku');
 
-    //Peminjaman
+
+    //Peminjaman Non Paket
     Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
     Route::post('/peminjaman/store', [PeminjamanController::class, 'store'])->name('peminjaman.store');
     Route::patch('/peminjaman/{id}/status', [PeminjamanController::class, 'updateStatus'])
         ->name('peminjaman.updateStatus');
 
-
-    //Pengembalian
+    //Pengembalian Non Paket
     Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('pengembalian.index');
     Route::put('/pengembalian/update/{id}', [PengembalianController::class, 'update'])->name('pengembalian.update');
+    Route::get('/pengembalian/{id}/export-surat-terlambat', [PengembalianController::class, 'exportSuratTerlambat'])
+        ->name('pengembalian.export-surat-terlambat');
+    Route::post('/pengembalian/{id}/kirim-wa', [PengembalianController::class, 'kirimWhatsapp'])
+        ->name('pengembalian.kirim_wa');
+
+
+
+
+    //Peminjaman Paket
+    Route::get('/peminjaman-paket', [PeminjamanPaketController::class, 'index'])->name('peminjaman-paket.index');
+    Route::patch('/peminjaman-paket/{id}/status', [PeminjamanPaketController::class, 'updateStatus'])
+        ->name('peminjaman-paket.updateStatus');
+
+
+    //Pengembalian Paket
+    Route::get('/pengembalian-paket', [PengembalianPaketController::class, 'index'])->name('pengembalian-paket.index');
+    Route::put('/pengembalian-paket/update/{id}', [PengembalianPaketController::class, 'update'])->name('pengembalian-paket.update');
 });
 
 // Cek anggota berdasarkan NISN
@@ -230,10 +254,17 @@ Route::middleware(['auth', 'role:anggota'])->prefix('anggota')->name('anggota.')
     Route::get('/katalog', [KatalogAnggotaController::class, 'index'])->name('katalog.index');
     Route::get('/katalog/{id}', [KatalogAnggotaController::class, 'show'])->name('katalog.show');
 
+    //katalog-paket
+    Route::get('/katalog-paket', [KatalogPaketAnggotaController::class, 'index'])->name('katalog-paket.index');
+    Route::get('/katalog-paket/{id}', [KatalogPaketAnggotaController::class, 'show'])->name('katalog-paket.show');
+
     //Peminjaman
     Route::get('/peminjaman', [PeminjamanAnggotaController::class, 'index'])->name('peminjaman.index');
     Route::post('/peminjaman/store', [PeminjamanAnggotaController::class, 'store'])->name('peminjaman.store');
 
+    //peminjaman-paket
+    Route::get('/peminjaman-paket', [PeminjamanPaketAnggotaController::class, 'index'])->name('peminjaman-paket.index');
+    Route::post('/peminjaman-paket/store', [PeminjamanPaketAnggotaController::class, 'store'])->name('peminjaman-paket.store');
 });
 
 

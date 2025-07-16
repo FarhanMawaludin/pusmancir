@@ -72,17 +72,17 @@
         </form>
     </div>
 
-    <form id="form-alumni" action="{{ route('admin.anggota.setAlumni') }}" method="POST" class="mb-4">
+    <form id="form-aktif" action="{{ route('admin.anggota.setAktif') }}" method="POST" class="mb-4">
         @csrf
         <input type="hidden" name="anggota_ids_selected" id="anggota_ids_selected">
 
-        <button type="button" id="btn-alumni"
+        <button type="button" id="btn-aktif"
             class="inline-flex items-center bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-800 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
-            Jadikan Alumni
+            Jadikan Aktif
         </button>
 
         <div class="overflow-x-auto relative rounded border border-gray-200 mt-2">
@@ -167,7 +167,7 @@
     </form>
 
     <script>
-        document.getElementById('btn-alumni').addEventListener('click', function() {
+        document.getElementById('btn-aktif').addEventListener('click', function() {
             const selected = Array.from(document.querySelectorAll('.anggota-checkbox:checked'));
 
             if (selected.length === 0) {
@@ -180,17 +180,17 @@
             }
 
             Swal.fire({
-                title: 'Yakin ingin menjadikan anggota terpilih sebagai alumni?',
+                title: 'Yakin ingin menjadikan anggota terpilih sebagai anggota aktif?',
                 text: 'Aksi ini tidak bisa dibatalkan!',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Ya, Jadikan Alumni',
+                confirmButtonText: 'Ya, Jadikan Aktif',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    document.getElementById('form-alumni').submit();
+                    document.getElementById('form-aktif').submit();
                 }
             });
         });

@@ -18,6 +18,7 @@ class Anggota extends Model
         'nisn',
         'user_id',
         'kelas_id',
+        'status',
         'qr_code'
     ];
 

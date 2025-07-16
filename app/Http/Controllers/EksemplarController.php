@@ -60,7 +60,7 @@ class EksemplarController extends Controller
 
         // Jika user memilih via checkbox
         if (!empty($ids)) {
-            $eksemplarList = Eksemplar::with('inventori')
+            $eksemplarList = Eksemplar::with('inventori.katalog')
                 ->whereIn('id', $ids)
                 ->orderBy('no_induk', 'desc') // urutkan tetap agar konsisten
                 ->get();

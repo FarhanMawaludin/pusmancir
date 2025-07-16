@@ -12,4 +12,9 @@ class PaketBuku extends Model
     protected $primaryKey = 'id';
     protected $fillable = ['nama_paket', 'deskripsi', 'stok_total', 'stok_tersedia'];
 
+    public function detailPeminjamanPaket()
+    {
+        return $this->hasMany(DetailPeminjamanPaket::class);
+    }
+
 }

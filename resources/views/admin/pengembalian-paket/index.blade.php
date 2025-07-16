@@ -6,7 +6,7 @@
         <section class="mb-2">
             <h1 class="text-2xl font-bold text-text mb-8">Data pengembalian</h1>
             <!-- Form Pencarian -->
-            <form method="GET" action="{{ route('admin.pengembalian.index') }}" class="mb-4 flex items-center gap-2">
+            <form method="GET" action="{{ route('admin.pengembalian-paket.index') }}" class="mb-4 flex items-center gap-2">
                 <input type="text" name="search" value="{{ request('search') }}"
                     class="block w-full rounded-md bg-white px-2 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     placeholder="Cari NISN anggota...">
@@ -14,7 +14,7 @@
                     Cari
                 </button>
                 @if (request('search'))
-                    <a href="{{ route('admin.pengembalian.index') }}"
+                    <a href="{{ route('admin.pengembalian-paket.index') }}"
                         class="text-sm text-gray-600 underline hover:text-blue-600 ml-2">Reset</a>
                 @endif
             </form>
@@ -27,9 +27,8 @@
                 <tr>
                     <th scope="col" class="px-6 py-3 w-43 md:w-12">No</th>
                     <th scope="col" class="px-6 py-3">Nama peminjam</th>
+                    <th scope="col" class="px-6 py-3">NISN</th>
                     <th scope="col" class="px-6 py-3">Judul Buku</th>
-                    <th scope="col" class="px-6 py-3">Tanggal Pinjam</th>
-                    <th scope="col" class="px-6 py-3">Tanggal Kembali</th>
                     <th scope="col" class="px-6 py-3">Status</th>
                     <th scope="col" class="px-6 py-3">Aksi</th>
                 </tr>
@@ -37,118 +36,68 @@
             <tbody>
                 @forelse ($pengembalian as $key => $pengembalianItem)
                     @php
-                        $peminjaman = $pengembalianItem->peminjaman;
-                        $status = $peminjaman->status; // 'berhasil' atau 'selesai'
-                        $isDipinjam = $status === 'berhasil';
-                        $isSelesai = $status === 'selesai';
-                        $isTerlambat = $isDipinjam && now()->gt($peminjaman->tanggal_kembali);
-
-                        $badgeText = $isTerlambat ? 'Terlambat' : ($isDipinjam ? 'Dipinjam' : 'Selesai');
-                        $badgeClass = $isTerlambat
-                            ? 'text-white border-red-600 bg-red-600 font-semibold'
-                            : ($isDipinjam
-                                ? 'text-white border-orange-600 bg-orange-600 font-semibold'
-                                : 'text-gray-600 border-gray-300 bg-gray-100');
+                        $status = $pengembalianItem->peminjamanPaket->status; // 'berhasil' | 'selesai'
                     @endphp
-
                     <tr class="bg-white border-b border-gray-200">
                         <td class="px-6 py-4">{{ $pengembalian->firstItem() + $key }}</td>
-
                         <td class="px-6 py-4">
                             <div class="min-w-0">
                                 <div class="font-medium md:text-base break-words truncate md:whitespace-normal">
-                                    {{ $peminjaman->anggota->user->name }}
+                                    {{ $pengembalianItem->peminjamanPaket->anggota->user->name }}
                                 </div>
                             </div>
                         </td>
 
                         <td class="px-6 py-4">
-                            {{ $pengembalianItem->eksemplar->inventori->judul_buku }}
+                            {{ $pengembalianItem->peminjamanPaket->anggota->nisn ?? '-' }}
                         </td>
 
+                        {{-- Judul Paket Buku --}}
                         <td class="px-6 py-4">
-                            {{ \Carbon\Carbon::parse($peminjaman->tanggal_pinjam)->format('d-m-Y') }}
+                            {{ $pengembalianItem->paketBuku->nama_paket ?? '-' }}
                         </td>
 
-                        <td class="px-6 py-4">
-                            {{ \Carbon\Carbon::parse($peminjaman->tanggal_kembali)->format('d-m-Y') }}
-                        </td>
 
-                        {{-- BADGE STATUS --}}
                         <td class="px-6 py-4">
-                            <span class="px-3 py-1 text-sm rounded-full border {{ $badgeClass }}">
-                                {{ $badgeText }}
+                            <span
+                                class="px-3 py-1 text-sm rounded-full
+                                  @if ($status === 'berhasil') bg-orange-600 text-white
+                                  @else bg-gray-100 text-gray-600 @endif">
+                                {{ $status === 'berhasil' ? 'Dipinjam' : 'Selesai' }}
                             </span>
                         </td>
 
-                        {{-- TOMBOL / BADGE AKSI --}}
                         <td class="px-6 py-4">
-                            <div class="flex flex-col items-left justify-center space-y-2">
-                                @if ($isDipinjam)
-                                    {{-- Tombol Terima --}}
-                                    <form id="terima-form-{{ $pengembalianItem->id }}"
-                                        action="{{ route('admin.pengembalian.update', $pengembalianItem->id) }}"
-                                        method="POST" onsubmit="return confirm('Terima pengembalian ini?');">
-                                        @csrf
-                                        @method('PUT')
-                                        <button type="submit"
-                                            class="w-32 flex items-center justify-center bg-blue-700 text-white px-3 py-2 rounded hover:bg-green-700 transition text-sm">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M11 5H6a2 2 0 00-2 2v11.5A1.5 1.5 0 005.5 20H17a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                            </svg>
-                                            Terima
-                                        </button>
-                                    </form>
-
-                                    @if ($isTerlambat)
-                                        {{-- Tombol Export PDF --}}
-                                        <a href="{{ route('admin.pengembalian.export-surat-terlambat', $pengembalianItem->id) }}"
-                                            target="_blank"
-                                            class="w-32 flex items-center justify-center bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 transition text-sm">
-                                            <svg class="w-5 h-5 text-white mr-2" aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                fill="none" viewBox="0 0 24 24">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="M5 17v-5h1.5a1.5 1.5 0 1 1 0 3H5m12 2v-5h2m-2 3h2M5 10V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1v6M5 19v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1M10 3v4a1 1 0 0 1-1 1H5m6 4v5h1.375A1.627 1.627 0 0 0 14 15.375v-1.75A1.627 1.627 0 0 0 12.375 12H11Z" />
-                                            </svg>
-
-                                            Export PDF
-                                        </a>
-
-                                        {{-- Tombol Kirim WA --}}
-                                        <form action="{{ route('admin.pengembalian.kirim_wa', $pengembalianItem->id) }}"
-                                            method="POST" target="_blank">
-                                            @csrf
-                                            <button type="submit"
-                                                class="w-32 flex items-center justify-center bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700 transition text-sm">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2"
-                                                    fill="currentColor" viewBox="0 0 24 24">
-                                                    <path
-                                                        d="M16.988 13.838c-.253-.127-1.494-.738-1.726-.823-.232-.084-.401-.127-.569.127-.168.253-.653.823-.801.992-.147.168-.295.19-.548.063-.253-.127-1.068-.393-2.034-1.252-.751-.669-1.257-1.496-1.404-1.748-.147-.253-.016-.39.111-.516.114-.113.253-.295.379-.442.127-.147.168-.253.253-.422.084-.168.042-.316-.021-.442-.063-.127-.569-1.369-.779-1.882-.205-.492-.413-.425-.569-.433l-.484-.009c-.168 0-.442.063-.674.316-.232.253-.883.863-.883 2.103 0 1.24.905 2.438 1.032 2.607.127.168 1.783 2.722 4.326 3.818.605.26 1.077.415 1.444.532.607.193 1.16.165 1.596.1.487-.073 1.494-.61 1.707-1.2.21-.584.21-1.084.147-1.2-.063-.116-.232-.184-.484-.31m-4.988 6.162c-1.654 0-3.214-.48-4.539-1.361l-3.162.99.99-3.075c-.905-1.27-1.438-2.787-1.438-4.416 0-4.278 3.486-7.75 7.75-7.75 2.074 0 4.02.81 5.487 2.276a7.706 7.706 0 012.263 5.474c-.002 4.277-3.487 7.762-7.751 7.762z" />
-                                                </svg>
-                                                Kirim WA
-                                            </button>
-                                        </form>
-                                    @endif
-                                @elseif ($isSelesai)
-                                    <span class="italic text-gray-500 text-left">Selesai diperiksa</span>
-                                @endif
-                            </div>
+                            @if ($status === 'berhasil')
+                                <form id="terima-form-{{ $pengembalianItem->id }}"
+                                    action="{{ route('admin.pengembalian-paket.update', $pengembalianItem->id) }}"
+                                    method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="button"
+                                        class="btn-terima inline-flex items-center bg-green-500 text-white px-3 py-2 rounded hover:bg-green-700 transition"
+                                        data-id="{{ $pengembalianItem->id }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:mr-1" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11.5A1.5 1.5 0 005.5 20H17a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                        </svg>
+                                        <span class="hidden md:inline">Terima</span>
+                                    </button>
+                                </form>
+                            @else
+                                <span class="italic text-gray-500">Selesai diperiksa</span>
+                            @endif
                         </td>
-
                     </tr>
                 @empty
                     <tr>
                         <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                            Tidak ada data pengembalian ditemukan.
+                            Tidak ada pengguna ditemukan.
                         </td>
                     </tr>
                 @endforelse
             </tbody>
-
         </table>
 
         <!-- Pagination -->
@@ -163,7 +112,7 @@
                 const itemId = this.getAttribute('data-id');
 
                 Swal.fire({
-                    title: 'Konfirmasi Pengembalian',
+                    title: 'Konfirmasi PengembalianItem',
                     text: 'Apakah Anda yakin ingin mengubah status menjadi tersedia?',
                     icon: 'question',
                     showCancelButton: true,

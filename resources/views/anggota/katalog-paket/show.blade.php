@@ -6,11 +6,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
             <!-- KIRI: Gambar dan info buku -->
             @php
-                $available = $buku->inventori?->eksemplar->where('status', '!=', 'dipinjam')->count();
+                $available = (int) ($buku->stok_tersedia ?? 0);
+                $isAvailable = $available > 0;
 
-                $status = $available > 0 ? 'Tersedia' : 'dipinjam';
-                $statusColor = $available > 0 ? 'text-green-600' : 'text-red-600';
-                $style = $status === 'Tersedia' ? 'text-green-700 ' : 'text-red-700 ';
+                $status = $isAvailable ? 'Tersedia' : 'Tidak Tersedia';
+                $statusStyle = $isAvailable ? 'text-green-600' : 'text-red-600';
             @endphp
             <div>
                 <!-- Gambar -->
@@ -37,7 +37,7 @@
                     </div>
                     <div>
                         <p class="text-gray-400">status</p>
-                        <p class="font-semibold {{ $style }}">{{ $status }}</p>
+                        <p class="font-semibold {{ $statusStyle }}">{{ $status }}</p>
                     </div>
                     <div>
                         <p class="text-gray-400">ISBN</p>
@@ -60,42 +60,26 @@
                     <button class="pb-2 border-b-2 border-blue-600 text-blue-600">Sinopsis</button>
                 </div>
 
-                <!-- Konten Tab Aktif -->
-                @php
-                    use Carbon\Carbon;
-                    // cari satu eksemplar yang belum dipinjam
-                    $eksemplarRFID = optional($buku->inventori?->eksemplar->firstWhere('status', '!=', 'dipinjam'))
-                        ->no_rfid;
-
-                    $today = Carbon::today()->format('Y-m-d');
-                    $returnDate = Carbon::today()->addDays(7)->format('Y-m-d');
-                @endphp
 
                 <div class="flex-1">
                     <p class="text-sm text-gray-700 leading-relaxed text-justify mb-8">
-                        {{ $buku->ringkasan_buku }}
+                        {{ $buku->deskripsi_buku }}
                     </p>
 
-                    {{-- Form Pinjam --}}
-                    @if ($eksemplarRFID)
-                        <form id="pinjamForm" action="{{ route('anggota.peminjaman.store') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="anggota_id" value="{{ auth()->user()->anggota->nisn }}">
-                            <input type="hidden" name="eksemplar_id" value="{{ $eksemplarRFID }}">
-                            <input type="hidden" name="tanggal_pinjam" value="{{ $today }}">
-                            <input type="hidden" name="tanggal_kembali" value="{{ $returnDate }}">
-
-                            <button type="button" id="pinjamBtn"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md font-semibold text-sm transition">
-                                Pinjam Buku
-                            </button>
-                        </form>
-                    @else
-                        <button disabled
-                            class="w-full !bg-gray-600 text-white py-3 rounded-md font-semibold text-sm cursor-not-allowed">
-                            Tidak Tersedia
+                    <form id="pinjamForm" action="{{ route('anggota.peminjaman-paket.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="paket_id" value="{{ $buku->id }}">
+                        <button type="button" id="pinjamBtn"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md font-semibold text-sm transition">
+                            Pinjam Buku
                         </button>
-                    @endif
+                    </form>
+
+                    <button disabled
+                        class="w-full bg-gray-400 text-white py-3 rounded-md font-semibold text-sm cursor-not-allowed">
+                        Tidak Tersedia
+                    </button>
+
                 </div>
 
             </div>

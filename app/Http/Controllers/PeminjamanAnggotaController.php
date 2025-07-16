@@ -81,16 +81,16 @@ class PeminjamanAnggotaController extends Controller
     public function store(Request $request)
     {
         /* ─────────────────────────────────────────────
-       1.  Jika user login ber‑role “anggota”, 
-           pakai NISN miliknya → agar tidak bisa dimanipulasi
+       1. Jika user login ber-role “anggota”, 
+          pakai NISN miliknya → agar tidak bisa dimanipulasi
     ───────────────────────────────────────────── */
         if (Auth::user()->role === 'anggota') {
-            $anggotaNisn = Auth::user()->anggota->nisn ?? null;   // relasi hasOne User→Anggota
+            $anggotaNisn = Auth::user()->anggota->nisn ?? null; // relasi hasOne User→Anggota
             $request->merge(['anggota_id' => $anggotaNisn]);
         }
 
         /* ─────────────────────────────────────────────
-       2.  Validasi request
+       2. Validasi request
     ───────────────────────────────────────────── */
         $validated = $request->validate([
             'anggota_id'      => 'required|exists:anggota,nisn',
@@ -100,14 +100,20 @@ class PeminjamanAnggotaController extends Controller
         ]);
 
         /* ─────────────────────────────────────────────
-       3.  Lookup Anggota & Eksemplar + validasi logika
+       3. Lookup Anggota & Eksemplar
     ───────────────────────────────────────────── */
         $anggota   = Anggota::where('nisn', $validated['anggota_id'])->first();
         $eksemplar = Eksemplar::where('no_rfid', trim($validated['eksemplar_id']))->first();
 
+        // Validasi keberadaan dan status
         if (!$anggota || !$eksemplar) {
             return back()->withInput()
                 ->with('error', 'Anggota atau Eksemplar tidak ditemukan.');
+        }
+
+        if ($anggota->status !== 'aktif') {
+            return back()->withInput()
+                ->with('error', 'Anggota tidak aktif dan tidak dapat melakukan peminjaman.');
         }
 
         if ($eksemplar->status === 'dipinjam') {
@@ -116,20 +122,17 @@ class PeminjamanAnggotaController extends Controller
         }
 
         /* ─────────────────────────────────────────────
-       4.  Tentukan status awal & user_id petugas
-           - admin/pustakawan → status=berhasil, user_id=ID petugas
-           - anggota          → status=menunggu, user_id=null
+       4. Tentukan status & user_id
     ───────────────────────────────────────────── */
         $role          = Auth::user()->role;
         $status        = in_array($role, ['admin', 'pustakawan']) ? 'berhasil' : 'menunggu';
         $userIdPetugas = in_array($role, ['admin', 'pustakawan']) ? Auth::id() : null;
 
         /* ─────────────────────────────────────────────
-       5.  Transaksi Database
+       5. Transaksi Database
     ───────────────────────────────────────────── */
         DB::beginTransaction();
         try {
-            // Insert peminjaman
             $peminjaman = Peminjaman::create([
                 'anggota_id'      => $anggota->id,
                 'user_id'         => $userIdPetugas,
@@ -138,22 +141,20 @@ class PeminjamanAnggotaController extends Controller
                 'status'          => $status,
             ]);
 
-            // Insert detail peminjaman
             DetailPeminjaman::create([
                 'peminjaman_id' => $peminjaman->id,
                 'eksemplar_id'  => $eksemplar->id,
             ]);
 
-            // Jika langsung “berhasil” → tandai eksemplar dipinjam
             if ($status === 'berhasil') {
                 $eksemplar->update(['status' => 'dipinjam']);
             }
 
             DB::commit();
 
-            /* ─────────────────────────────────────────
-           6.  Redirect sesuai role + flash message
-        ───────────────────────────────────────── */
+            /* ─────────────────────────────────────────────
+           6. Redirect + flash message
+        ───────────────────────────────────────────── */
             $redirectRoute = $role === 'anggota'
                 ? 'anggota.peminjaman.index'
                 : 'admin.peminjaman.index';

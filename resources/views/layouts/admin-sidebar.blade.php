@@ -51,7 +51,42 @@
                 </li>
             @endif
 
-            <li>
+            <li class="mb-4">
+                <button type="button"
+                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'anggota' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}"
+                    aria-controls="dropdown-example" data-collapse-toggle="dropdown-example-anggota">
+                    <svg class="w-5 h-5 {{ $activeMenu == 'anggota' ? 'text-white' : 'text-gray-400 ' }}"
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linejoin="round" stroke-width="2"
+                            d="M10 12v1h4v-1m4 7H6a1 1 0 0 1-1-1V9h14v9a1 1 0 0 1-1 1ZM4 5h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
+                    </svg>
+
+
+                    <span
+                        class="flex-1 ms-3  text-left {{ $activeMenu == 'anggota' ? 'text-white' : 'text-gray-400' }}
+                        rtl:text-right whitespace-nowrap">Daftar Anggota</span>
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 10 6">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m1 1 4 4 4-4" />
+                    </svg>
+                </button>
+                <ul id="dropdown-example-anggota" class="hidden py-2 space-y-2">
+                    <li>
+                        <a href="{{ route('admin.anggota.index') }}"
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
+                            Aktif</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.anggota.indexAlumni') }}"
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
+                            Alumni</a>
+                    </li>
+                </ul>
+            </li>
+
+            {{-- <li>
                 <a href="{{ route('admin.anggota.index') }}"
                     class="flex items-center p-2 rounded group {{ $activeMenu == 'anggota' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
                     <svg class="w- h-5 {{ $activeMenu == 'anggota' ? 'text-white' : 'text-base300 ' }}"
@@ -64,7 +99,7 @@
                     <span class="ml-3 {{ $activeMenu == 'anggota' ? 'text-white' : 'text-base300' }}">Daftar
                         Pengguna</span>
                 </a>
-            </li>
+            </li> --}}
 
             <!-- Manajemen Data Inventori -->
             <li class="text-xs px-2 text-text uppercase">Data Inventori</li>
@@ -81,8 +116,10 @@
                     </svg>
 
 
-                    <span class="flex-1 ms-3  text-left {{ $activeMenu == 'master' ? 'text-white' : 'text-gray-400' }}
-                        rtl:text-right whitespace-nowrap">Data Master</span>
+                    <span
+                        class="flex-1 ms-3  text-left {{ $activeMenu == 'master' ? 'text-white' : 'text-gray-400' }}
+                        rtl:text-right whitespace-nowrap">Data
+                        Master</span>
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                         viewBox="0 0 10 6">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -148,7 +185,8 @@
                             d="M12 11v5m0 0 2-2m-2 2-2-2M3 6v1a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1Zm2 2v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8H5Z" />
                     </svg>
 
-                    <span class="ml-3 {{ $activeMenu == 'statusbuku' ? 'text-white' : 'text-base300' }}">Status Buku</span>
+                    <span class="ml-3 {{ $activeMenu == 'statusbuku' ? 'text-white' : 'text-base300' }}">Status
+                        Buku</span>
                 </a>
             </li>
 
@@ -168,7 +206,8 @@
                     </svg>
 
 
-                    <span class="flex-1 ms-3  text-left {{ $activeMenu == 'katalog' ? 'text-white' : 'text-gray-400' }}
+                    <span
+                        class="flex-1 ms-3  text-left {{ $activeMenu == 'katalog' ? 'text-white' : 'text-gray-400' }}
                         rtl:text-right whitespace-nowrap">Katalog</span>
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                         viewBox="0 0 10 6">
@@ -183,26 +222,12 @@
                             Buku</a>
                     </li>
                     <li>
-                        <a href="{{route('admin.paket.index')}}"
+                        <a href="{{ route('admin.paket.index') }}"
                             class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
                             Buku Paket</a>
                     </li>
                 </ul>
             </li>
-
-            {{-- <li>
-                <a href="{{ route('admin.katalog.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'katalog' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
-                    <svg class="w-5 h-5 {{ $activeMenu == 'katalog' ? 'text-white' : 'text-base300 ' }}"
-                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                        fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M5 19V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v13H7a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h12M9 3v14m7 0v4" />
-                    </svg>
-                    <span class="ml-3 {{ $activeMenu == 'katalog' ? 'text-white' : 'text-base300' }}">Katalog
-                        Buku</span>
-                </a>
-            </li> --}}
 
             <li>
                 <a href="{{ route('admin.eksemplar.index') }}"
@@ -223,7 +248,78 @@
             <!-- Manajemen Peminjaman -->
             <li class="text-xs px-2 text-text uppercase">Data Peminjaman</li>
 
-            <li>
+            <li class="mb-4">
+                <button type="button"
+                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'peminjaman' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}"
+                    aria-controls="dropdown-example" data-collapse-toggle="dropdown-example-nonpaket">
+                    <svg class="w-5 h-5 {{ $activeMenu == 'peminjaman' ? 'text-white' : 'text-gray-400 ' }}"
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linejoin="round" stroke-width="2"
+                            d="M10 12v1h4v-1m4 7H6a1 1 0 0 1-1-1V9h14v9a1 1 0 0 1-1 1ZM4 5h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
+                    </svg>
+
+
+                    <span
+                        class="flex-1 ms-3  text-left {{ $activeMenu == 'peminjaman' ? 'text-white' : 'text-gray-400' }}
+                        rtl:text-right whitespace-nowrap">Non
+                        Paket</span>
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 10 6">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m1 1 4 4 4-4" />
+                    </svg>
+                </button>
+                <ul id="dropdown-example-nonpaket" class="hidden py-2 space-y-2">
+                    <li>
+                        <a href="{{ route('admin.peminjaman.index') }}"
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
+                            Peminjaman</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.pengembalian.index') }}"
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
+                            Pengembalian</a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="mb-4">
+                <button type="button"
+                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'peminjamanPaket' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}"
+                    aria-controls="dropdown-example" data-collapse-toggle="dropdown-example-paket">
+                    <svg class="w-5 h-5 {{ $activeMenu == 'peminjamanPaket' ? 'text-white' : 'text-gray-400 ' }}"
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linejoin="round" stroke-width="2"
+                            d="M10 12v1h4v-1m4 7H6a1 1 0 0 1-1-1V9h14v9a1 1 0 0 1-1 1ZM4 5h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
+                    </svg>
+
+
+                    <span
+                        class="flex-1 ms-3  text-left {{ $activeMenu == 'peminjamanPaket' ? 'text-white' : 'text-gray-400' }}
+                        rtl:text-right whitespace-nowrap">Paket</span>
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 10 6">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m1 1 4 4 4-4" />
+                    </svg>
+                </button>
+                <ul id="dropdown-example-paket" class="hidden py-2 space-y-2">
+                    <li>
+                        <a href="{{ route('admin.peminjaman-paket.index') }}"
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
+                            Peminjaman</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.pengembalian-paket.index') }}"
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
+                            Pengembalian</a>
+                    </li>
+                </ul>
+            </li>
+
+            {{-- <li>
                 <a href="{{ route('admin.peminjaman.index') }}"
                     class="flex items-center p-2 rounded group {{ $activeMenu == 'peminjaman' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
                     <svg class="w-5 h-5 {{ $activeMenu == 'peminjaman' ? 'text-white' : 'text-base300 ' }}"
@@ -251,7 +347,7 @@
                     <span class="ml-3 {{ $activeMenu == 'pengembalian' ? 'text-white' : 'text-base300' }}">
                         Pengembalian</span>
                 </a>
-            </li>
+            </li> --}}
 
 
 

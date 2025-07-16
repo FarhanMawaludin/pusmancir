@@ -68,12 +68,15 @@ class PeminjamanController extends Controller
         ]);
 
         // ── Lookup awal ───────────────────────
-        $anggota   = \App\Models\Anggota::where('nisn', $request->anggota_id)->first();
+        $anggota = \App\Models\Anggota::where('nisn', $request->anggota_id)
+            ->where('status', 'aktif') // hanya anggota aktif yang boleh meminjam
+            ->first();
+
         $eksemplar = \App\Models\Eksemplar::where('no_rfid', trim($request->eksemplar_id))->first();
 
         if (!$anggota || !$eksemplar) {
             return back()->withInput()
-                ->with('error', 'Anggota atau Eksemplar tidak ditemukan.');
+                ->with('error', 'Anggota tidak aktif atau Eksemplar tidak ditemukan.');
         }
 
         if ($eksemplar->status === 'dipinjam') {
@@ -82,7 +85,7 @@ class PeminjamanController extends Controller
         }
 
         // ── Tentukan status awal berdasarkan role ─
-        $role   = Auth::user()->role;          // pastikan kolom 'role' ada di tabel users
+        $role   = Auth::user()->role;
         $status = in_array($role, ['admin', 'pustakawan']) ? 'berhasil' : 'menunggu';
 
         DB::beginTransaction();
@@ -100,7 +103,6 @@ class PeminjamanController extends Controller
                 'eksemplar_id'  => $eksemplar->id,
             ]);
 
-            // Jika langsung diset berhasil, tandai buku “dipinjam”
             if ($status === 'berhasil') {
                 $eksemplar->update(['status' => 'dipinjam']);
             }
@@ -114,6 +116,7 @@ class PeminjamanController extends Controller
                 ->with('error', 'Gagal menyimpan data: ' . $th->getMessage());
         }
     }
+
 
     public function updateStatus(Request $request, $id)
     {
