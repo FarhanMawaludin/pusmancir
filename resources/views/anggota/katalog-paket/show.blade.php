@@ -65,7 +65,7 @@
                     <p class="text-sm text-gray-700 leading-relaxed text-justify mb-8">
                         {{ $buku->deskripsi_buku }}
                     </p>
-
+                    @if($buku->stok_tersedia > 0)
                     <form id="pinjamForm" action="{{ route('anggota.peminjaman-paket.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="paket_id" value="{{ $buku->id }}">
@@ -74,12 +74,12 @@
                             Pinjam Buku
                         </button>
                     </form>
-
+                    @else
                     <button disabled
                         class="w-full bg-gray-400 text-white py-3 rounded-md font-semibold text-sm cursor-not-allowed">
                         Tidak Tersedia
                     </button>
-
+                    @endif
                 </div>
 
             </div>

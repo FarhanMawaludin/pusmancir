@@ -49,40 +49,48 @@ class EksemplarController extends Controller
     }
 
 
-
     public function cetakBatch(Request $request)
     {
         $ids = $request->input('selected', []);
         $kosongAwal = (int) $request->input('kosong_awal', 0);
-
         $start = (int) $request->input('start_induk');
         $end = (int) $request->input('end_induk');
 
-        // Jika user memilih via checkbox
+        $eksemplarList = collect();
+
+        // Pilihan via checkbox
         if (!empty($ids)) {
             $eksemplarList = Eksemplar::with('inventori.katalog')
                 ->whereIn('id', $ids)
-                ->orderBy('no_induk', 'desc') // urutkan tetap agar konsisten
+                ->orderBy('no_induk', 'desc')
                 ->get();
+
+            //Tandai sudah dicetak
+            Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
         }
-        // Jika user memilih berdasarkan urutan tampilan (no_induk terbesar di atas)
+
         elseif ($start && $end && $end >= $start) {
             $take = $end - $start + 1;
 
-            $eksemplarList = Eksemplar::with('inventori')
+            $eksemplarList = Eksemplar::with('inventori.katalog')
                 ->orderBy('no_induk', 'desc')
-                ->orderBy('created_at', 'desc') // fallback urutan jika no_induk sama
+                ->orderBy('created_at', 'desc')
                 ->skip($start - 1)
                 ->take($take)
                 ->get();
+
+            // Ambil ID untuk update cetak
+            $updateIds = $eksemplarList->pluck('id')->toArray();
+            Eksemplar::whereIn('id', $updateIds)->update(['sudah_dicetak' => true]);
         }
-        // Jika tidak memilih apapun
+
         else {
             return back()->with('error', 'Pilih data lewat checkbox atau isi rentang No. Induk.');
         }
 
         return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
     }
+
 
     public function edit($id)
     {

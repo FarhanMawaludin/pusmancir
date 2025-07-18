@@ -14,7 +14,7 @@ class PeminjamanPaketAnggotaController extends Controller
 {
     public function index(Request $request)
     {
-        $activeMenu = 'peminjamanPaket';
+        $activeMenu = 'peminjaman';
 
         $user     = Auth::user();
         $search   = $request->input('search');
@@ -65,7 +65,7 @@ class PeminjamanPaketAnggotaController extends Controller
         /* ──────────────────────────────────────────────
      | 4.  Urutkan: menunggu → berhasil → terbaru
      ──────────────────────────────────────────────*/
-        $query->orderByRaw("FIELD(peminjaman_paket.status, 'menunggu', 'berhasil')")
+        $query->orderByRaw("CASE WHEN peminjaman_paket.status = 'menunggu' THEN 1 ELSE 2 END")
             ->orderByDesc('peminjaman_paket.created_at')
             ->select('detail_peminjaman_paket.*');
 

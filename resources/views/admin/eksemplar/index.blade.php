@@ -19,6 +19,7 @@
                         <th scope="col" class="px-6 py-3">Judul</th>
                         <th scope="col" class="px-6 py-3">No Induk</th>
                         <th scope="col" class="px-6 py-3">Kode RFID</th>
+                        <th scope="col" class="px-6 py-3">Status Cetak</th>
                         <th scope="col" class="px-6 py-3">Aksi</th>
                     </tr>
                 </thead>
@@ -39,6 +40,19 @@
                             </td>
                             <td class="px-6 py-4">{{ $item->no_induk }}</td>
                             <td class="px-6 py-4">{{ $item->no_rfid }}</td>
+                            <td class="px-6 py-4">
+                                @if ($item->sudah_dicetak)
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded">
+                                        Sudah Dicetak
+                                    </span>
+                                @else
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 text-xs font-medium text-red-700 bg-red-100 rounded">
+                                        Belum Dicetak
+                                    </span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4">
                                 <div class="flex flex-row space-x-2 items-center">
                                     <button onclick="location.href='{{ route('admin.eksemplar.cetakBarcode', $item->id) }}'"

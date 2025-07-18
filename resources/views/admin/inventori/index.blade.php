@@ -68,8 +68,8 @@
 
         <div class="flex flex-wrap gap-2">
             <!-- Button Import Excel -->
-            {{-- <button id="importExcelButton"
-                class="flex items-center gap-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded text-sm px-4 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+            <button id="importExcelButton"
+                class="flex items-center gap-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded text-sm px-4 py-2.5 text-center "
                 type="button">
 
                 <svg class="w-5 h-5 md:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
@@ -86,7 +86,7 @@
                     <div class="bg-white rounded shadow-xl w-full max-w-md relative">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-4 border-b">
-                            <h3 class="text-lg font-semibold">Import inventori via Excel</h3>
+                            <h3 class="text-lg font-semibold">Import Inventori via Excel</h3>
                             <button onclick="closeImportModal()"
                                 class="text-gray-500 hover:text-gray-700 text-2xl font-bold">
                                 &times;
@@ -98,7 +98,7 @@
                             <!-- Download Template -->
                             <div class="flex items-center justify-between bg-gray-100 p-3 rounded">
                                 <span class="text-sm font-medium text-gray-700">Download Template Excel:</span>
-                                <a href="{{ asset('template_inventori.xlsx') }}"
+                                <a href="{{ asset('template-inventori.xlsx') }}"
                                     class="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                                     download>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -119,8 +119,7 @@
                                         Excel:</label>
                                     <input
                                         class="block w-full text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none focus:ring focus:border-blue-300"
-                                        type="file" id="excel_file" name="file_inventori" accept=".xlsx,.xls"
-                                        required>
+                                        type="file" id="excel_file" name="file_inventori" accept=".xlsx,.xls" required>
                                 </div>
 
                                 <!-- Footer -->
@@ -138,7 +137,7 @@
                         </div>
                     </div>
                 </div>
-            </div> --}}
+            </div>
             <a href="{{ route('admin.inventori.export') }}"
                 class="inline-block px-4 py-2 text-sm text-white bg-green-600 rounded hover:bg-green-700">
                 Export Inventori
@@ -150,8 +149,8 @@
                 class="flex items-center gap-2 text-white bg-primary700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2.5 text-center dark:bg-primary700 dark:hover:bg-primary700 dark:focus:ring-blue-800"
                 type="button" onclick="location.href='{{ route('admin.inventori.create') }}'">
 
-                <svg class="w-5 h-5 md:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <svg class="w-5 h-5 md:hidden" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
 
@@ -271,6 +270,19 @@
                 });
             });
         });
+    </script>
+
+    <script>
+        // Show modal
+        document.getElementById('importExcelButton').addEventListener('click', function(event) {
+            event.preventDefault();
+            document.getElementById('import-excel-modal').classList.remove('hidden');
+        });
+
+        // Hide modal
+        function closeImportModal() {
+            document.getElementById('import-excel-modal').classList.add('hidden');
+        }
     </script>
 
 

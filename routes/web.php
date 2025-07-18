@@ -29,24 +29,25 @@ use App\Http\Controllers\PeminjamanPaketController;
 use App\Http\Controllers\PengembalianPaketController;
 use App\Http\Controllers\KatalogPaketAnggotaController;
 use App\Http\Controllers\PeminjamanPaketAnggotaController;
+use App\Http\Controllers\BukuTamuController;
+use App\Http\Controllers\BeritaController;
+use App\Http\Controllers\PeringkatController;
+use App\Http\Controllers\KodeJenisSuratController;
+use App\Http\Controllers\InstansiController;
+use App\Http\Controllers\SuratKeluarController;
+use App\Http\Controllers\SuratMasukController;
+
 
 use Illuminate\Support\Facades\Http;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
+
 Route::get('/katalog/{id}', [WelcomeController::class, 'show'])->name('detail-buku');
 
-Route::get('/debug-gemini', function () {
-    $key = env('GEMINI_API_KEY');
-    $model = env('GEMINI_MODEL', 'gemini-1.5-flash-latest');
-    $response = Http::withHeaders([
-        'X-Goog-Api-Key' => $key,
-        'Content-Type' => 'application/json'
-    ])->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent", [
-        'contents' => [['parts' => [['text' => 'Halo']]]]
-    ]);
+Route::get('/berita', [BeritaController::class, 'index'])->name('berita.index');
 
-    return $response->json();
-});
+Route::get('/peringkat', [PeringkatController::class, 'index'])->name('peringkat.index');
+
 
 
 Route::get('/informasi', function () {
@@ -140,6 +141,7 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     Route::put('/inventori/{id}', [InventoriController::class, 'update'])->name('inventori.update');
     Route::delete('/inventori/{id}', [InventoriController::class, 'destroy'])->name('inventori.destroy');
     Route::get('/admin/inventori/export', [InventoriController::class, 'export'])->name('inventori.export');
+    Route::post('/admin/inventori/import', [InventoriController::class, 'import'])->name('inventori.import');
 
     //katalog
     Route::get('/katalog', [KatalogController::class, 'index'])->name('katalog.index');
@@ -159,8 +161,6 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     Route::get('/paket-buku/{id}/edit', [PaketBukuController::class, 'edit'])->name('paket.edit');
     Route::put('/paket-buku/{id}', [PaketBukuController::class, 'update'])->name('paket.update');
     Route::delete('/paket-buku/{id}', [PaketBukuController::class, 'destroy'])->name('paket.destroy');
-
-
 
 
     //Eksemplar
@@ -200,6 +200,57 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     //Pengembalian Paket
     Route::get('/pengembalian-paket', [PengembalianPaketController::class, 'index'])->name('pengembalian-paket.index');
     Route::put('/pengembalian-paket/update/{id}', [PengembalianPaketController::class, 'update'])->name('pengembalian-paket.update');
+
+    Route::get('/buku-tamu', [BukuTamuController::class, 'create'])->name('buku-tamu.form');
+    Route::post('/buku-tamu', [BukuTamuController::class, 'store'])->name('buku-tamu.store');
+    Route::get('/buku-tamu/log-tamu', [BukuTamuController::class, 'LogTamu'])->name('buku-tamu.log-tamu');
+
+
+    //Kode Jenis Surat
+    Route::get('/kode-jenis-surat', [KodeJenisSuratController::class, 'index'])->name('kode-jenis-surat.index');
+    Route::get('/kode-jenis-surat/create', [KodeJenisSuratController::class, 'create'])->name('kode-jenis-surat.create');
+    Route::post('/kode-jenis-surat', [KodeJenisSuratController::class, 'store'])->name('kode-jenis-surat.store');
+    Route::get('/kode-jenis-surat/{id}/edit', [KodeJenisSuratController::class, 'edit'])->name('kode-jenis-surat.edit');
+    Route::put('/kode-jenis-surat/{id}', [KodeJenisSuratController::class, 'update'])->name('kode-jenis-surat.update');
+    Route::delete('/kode-jenis-surat/{id}', [KodeJenisSuratController::class, 'destroy'])->name('kode-jenis-surat.destroy');
+
+    //Instansi
+    Route::get('/instansi', [InstansiController::class, 'index'])->name('instansi.index');
+    Route::get('/instansi/create', [InstansiController::class, 'create'])->name('instansi.create');
+    Route::post('/instansi', [InstansiController::class, 'store'])->name('instansi.store');
+    Route::get('/instansi/{id}/edit', [InstansiController::class, 'edit'])->name('instansi.edit');
+    Route::put('/instansi/{id}', [InstansiController::class, 'update'])->name('instansi.update');
+    Route::delete('/instansi/{id}', [InstansiController::class, 'destroy'])->name('instansi.destroy');
+
+    //surat keluar
+    Route::get('/surat-keluar', [SuratKeluarController::class, 'index'])->name('surat-keluar.index');
+    Route::get('/surat-keluar/create', [SuratKeluarController::class, 'create'])->name('surat-keluar.create');
+    Route::post('/surat-keluar', [SuratKeluarController::class, 'store'])->name('surat-keluar.store');
+    Route::get('/surat-keluar/{id}/edit', [SuratKeluarController::class, 'edit'])->name('surat-keluar.edit');
+    Route::put('/surat-keluar/{id}', [SuratKeluarController::class, 'update'])->name('surat-keluar.update');
+    Route::delete('/surat-keluar/{id}', [SuratKeluarController::class, 'destroy'])->name('surat-keluar.destroy');
+    Route::get('/surat-keluar/{id}', [SuratKeluarController::class, 'show'])->name('surat-keluar.show');
+
+    //Surat Masuk
+    Route::get('/surat-masuk', [SuratMasukController::class, 'index'])->name('surat-masuk.index');
+    Route::get('/surat-masuk/create', [SuratMasukController::class, 'create'])->name('surat-masuk.create');
+    Route::post('/surat-masuk', [SuratMasukController::class, 'store'])->name('surat-masuk.store');
+    Route::get('/surat-masuk/{id}/edit', [SuratMasukController::class, 'edit'])->name('surat-masuk.edit');
+    Route::put('/surat-masuk/{id}', [SuratMasukController::class, 'update'])->name('surat-masuk.update');
+    Route::delete('/surat-masuk/{id}', [SuratMasukController::class, 'destroy'])->name('surat-masuk.destroy');
+    Route::get('/surat-masuk/{id}', [SuratMasukController::class, 'show'])->name('surat-masuk.show');
+
+    //Berita
+    Route::get('/berita', [BeritaController::class, 'index'])->name('berita.index');
+    Route::get('/berita/create', [BeritaController::class, 'create'])->name('berita.create');
+    Route::post('/berita', [BeritaController::class, 'store'])->name('berita.store');
+    Route::get('/berita/{id}/edit', [BeritaController::class, 'edit'])->name('berita.edit');
+    Route::put('/berita/{id}', [BeritaController::class, 'update'])->name('berita.update');
+    Route::delete('/berita/{id}', [BeritaController::class, 'destroy'])->name('berita.destroy');
+    Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('berita.show');
+    
+
+    
 });
 
 // Cek anggota berdasarkan NISN

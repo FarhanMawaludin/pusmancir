@@ -44,20 +44,20 @@
                         class="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
                         <li>
                             <a href="{{ route('welcome') }}"
-                                class="block py-2 px-3 text-base300 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+                                class="block py-2 px-3 text-base300 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0"
                                 aria-current="page">Beranda</a>
                         </li>
                         <li>
                             <a href="{{ route('informasi') }}"
-                                class="block py-2 px-3 text-base300 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Informasi</a>
+                                class="block py-2 px-3 text-base300 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0">Informasi</a>
                         </li>
                         <li>
-                            <a href="#"
-                                class="block py-2 px-3 text-base300 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Berita</a>
+                            <a href="{{ route('berita.index') }}"
+                                class="block py-2 px-3 text-base300 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0">Berita</a>
                         </li>
                         <li>
-                            <a href="#"
-                                class="block py-2 px-3 text-base300 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Pustakawan</a>
+                            <a href="{{ route('peringkat.index') }}"
+                                class="block py-2 px-3 text-base300 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0">Peringkat</a>
                         </li>
                     </ul>
                 </div>
@@ -74,10 +74,7 @@
 
                 $status = $available > 0 ? 'Tersedia' : 'dipinjam';
                 $statusColor = $available > 0 ? 'text-green-600' : 'text-red-600';
-                $style =
-                    $status === 'Tersedia'
-                        ? 'text-green-700 '
-                        : 'text-red-700 ';
+                $style = $status === 'Tersedia' ? 'text-green-700 ' : 'text-red-700 ';
             @endphp
             <div>
                 <!-- Gambar -->

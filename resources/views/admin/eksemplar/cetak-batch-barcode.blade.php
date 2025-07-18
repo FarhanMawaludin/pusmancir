@@ -39,6 +39,37 @@
             justify-content: space-between;
         }
 
+        .label-columns {
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+        }
+
+        .left-column {
+            width: 75%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .right-column {
+            width: 25%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 7pt;
+            font-weight: bold;
+            text-align: center;
+            padding-left: 0.2cm;
+            box-sizing: border-box;
+            word-break: break-word;
+        }
+
+        .no-panggil {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+        }
+
         .label-top {
             display: flex;
             flex-direction: row;
@@ -47,7 +78,6 @@
         }
 
         .top-left {
-            width: 70%;
             display: flex;
             align-items: center;
             gap: 2mm;
@@ -66,17 +96,6 @@
 
         .header-text strong {
             font-size: 6pt;
-        }
-
-        .top-right {
-            width: 30%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 7pt;
-            font-weight: bold;
-            text-align: center;
-            word-break: break-word;
         }
 
         .label-content {
@@ -124,28 +143,35 @@
             @endphp
 
             <div class="label">
-                {{-- Header kiri-kanan --}}
-                <div class="label-top">
-                    <div class="top-left">
-                        <img class="logo" src="{{ asset('/logo-banten.png') }}" alt="Logo Banten">
-                        <img class="logo" src="{{ asset('/logo-smancir.png') }}" alt="Logo Smancir">
-                        <div class="header-text">
-                            <strong>PUSMANCIR</strong><br>
-                            Perpustakaan SMAN 1 Ciruas<br>
-                            NPP: <strong>3604091E1000002</strong>
+                <div class="label-columns">
+                    {{-- Kolom Kiri --}}
+                    <div class="left-column">
+                        <div class="label-top">
+                            <div class="top-left">
+                                <img class="logo" src="{{ asset('/logo-banten.png') }}" alt="Logo Banten">
+                                <img class="logo" src="{{ asset('/logo-smancir.png') }}" alt="Logo Smancir">
+                                <div class="header-text">
+                                    <strong>PUSMANCIR</strong><br>
+                                    Perpustakaan SMAN 1 Ciruas<br>
+                                    NPP: <strong>3604091E1000002</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="label-content">
+                            <p><strong>{{ Str::limit($eksemplar->inventori->judul_buku, 25) }}</strong></p>
+                            <p>{{ $eksemplar->no_induk }}</p>
+                            <img class="barcode" src="data:image/png;base64,{{ $barcode }}" alt="Barcode">
+                            <p>{{ $eksemplar->no_rfid }}</p>
                         </div>
                     </div>
-                    <div class="top-right">
-                        {{ optional($eksemplar->inventori->katalog)->no_panggil ?? '-' }}
-                    </div>
-                </div>
 
-                {{-- Konten label --}}
-                <div class="label-content">
-                    <p><strong>{{ Str::limit($eksemplar->inventori->judul_buku, 25) }}</strong></p>
-                    <p>{{ $eksemplar->no_induk }}</p>
-                    <img class="barcode" src="data:image/png;base64,{{ $barcode }}" alt="Barcode">
-                    <p>{{ $eksemplar->no_rfid }}</p>
+                    {{-- Kolom Kanan --}}
+                    <div class="right-column">
+                        <div class="no-panggil">
+                            {{ optional($eksemplar->inventori->katalog)->no_panggil ?? '-' }}
+                        </div>
+                    </div>
                 </div>
             </div>
         @endforeach

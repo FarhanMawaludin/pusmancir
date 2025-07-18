@@ -10,7 +10,7 @@ class KatalogPaketAnggotaController extends Controller
 {
     public function index(Request $request)
     {
-        $activeMenu = "katalogPaket";
+        $activeMenu = "katalog";
 
         $search    = $request->input('search');
         $searchBy  = $request->input('search_by', 'all');

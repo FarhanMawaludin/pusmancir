@@ -48,7 +48,7 @@
                         <td class="px-6 py-4">
                             <span
                                 class="px-3 py-1 text-sm rounded-full
-                                @if ($status === 'berhasil') bg-green-600
+                                @if ($status === 'selesai') bg-green-600
                                 @elseif ($status === 'tolak') bg-red-600
                                 @else bg-orange-600 @endif text-white">
                                 {{ ucfirst($status) }}

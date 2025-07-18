@@ -37,34 +37,6 @@
                     </p>
                 </div>
 
-                <!-- Form -->
-                {{-- <form class="space-y-4">
-                <div>
-                  <label for="username" class="block text-sm font-medium text-text">Username</label>
-                  <input type="text" id="username" placeholder="Masukkan username"
-                         class="mt-2 form-input block w-full px-4 py-2 text-text border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-primary700 focus:outline-none" />
-                </div>
-          
-                <div>
-                  <label for="password" class="block text-sm font-medium text-text">Kata sandi</label>
-                  <div class="relative mt-1">
-                    <input type="password" id="password" placeholder="Masukkan kata sandi"
-                           class="mt-2 form-input block w-full px-4 py-2 text-text border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-primary700 focus:outline-none" />
-                  </div>
-                  <div class="text-right mt-1">
-                    <a href="#" class="text-sm text-primary700 hover:underline">Lupa password</a>
-                  </div>
-                </div>
-          
-                <button type="submit"
-                        class="w-full bg-primary700 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition">
-                  Masuk
-                </button>
-                <button type="button"
-                        class="w-full border border-primary700 text-primary700 hover:bg-primary100 py-2 px-4 rounded transition">
-                  Daftar
-                </button>
-              </form> --}}
 
                 <form method="POST" action="{{ route('login') }}">
                     @csrf

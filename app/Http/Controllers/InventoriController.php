@@ -21,6 +21,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Font;
 use Illuminate\Support\Facades\Response;
 
@@ -341,12 +342,12 @@ class InventoriController extends Controller
         if (file_exists($logoPath)) {
             $drawing = new Drawing();
             $drawing->setName('Logo')
-                    ->setDescription('Logo Sekolah')
-                    ->setPath($logoPath)
-                    ->setHeight(100)
-                    ->setCoordinates('B2')
-                    ->setOffsetX(10)
-                    ->setWorksheet($sheet);
+                ->setDescription('Logo Sekolah')
+                ->setPath($logoPath)
+                ->setHeight(100)
+                ->setCoordinates('B2')
+                ->setOffsetX(10)
+                ->setWorksheet($sheet);
 
             // Tinggi baris kop
             for ($i = 2; $i <= 6; $i++) {
@@ -383,9 +384,17 @@ class InventoriController extends Controller
          * 4. Header Tabel (kolom L & M = Jumlah Judul & Jumlah Eksemplar)
          * ===========================================================*/
         $headers = [
-            'No', 'No Induk', 'No Inventori', 'Judul Buku', 'Pengarang',
-            'Penerbit', 'Kategori', 'Tanggal Pembelian', 'Harga Satuan',
-            'Jenis Sumber', 'No Panggil',
+            'No',
+            'No Induk',
+            'No Inventori',
+            'Judul Buku',
+            'Pengarang',
+            'Penerbit',
+            'Kategori',
+            'Tanggal Pembelian',
+            'Harga Satuan',
+            'Jenis Sumber',
+            'No Panggil',
             'Jumlah Judul',          // L
             'Jumlah Eksemplar'       // M
         ];
@@ -445,7 +454,7 @@ class InventoriController extends Controller
                     $item->nama_penerbit,
                     $item->nama_kategori,
                     $item->tanggal_pembelian,
-                    'Rp. '.number_format($item->harga_satuan, 0, ',', '.'),
+                    'Rp. ' . number_format($item->harga_satuan, 0, ',', '.'),
                     $item->jenis_sumber,
                     $item->no_panggil,
                     '',   // L (Jumlah Judul)
@@ -463,20 +472,20 @@ class InventoriController extends Controller
             // L = Jumlah Judul (selalu 1)
             $sheet->setCellValue("L{$mergeStart}", 1);
             if ($jumlahBaris > 1) {
-                $sheet->mergeCells("L{$mergeStart}:L".($mergeStart + $jumlahBaris - 1));
+                $sheet->mergeCells("L{$mergeStart}:L" . ($mergeStart + $jumlahBaris - 1));
             }
             $sheet->getStyle("L{$mergeStart}")->getAlignment()
-                  ->setHorizontal(Alignment::HORIZONTAL_CENTER)
-                  ->setVertical(Alignment::VERTICAL_CENTER);
+                ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                ->setVertical(Alignment::VERTICAL_CENTER);
 
             // M = Jumlah Eksemplar
             $sheet->setCellValue("M{$mergeStart}", $jumlahBaris);
             if ($jumlahBaris > 1) {
-                $sheet->mergeCells("M{$mergeStart}:M".($mergeStart + $jumlahBaris - 1));
+                $sheet->mergeCells("M{$mergeStart}:M" . ($mergeStart + $jumlahBaris - 1));
             }
             $sheet->getStyle("M{$mergeStart}")->getAlignment()
-                  ->setHorizontal(Alignment::HORIZONTAL_CENTER)
-                  ->setVertical(Alignment::VERTICAL_CENTER);
+                ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                ->setVertical(Alignment::VERTICAL_CENTER);
         }
 
         /* =============================================================
@@ -519,6 +528,96 @@ class InventoriController extends Controller
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file_inventori' => 'required|file|mimes:xlsx,xls',
+        ]);
+
+        $file = $request->file('file_inventori');
+        $spreadsheet = IOFactory::load($file->getPathname());
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray(null, true, true, true);
+
+        // Ambil baris isi (tanpa header)
+        $data = array_slice($rows, 1);
+
+        // Kelompokkan berdasarkan judul, pengarang, penerbit, dst.
+        $grouped = collect($data)->groupBy(function ($row) {
+            return $row['A'] . '|' . $row['B'] . '|' . $row['C'] . '|' . $row['D'] . '|' . $row['E'] . '|' . $row['F'] . '|' . $row['G'] . '|' . $row['H'];
+        });
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($grouped as $key => $items) {
+                [$judul, $pengarang, $penerbitNama, $kategoriNama, $tanggal, $hargaStr, $jenisSumberNama, $noPanggil] = explode('|', $key);
+                $harga = (int) str_replace(['Rp', '.', ',', ' '], '', $hargaStr);
+
+                // Relasi lookup (buat jika tidak ada)
+                $penerbit = Penerbit::firstOrCreate(['nama_penerbit' => $penerbitNama]);
+                $kategori = KategoriBuku::firstOrCreate(['nama_kategori' => $kategoriNama]);
+                $jenisSumber = JenisSumber::firstOrCreate(['nama_sumber' => $jenisSumberNama]);
+
+                // Ganti sesuai sekolah login
+                $sekolah = Sekolah::first(); // sesuaikan
+
+                $inventori = Inventori::create([
+                    'judul_buku'        => $judul,
+                    'pengarang'         => $pengarang,
+                    'id_penerbit'       => $penerbit->id,
+                    'id_kategori_buku'  => $kategori->id,
+                    'id_jenis_media'    => 1, // default/media buku
+                    'id_sekolah'        => $sekolah->id,
+                    'tanggal_pembelian' => $tanggal,
+                    'harga_satuan'      => $harga,
+                    'jumlah_eksemplar'  => count($items),
+                    'total_harga'       => $harga * count($items),
+                    'id_jenis_sumber'   => $jenisSumber->id,
+                    'id_sumber'         => 1, // atau tentukan sesuai login
+                ]);
+
+                // Simpan katalog
+                Katalog::create([
+                    'id_inventori'   => $inventori->id,
+                    'kategori_buku'  => $kategoriNama,
+                    'judul_buku'     => $judul,
+                    'pengarang'      => $pengarang,
+                    'penerbit'       => $penerbitNama,
+                    'no_panggil'     => $noPanggil,
+                ]);
+
+                // Generate eksemplar
+                $lastInduk = DB::table('eksemplar')
+                    ->selectRaw('MAX(CAST(no_induk AS UNSIGNED)) as max_no')
+                    ->value('max_no') ?? 0;
+
+                $tahun = date('Y', strtotime($tanggal));
+                $kodeSekolah = strtoupper($sekolah->kode_sekolah ?? 'XXX');
+                $jenis = strtoupper(substr($jenisSumberNama, 0, 1));
+                $next = $lastInduk + 1;
+                $pad = max(6, strlen((string)($next + count($items))));
+
+                foreach ($items as $i => $row) {
+                    $angka = $next + $i;
+                    $noInduk = str_pad($angka, $pad, '0', STR_PAD_LEFT);
+                    $noInventori = "{$noInduk}/{$kodeSekolah}/{$jenis}/{$tahun}";
+
+                    $inventori->eksemplar()->create([
+                        'no_induk'     => $noInduk,
+                        'no_inventori' => $noInventori,
+                        'no_rfid'      => 'CRS-' . strtoupper(Str::random(6)),
+                        'status'       => 'tersedia',
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return back()->with('success', 'Import berhasil!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal import: ' . $e->getMessage());
+        }
+    }
 }
-
-

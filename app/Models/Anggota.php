@@ -36,4 +36,9 @@ class Anggota extends Model
     {
         return $this->hasMany(Peminjaman::class);
     }
+
+    public function bukuTamu()
+    {
+        return $this->hasMany(BukuTamu::class);
+    }
 }
