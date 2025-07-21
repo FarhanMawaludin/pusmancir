@@ -178,7 +178,7 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-2">
                                 @if ($userItem->foto)
-                                    <img src="{{ asset('storage/' . $userItem->foto) }}" alt="Foto {{ $userItem->name }}"
+                                    <img src="{{ asset($userItem->foto) }}" alt="Foto {{ $userItem->name }}"
                                         class="w-10 h-10 rounded-full object-cover shrink-0">
                                 @else
                                     <img src="{{ asset('img/Profile.jpg') }}" alt="Foto Default"
