@@ -12,7 +12,8 @@
                     <!-- Nomor Surat -->
                     <div class="sm:col-span-3">
                         <label for="nomor_surat" class="block text-sm font-medium text-text">Nomor Surat</label>
-                        <input type="text" name="nomor_surat" id="nomor_surat" value="{{ old('nomor_surat', $suratMasuk->nomor_surat) }}"
+                        <input type="text" name="nomor_surat" id="nomor_surat"
+                            value="{{ old('nomor_surat', $suratMasuk->nomor_surat) }}"
                             class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
                                 border border-gray-300 placeholder:text-gray-400
                                 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
@@ -24,7 +25,8 @@
                     <!-- Tanggal Terima -->
                     <div class="sm:col-span-3">
                         <label for="tanggal_terima" class="block text-sm font-medium text-text">Tanggal Terima</label>
-                        <input type="date" name="tanggal_terima" id="tanggal_terima" value="{{ old('tanggal_terima', \Carbon\Carbon::parse($suratMasuk->tanggal_terima)->format('Y-m-d')) }}"
+                        <input type="date" name="tanggal_terima" id="tanggal_terima"
+                            value="{{ old('tanggal_terima', \Carbon\Carbon::parse($suratMasuk->tanggal_terima)->format('Y-m-d')) }}"
                             class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
                                 border border-gray-300 placeholder:text-gray-400
                                 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
@@ -36,7 +38,8 @@
                     <!-- Asal Surat -->
                     <div class="sm:col-span-3">
                         <label for="asal_surat" class="block text-sm font-medium text-text">Asal Surat</label>
-                        <input type="text" name="asal_surat" id="asal_surat" value="{{ old('asal_surat', $suratMasuk->asal_surat) }}"
+                        <input type="text" name="asal_surat" id="asal_surat"
+                            value="{{ old('asal_surat', $suratMasuk->asal_surat) }}"
                             class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
                                 border border-gray-300 placeholder:text-gray-400
                                 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
@@ -48,7 +51,8 @@
                     <!-- Perihal -->
                     <div class="sm:col-span-3">
                         <label for="perihal" class="block text-sm font-medium text-text">Perihal</label>
-                        <input type="text" name="perihal" id="perihal" value="{{ old('perihal', $suratMasuk->perihal) }}"
+                        <input type="text" name="perihal" id="perihal"
+                            value="{{ old('perihal', $suratMasuk->perihal) }}"
                             class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
                                 border border-gray-300 placeholder:text-gray-400
                                 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
@@ -60,7 +64,8 @@
                     <!-- Lampiran -->
                     <div class="sm:col-span-3">
                         <label for="lampiran" class="block text-sm font-medium text-text">Lampiran</label>
-                        <input type="number" name="lampiran" id="lampiran" value="{{ old('lampiran', $suratMasuk->lampiran) }}"
+                        <input type="number" name="lampiran" id="lampiran"
+                            value="{{ old('lampiran', $suratMasuk->lampiran) }}"
                             class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
                                 border border-gray-300 placeholder:text-gray-400
                                 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
@@ -76,7 +81,8 @@
                         border border-gray-300 placeholder:text-gray-400
                         focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                             @foreach (['Diterima', 'Didisposisikan', 'Selesai'] as $option)
-                                <option value="{{ $option }}" {{ old('status', $suratMasuk->status) === $option ? 'selected' : '' }}>
+                                <option value="{{ $option }}"
+                                    {{ old('status', $suratMasuk->status) === $option ? 'selected' : '' }}>
                                     {{ $option }}
                                 </option>
                             @endforeach
@@ -104,8 +110,8 @@
 
                         @if ($suratMasuk->file_surat)
                             <p class="mt-1 text-sm text-gray-500">
-                                File Surat: <a href="{{ asset('storage/' . $suratMasuk->file_surat) }}"
-                                    class="text-blue-500" target="_blank">Lihat surat </a>
+                                File Surat: <a href="{{ asset($suratMasuk->file_surat) }}" class="text-blue-500"
+                                    target="_blank">Lihat surat</a>
                             </p>
                         @endif
                         @error('file_surat')
