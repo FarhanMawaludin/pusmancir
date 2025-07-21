@@ -179,6 +179,69 @@ class KatalogController extends Controller
     }
 
 
+    // public function fetchCoverByIsbn($isbn)
+    // {
+    //     try {
+    //         // 1. Coba ambil dari Google Books
+    //         $res = Http::get("https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn");
+
+    //         $thumbnail = null;
+
+    //         if ($res->ok() && isset($res['items'][0]['volumeInfo']['imageLinks'])) {
+    //             $links = $res['items'][0]['volumeInfo']['imageLinks'];
+    //             $thumbnail = $links['large'] ??
+    //                 $links['medium'] ??
+    //                 $links['small'] ??
+    //                 $links['thumbnail'] ??
+    //                 $links['smallThumbnail'] ?? null;
+    //         }
+
+    //         // 2. Jika Google Books tidak punya, coba dari Open Library
+    //         if (!$thumbnail) {
+    //             $openLibUrl = "https://covers.openlibrary.org/b/isbn/{$isbn}-L.jpg"; // L = large size
+    //             // Cek apakah gambarnya valid
+    //             $checkImage = @getimagesize($openLibUrl);
+    //             if ($checkImage !== false) {
+    //                 $thumbnail = $openLibUrl;
+    //             }
+    //         }
+
+    //         // 3. Jika tetap tidak ada cover
+    //         if (!$thumbnail) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Cover tidak tersedia untuk ISBN ini.'
+    //             ]);
+    //         }
+
+    //         // 4. Unduh & simpan gambar
+    //         $thumbnail = str_replace('http://', 'https://', $thumbnail);
+    //         $imageContent = file_get_contents($thumbnail);
+
+    //         if (!$imageContent) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Gagal mengunduh gambar dari URL.'
+    //             ]);
+    //         }
+
+    //         $filename = 'cover_' . $isbn . '_' . Str::random(5) . '.jpg';
+    //         $path = 'cover_buku/' . $filename;
+    //         Storage::disk('public')->put($path, $imageContent);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'cover_url' => asset('storage/' . $path),
+    //             'path' => $path
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+    //         ]);
+    //     }
+    // }
+
     public function fetchCoverByIsbn($isbn)
     {
         try {
@@ -214,7 +277,7 @@ class KatalogController extends Controller
                 ]);
             }
 
-            // 4. Unduh & simpan gambar
+            // 4. Unduh & simpan gambar langsung ke public/cover_buku
             $thumbnail = str_replace('http://', 'https://', $thumbnail);
             $imageContent = file_get_contents($thumbnail);
 
@@ -226,13 +289,22 @@ class KatalogController extends Controller
             }
 
             $filename = 'cover_' . $isbn . '_' . Str::random(5) . '.jpg';
-            $path = 'cover_buku/' . $filename;
-            Storage::disk('public')->put($path, $imageContent);
+            $folderPath = public_path('cover_buku');
+
+            // Pastikan folder ada
+            if (!file_exists($folderPath)) {
+                mkdir($folderPath, 0755, true);
+            }
+
+            $filePath = $folderPath . DIRECTORY_SEPARATOR . $filename;
+
+            // Simpan file
+            file_put_contents($filePath, $imageContent);
 
             return response()->json([
                 'success' => true,
-                'cover_url' => asset('storage/' . $path),
-                'path' => $path
+                'cover_url' => asset('cover_buku/' . $filename),
+                'path' => 'cover_buku/' . $filename
             ]);
         } catch (\Exception $e) {
             return response()->json([
