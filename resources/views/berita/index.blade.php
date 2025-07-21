@@ -130,60 +130,16 @@
                 </a>
             @endforeach
         </div>
-    </section>
 
-
-    @if (count($popular) > 4)
-        <div class="flex justify-center mt-6">
-            <button @click="show += 4" x-show="show < {{ count($popular) }}"
-                class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
-                Lihat Lebih Banyak
-            </button>
-        </div>
-    @endif
-    </section>
-
-    <!-- Latest Videos -->
-    {{-- <section class="container mx-auto px-6 mt-12">
-        <h3 class="text-lg font-semibold mb-4 text-red-600">Latest Videos</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            @if ($videos->first())
-                <div class="relative">
-                    @if ($videos->first()->thumbnail)
-                        <img src="{{ asset('storage/' . $videos->first()->thumbnail) }}"
-                            class="rounded-lg w-full h-64 object-cover" alt="{{ $videos->first()->judul }}">
-                    @else
-                        <img src="https://source.unsplash.com/random/600x400?video"
-                            class="rounded-lg w-full h-64 object-cover" alt="Video">
-                    @endif
-                    <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <svg class="w-14 h-14 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M6.5 5.5l7 4.5-7 4.5v-9z"></path>
-                        </svg>
-                    </div>
-                    <div class="mt-3">
-                        <h4 class="text-sm font-semibold">{{ $videos->first()->judul }}</h4>
-                        <p class="text-xs text-gray-500">{{ Str::limit(strip_tags($videos->first()->isi), 80) }}</p>
-                    </div>
-                </div>
-            @endif
-
-            <div class="grid grid-cols-2 gap-3">
-                @foreach ($videos->skip(1) as $item)
-                    <div class="flex flex-col gap-2">
-                        @if ($item->thumbnail)
-                            <img src="{{ asset('storage/' . $item->thumbnail) }}"
-                                class="rounded w-full h-24 object-cover" alt="{{ $item->judul }}">
-                        @else
-                            <img src="https://source.unsplash.com/random/200x150?video"
-                                class="rounded w-full h-24 object-cover" alt="Video">
-                        @endif
-                        <h4 class="text-xs font-semibold">{{ $item->judul }}</h4>
-                    </div>
-                @endforeach
+        @if (count($popular) > 4)
+            <div class="flex justify-center mt-6">
+                <button @click="show += 4" x-show="show < {{ count($popular) }}"
+                    class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                    Lihat Lebih Banyak
+                </button>
             </div>
-        </div>
-    </section> --}}
+        @endif
+    </section>
 
     <!-- Footer -->
     <footer class="bg-gray-100 px-4 py-10 mt-16">
