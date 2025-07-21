@@ -53,10 +53,21 @@
 
                     <!-- Gambar Thumbnail -->
                     <div class="col-span-full">
-                        <label for="thumbnail" class="block text-sm font-medium text-text">Thumbnail (opsional)</label>
+                        <label for="thumbnail" class="block text-sm font-medium text-text mb-2">Thumbnail</label>
+                        <label for="thumbnail"
+                            class="flex items-center cursor-pointer rounded-md overflow-hidden border border-gray-300 bg-white">
+
+                            <span class="bg-gray-800 text-white text-sm font-semibold px-4 py-2">
+                                Pilih File
+                            </span>
+
+                            <span id="file_name" class="ml-3 text-sm text-gray-500">
+                                Tidak ada file dipilih
+                            </span>
+                        </label>
                         <input type="file" name="thumbnail" id="thumbnail"
-                            accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
-                            class="mt-2 block w-full text-sm text-text border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none" />
+                            accept="image/png, image/jpeg, image/jpg, image/gif, image/webp" class="hidden">
+                            <small>Format: .png, .jpg, .jpeg, .gif, .webp | Maksimal: 2MB</small>
                         @error('thumbnail')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -77,4 +88,21 @@
             </div>
         </div>
     </form>
+
+    <script>
+        document.getElementById('thumbnail').addEventListener('change', function(e) {
+            const fileName = e.target.files.length ? e.target.files[0].name : 'Tidak ada file dipilih';
+            document.getElementById('file_name').textContent = fileName;
+
+            const preview = document.getElementById('cover_preview');
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                preview.src = event.target.result;
+                preview.classList.remove('hidden');
+            };
+            if (e.target.files[0]) {
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    </script>
 @endsection

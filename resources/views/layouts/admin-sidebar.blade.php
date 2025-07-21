@@ -6,7 +6,7 @@
             <!-- Dashboard -->
             <li class="mb-4">
                 <a href="{{ route('admin.dashboard.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'dashboard' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'dashboard' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}">
                     <svg class="w-5 h-5 {{ $activeMenu == 'dashboard' ? 'text-white' : 'text-base300 ' }}"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -22,7 +22,7 @@
             @if (Auth::user()->role !== 'pustakawan')
                 <li>
                     <a href="{{ route('admin.kelas.index') }}"
-                        class="flex items-center p-2 rounded group {{ $activeMenu == 'kelas' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                        class="flex items-center p-2 rounded group {{ $activeMenu == 'kelas' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}">
                         <svg class="w-5 h-5 {{ $activeMenu == 'kelas' ? 'text-white' : 'text-gray-400 ' }}"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                             fill="none" viewBox="0 0 24 24">
@@ -36,7 +36,7 @@
 
                 <li>
                     <a href="{{ route('admin.pengguna.index') }}"
-                        class="flex items-center p-2 rounded group {{ $activeMenu == 'pengguna' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                        class="flex items-center p-2 rounded group {{ $activeMenu == 'pengguna' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}">
                         <svg class="w-6 h-6 {{ $activeMenu == 'pengguna' ? 'text-white' : 'text-base300 ' }}"
                             fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor"
                             stroke-width="2" stroke-linecap="square" stroke-linejoin="round">
@@ -53,7 +53,7 @@
 
             <li class="mb-4">
                 <button type="button"
-                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'anggota' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}"
+                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'anggota' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}"
                     aria-controls="dropdown-example" data-collapse-toggle="dropdown-example-anggota">
                     <svg class="w-5 h-5 {{ $activeMenu == 'anggota' ? 'text-white' : 'text-gray-400 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -85,27 +85,13 @@
                 </ul>
             </li>
 
-            {{-- <li>
-                <a href="{{ route('admin.anggota.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'anggota' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
-                    <svg class="w- h-5 {{ $activeMenu == 'anggota' ? 'text-white' : 'text-base300 ' }}"
-                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                        fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M7 6H5m2 3H5m2 3H5m2 3H5m2 3H5m11-1a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2M7 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm8 7a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" />
-                    </svg>
-
-                    <span class="ml-3 {{ $activeMenu == 'anggota' ? 'text-white' : 'text-base300' }}">Daftar
-                        Pengguna</span>
-                </a>
-            </li> --}}
 
             <!-- Manajemen Data Inventori -->
             <li class="text-xs px-2 text-text uppercase">Data Inventori</li>
 
             <li class="mb-4">
                 <button type="button"
-                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'master' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}"
+                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'master' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}"
                     aria-controls="dropdown-example" data-collapse-toggle="dropdown-example">
                     <svg class="w-5 h-5 {{ $activeMenu == 'master' ? 'text-white' : 'text-gray-400 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -161,7 +147,7 @@
 
             <li>
                 <a href="{{ route('admin.inventori.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'inventori' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'inventori' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}">
                     <svg class="w-5 h-5 {{ $activeMenu == 'inventori' ? 'text-white' : 'text-base300 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         fill="none" viewBox="0 0 24 24">
@@ -176,7 +162,7 @@
 
             <li>
                 <a href="{{ route('admin.eksemplar.buku') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'statusbuku' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'statusbuku' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}">
                     <svg class="w-5 h-5 {{ $activeMenu == 'statusbuku' ? 'text-white' : 'text-base300 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         fill="none" viewBox="0 0 24 24">
@@ -194,7 +180,7 @@
 
             <li class="mb-4">
                 <button type="button"
-                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'katalog' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}"
+                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'katalog' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}"
                     aria-controls="dropdown-example" data-collapse-toggle="dropdown-example-katalog">
                     <svg class="w-5 h-5 {{ $activeMenu == 'katalog' ? 'text-white' : 'text-gray-400 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -227,7 +213,7 @@
 
             <li>
                 <a href="{{ route('admin.eksemplar.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'eksemplar' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'eksemplar' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}">
                     <svg class="w-5 h-5 {{ $activeMenu == 'eksemplar' ? 'text-white' : 'text-base300 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         fill="none" viewBox="0 0 24 24">
@@ -246,7 +232,7 @@
 
             <li class="mb-4">
                 <button type="button"
-                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'peminjaman' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}"
+                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'peminjaman' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}"
                     aria-controls="dropdown-example" data-collapse-toggle="dropdown-example-nonpaket">
                     <svg class="w-5 h-5 {{ $activeMenu == 'peminjaman' ? 'text-white' : 'text-gray-400 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -280,7 +266,7 @@
 
             <li class="mb-4">
                 <button type="button"
-                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'peminjamanPaket' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}"
+                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'peminjamanPaket' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}"
                     aria-controls="dropdown-example" data-collapse-toggle="dropdown-example-paket">
                     <svg class="w-5 h-5 {{ $activeMenu == 'peminjamanPaket' ? 'text-white' : 'text-gray-400 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -316,7 +302,7 @@
 
             <li class="mb-4">
                 <button type="button"
-                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'buku-tamu' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}"
+                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'buku-tamu' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}"
                     aria-controls="dropdown-example" data-collapse-toggle="dropdown-example-tamu">
                     <svg class="w-5 h-5 {{ $activeMenu == 'buku-tamu' ? 'text-white' : 'text-gray-400 ' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -347,93 +333,94 @@
                 </ul>
             </li>
 
-            <li class="text-xs px-2 text-text uppercase">Data Manajemen Surat</li>
+            @if (Auth::user()->role !== 'pustakawan')
+                <li class="text-xs px-2 text-text uppercase">Data Manajemen Surat</li>
 
-            <li class="mb-4">
-                <button type="button"
-                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'master-surat' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}"
-                    aria-controls="dropdown-example" data-collapse-toggle="dropdown-example-surat">
-                    <svg class="w-5 h-5 {{ $activeMenu == 'master-surat' ? 'text-white' : 'text-gray-400 ' }}" aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                        viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13.5 8H4m0-2v13a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-5.032a1 1 0 0 1-.768-.36l-1.9-2.28a1 1 0 0 0-.768-.36H5a1 1 0 0 0-1 1Z" />
-                    </svg>
+                <li class="mb-4">
+                    <button type="button"
+                        class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'master-surat' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}"
+                        aria-controls="dropdown-example" data-collapse-toggle="dropdown-example-surat">
+                        <svg class="w-5 h-5 {{ $activeMenu == 'master-surat' ? 'text-white' : 'text-gray-400 ' }}"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M13.5 8H4m0-2v13a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-5.032a1 1 0 0 1-.768-.36l-1.9-2.28a1 1 0 0 0-.768-.36H5a1 1 0 0 0-1 1Z" />
+                        </svg>
 
-                    <span
-                        class="flex-1 ms-3  text-left {{ $activeMenu == 'master-surat' ? 'text-white' : 'text-gray-400' }}
+                        <span
+                            class="flex-1 ms-3  text-left {{ $activeMenu == 'master-surat' ? 'text-white' : 'text-gray-400' }}
                         rtl:text-right whitespace-nowrap">Master
-                        Surat</span>
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 10 6">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="m1 1 4 4 4-4" />
-                    </svg>
-                </button>
-                <ul id="dropdown-example-surat" class="hidden py-2 space-y-2">
-                    <li>
-                        <a href="{{ route('admin.kode-jenis-surat.index') }}"
-                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
-                            Jenis Surat</a>
-                    </li>
-                    <li>
-                        <a href="{{ route('admin.instansi.index') }}"
-                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
-                            Instansi</a>
-                    </li>
-                </ul>
-            </li>
+                            Surat</span>
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 10 6">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" d="m1 1 4 4 4-4" />
+                        </svg>
+                    </button>
+                    <ul id="dropdown-example-surat" class="hidden py-2 space-y-2">
+                        <li>
+                            <a href="{{ route('admin.kode-jenis-surat.index') }}"
+                                class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
+                                Jenis Surat</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.instansi.index') }}"
+                                class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
+                                Instansi</a>
+                        </li>
+                    </ul>
+                </li>
 
-            <li>
-                <a href="{{ route('admin.surat-keluar.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'surat-keluar' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
-                    <svg class="w-6 h-6 {{ $activeMenu == 'surat-keluar' ? 'text-white' : 'text-base300 ' }}"
-                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                        fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2M12 4v12m0-12 4 4m-4-4L8 8" />
-                    </svg>
-
-
-                    <span class="ml-3 {{ $activeMenu == 'surat-keluar' ? 'text-white' : 'text-base300' }}">Surat
-                        Keluar</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="{{ route('admin.surat-masuk.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'surat-masuk' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
-                    <svg class="w-6 h-6 {{ $activeMenu == 'surat-masuk' ? 'text-white' : 'text-base300 ' }}"
-                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                        fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4" />
-                    </svg>
-                    <span class="ml-3 {{ $activeMenu == 'surat-masuk' ? 'text-white' : 'text-base300' }}">Surat
-                        Masuk</span>
-                </a>
-            </li>
+                <li>
+                    <a href="{{ route('admin.surat-keluar.index') }}"
+                        class="flex items-center p-2 rounded group {{ $activeMenu == 'surat-keluar' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}">
+                        <svg class="w-6 h-6 {{ $activeMenu == 'surat-keluar' ? 'text-white' : 'text-base300 ' }}"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2M12 4v12m0-12 4 4m-4-4L8 8" />
+                        </svg>
 
 
-            <li class="text-xs px-2 text-text uppercase">Data Manajemen Berita</li>
+                        <span class="ml-3 {{ $activeMenu == 'surat-keluar' ? 'text-white' : 'text-base300' }}">Surat
+                            Keluar</span>
+                    </a>
+                </li>
 
-            <li>
-                <a href="{{ route('admin.berita.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'berita' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
-                    <svg class="w-6 h-6 {{ $activeMenu == 'berita' ? 'text-white' : 'text-base300 ' }}"
-                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                        fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4" />
-                    </svg>
-                    <span class="ml-3 {{ $activeMenu == 'berita' ? 'text-white' : 'text-base300' }}">Berita</span>
-                </a>
-            </li>
+                <li>
+                    <a href="{{ route('admin.surat-masuk.index') }}"
+                        class="flex items-center p-2 rounded group {{ $activeMenu == 'surat-masuk' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}">
+                        <svg class="w-6 h-6 {{ $activeMenu == 'surat-masuk' ? 'text-white' : 'text-base300 ' }}"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4" />
+                        </svg>
+                        <span class="ml-3 {{ $activeMenu == 'surat-masuk' ? 'text-white' : 'text-base300' }}">Surat
+                            Masuk</span>
+                    </a>
+                </li>
 
 
+                <li class="text-xs px-2 text-text uppercase">Data Manajemen Berita</li>
 
-
-
+                <li>
+                    <a href="{{ route('admin.berita.index') }}"
+                        class="flex items-center p-2 rounded group {{ $activeMenu == 'berita' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}">
+                        <svg class="w-6 h-6 {{ $activeMenu == 'berita' ? 'text-white' : 'text-base300 ' }}"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M19 7h1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h11.5M7 14h6m-6 3h6m0-10h.5m-.5 3h.5M7 7h3v3H7V7Z" />
+                        </svg>
+                        <span class="ml-3 {{ $activeMenu == 'berita' ? 'text-white' : 'text-base300' }}">Berita</span>
+                    </a>
+                </li>
+            @endif
 
 
             <!-- Logout -->

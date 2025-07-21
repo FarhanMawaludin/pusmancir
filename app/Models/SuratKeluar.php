@@ -30,7 +30,7 @@ class SuratKeluar extends Model
     public function getNomorSuratAttribute()
     {
         $kodeJenis = $this->kodeJenisSurat->kode ?? 'XX';
-        $instansi = $this->instansi->singkatan ?? 'INST';
+        $instansi = $this->instansi->kode ?? 'INST';
         $bulanRomawi = $this->convertToRomawi($this->tanggal_keluar->format('m'));
         $tahun = $this->tanggal_keluar->format('Y');
         $nomorUrut = str_pad($this->nomor_urut, 3, '0', STR_PAD_LEFT);

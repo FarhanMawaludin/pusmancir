@@ -13,7 +13,9 @@
                         <div class="mt-2">
                             <input type="text" name="nama_kategori" id="nama_kategori" value="{{ old('nama_kategori', $kategori_buku->nama_kategori) }}"
                                 autocomplete="given-name"
-                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
                                 style="text-transform: uppercase;">
                             @error('nama_kategori')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

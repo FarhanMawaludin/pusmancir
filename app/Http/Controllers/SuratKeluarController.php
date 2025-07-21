@@ -69,23 +69,24 @@ class SuratKeluarController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nomor_urut' => 'required|integer',
-            'tanggal_keluar' => 'required|date',
-            'tujuan_surat' => 'required|string|max:255',
-            'perihal' => 'required|string|max:255',
-            'kode_jenis_id' => 'required|exists:kode_jenis_surat,id',
-            'instansi_id' => 'required|exists:instansi,id',
-            'isi_surat' => 'required|string',
-            'file_surat' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+            'nomor_urut'    => ['required', 'integer'],
+            'tanggal_keluar' => ['required', 'date'],
+            'tujuan_surat'  => ['required', 'string', 'max:255'],
+            'perihal'       => ['required', 'string', 'max:255'],
+            'kode_jenis_id' => ['required', 'exists:kode_jenis_surat,id'],
+            'instansi_id'   => ['required', 'exists:instansi,id'],
+            'isi_surat'     => ['required', 'string'],
+            'file_surat'    => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:2048'],
         ]);
 
         if ($request->hasFile('file_surat')) {
-            $validated['file_surat'] = $request->file('file_surat')->store('surat-keluar');
+            $validated['file_surat'] = $request->file('file_surat')->store('surat-keluar', 'public');
         }
 
         SuratKeluar::create($validated);
 
-        return redirect()->route('admin.surat-keluar.index')->with('success', 'Surat keluar berhasil ditambahkan.');
+        return redirect()->route('admin.surat-keluar.index')
+            ->with('success', 'Surat keluar berhasil ditambahkan.');
     }
 
     public function edit($id)
@@ -108,28 +109,30 @@ class SuratKeluarController extends Controller
         $surat = SuratKeluar::findOrFail($id);
 
         $validated = $request->validate([
-            'nomor_urut' => 'required|integer',
-            'tanggal_keluar' => 'required|date',
-            'tujuan_surat' => 'required|string|max:255',
-            'perihal' => 'required|string|max:255',
-            'kode_jenis_id' => 'required|exists:kode_jenis_surat,id',
-            'instansi_id' => 'required|exists:instansi,id',
-            'isi_surat' => 'required|string',
-            'file_surat' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+            'nomor_urut'    => ['required', 'integer'],
+            'tanggal_keluar' => ['required', 'date'],
+            'tujuan_surat'  => ['required', 'string', 'max:255'],
+            'perihal'       => ['required', 'string', 'max:255'],
+            'kode_jenis_id' => ['required', 'exists:kode_jenis_surat,id'],
+            'instansi_id'   => ['required', 'exists:instansi,id'],
+            'isi_surat'     => ['required', 'string'],
+            'file_surat'    => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:2048'],
         ]);
 
         if ($request->hasFile('file_surat')) {
             // Hapus file lama jika ada
-            if ($surat->file_surat && Storage::exists($surat->file_surat)) {
-                Storage::delete($surat->file_surat);
+            if ($surat->file_surat && Storage::disk('public')->exists($surat->file_surat)) {
+                Storage::disk('public')->delete($surat->file_surat);
             }
 
-            $validated['file_surat'] = $request->file('file_surat')->store('surat-keluar');
+            // Simpan file baru di storage/app/public/surat-keluar
+            $validated['file_surat'] = $request->file('file_surat')->store('surat-keluar', 'public');
         }
 
         $surat->update($validated);
 
-        return redirect()->route('admin.surat-keluar.index')->with('success', 'Data surat keluar berhasil diperbarui.');
+        return redirect()->route('admin.surat-keluar.index')
+            ->with('success', 'Data surat keluar berhasil diperbarui.');
     }
 
     public function destroy($id)

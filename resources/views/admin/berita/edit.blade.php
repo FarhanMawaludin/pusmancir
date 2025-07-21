@@ -55,16 +55,20 @@
 
                     <!-- Gambar Thumbnail -->
                     <div class="col-span-full">
-                        <label for="thumbnail" class="block text-sm font-medium text-text">Thumbnail (opsional)</label>
-                        <input type="file" name="thumbnail" id="thumbnail"
-                            accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
-                            class="mt-2 block w-full text-sm text-text border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none" />
-                        @error('thumbnail')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <label for="thumbnail" class="block text-sm font-medium text-text mb-2">Thumbnail </label>
+                        <label for="thumbnail"
+                            class="flex items-center cursor-pointer rounded-md overflow-hidden border border-gray-300 bg-white">
 
-                        {{-- Hidden input agar file lama tetap dipakai jika tidak upload baru --}}
-                        <input type="hidden" name="thumbnail_url" value="{{ $berita->thumbnail }}">
+                            <span class="bg-gray-800 text-white text-sm font-semibold px-4 py-2">
+                                Pilih File
+                            </span>
+
+                            <span id="file_name" class="ml-3 text-sm text-gray-500">
+                                Tidak ada file dipilih
+                            </span>
+                        </label>
+                        <input type="file" name="thumbnail" id="thumbnail"
+                            accept="image/png, image/jpeg, image/jpg, image/gif, image/webp" class="hidden">
 
                         {{-- Thumbnail Preview --}}
                         @if ($berita->thumbnail)

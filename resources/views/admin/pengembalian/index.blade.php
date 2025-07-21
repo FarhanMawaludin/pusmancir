@@ -1,25 +1,67 @@
 @extends('layouts.admin-app')
 
 @section('content')
-    <div class="flex justify-between items-center ">
-        <!-- Judul -->
-        <section class="mb-2">
-            <h1 class="text-2xl font-bold text-text mb-8">Data pengembalian</h1>
-            <!-- Form Pencarian -->
-            <form method="GET" action="{{ route('admin.pengembalian.index') }}" class="mb-4 flex items-center gap-2">
-                <input type="text" name="search" value="{{ request('search') }}"
-                    class="block w-full rounded-md bg-white px-2 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                    placeholder="Cari NISN anggota...">
-                <button type="submit" class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
-                    Cari
-                </button>
-                @if (request('search'))
-                    <a href="{{ route('admin.pengembalian.index') }}"
-                        class="text-sm text-gray-600 underline hover:text-blue-600 ml-2">Reset</a>
-                @endif
-            </form>
+
+    <div class="flex justify-between paketItems-center w-full">
+        <!-- Judul + Form -->
+        <section class="mb-2 w-full"> <!-- ✅ DITAMBAHKAN w-full -->
+
+            <!-- Judul -->
+            <h1 class="text-2xl font-bold text-text mb-4">Data Pengembalian</h1>
+
+            {{-- === FORM UTAMA === --}}
+            <div class="w-full border border-gray-300 rounded p-4">
+                <!-- Grid wrapper -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+                    <!-- === SCAN BARCODE DENGAN KAMERA === -->
+                    <div class="col-span-1 md:col-span-2 md:col-start-2">
+                        <label class="block font-medium text-sm mb-2 text-gray-700 text-center">
+                            Scan Barcode Anggota (Via Kamera)
+                        </label>
+
+                        <!-- Area kamera -->
+                        <div class="flex justify-center">
+                            <div id="reader" class="mb-3 border border-gray-300 rounded-md shadow"
+                                style="width: 100%; max-width: 400px;">
+                            </div>
+                        </div>
+
+                        <!-- Info Mode -->
+                        <p class="text-center text-sm text-gray-500 mb-1">
+                            Kamera akan otomatis mengisi kolom pencarian anggota.
+                        </p>
+                        <small class="text-gray-500 block text-center">
+                            Arahkan barcode ke kamera, data akan dicari otomatis.
+                        </small>
+                    </div>
+
+                </div>
+            </div>
         </section>
     </div>
+
+    <div class="flex justify-between paketItems-center">
+        <form id="searchForm" method="GET" action="{{ route('admin.pengembalian.index') }}"
+            class="flex w-full max-w-lg my-6">
+            <div class="relative w-full">
+                <input type="search" id="search-dropdown" name="search"
+                    class="block w-full rounded-md bg-white px-3 py-2 text-base text-text 
+            border border-gray-300 placeholder:text-gray-400
+            focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
+                    placeholder="Cari siswa" value="{{ $search ?? '' }}" />
+                <button type="submit"
+                    class="absolute top-0 end-0 p-2.5 h-full text-white bg-blue-700 rounded border-blue-700
+               hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+
 
     <div class="overflow-x-auto relative rounded border border-gray-200">
         <table class="min-w-full text-sm text-left text-text">
@@ -88,19 +130,21 @@
                                     {{-- Tombol Terima --}}
                                     <form id="terima-form-{{ $pengembalianItem->id }}"
                                         action="{{ route('admin.pengembalian.update', $pengembalianItem->id) }}"
-                                        method="POST" onsubmit="return confirm('Terima pengembalian ini?');">
+                                        method="POST">
                                         @csrf
                                         @method('PUT')
-                                        <button type="submit"
-                                            class="w-32 flex items-center justify-center bg-blue-700 text-white px-3 py-2 rounded hover:bg-green-700 transition text-sm">
+                                        <button type="button" {{-- ubah dari submit ke button --}}
+                                            class="btn-terima w-32 flex items-center justify-center bg-blue-700 text-white px-3 py-2 rounded hover:bg-green-700 transition text-sm"
+                                            data-id="{{ $pengembalianItem->id }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none"
                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M11 5H6a2 2 0 00-2 2v11.5A1.5 1.5 0 005.5 20H17a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                                             </svg>
-                                            Terima
+                                            Kembali
                                         </button>
                                     </form>
+
 
                                     @if ($isTerlambat)
                                         {{-- Tombol Export PDF --}}
@@ -110,12 +154,12 @@
                                             <svg class="w-5 h-5 text-white mr-2" aria-hidden="true"
                                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 fill="none" viewBox="0 0 24 24">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                                    stroke-width="2"
+                                                <path stroke="currentColor" stroke-linecap="round"
+                                                    stroke-linejoin="round" stroke-width="2"
                                                     d="M5 17v-5h1.5a1.5 1.5 0 1 1 0 3H5m12 2v-5h2m-2 3h2M5 10V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1v6M5 19v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1M10 3v4a1 1 0 0 1-1 1H5m6 4v5h1.375A1.627 1.627 0 0 0 14 15.375v-1.75A1.627 1.627 0 0 0 12.375 12H11Z" />
                                             </svg>
 
-                                            Export PDF
+                                            Export Surat
                                         </a>
 
                                         {{-- Tombol Kirim WA --}}
@@ -269,5 +313,29 @@
                     infoBox.innerHTML = `<span class="text-red-500">Gagal mengambil data</span>`;
                 });
         }
+    </script>
+
+    <script>
+        function onScanSuccess(decodedText) {
+            const searchBox = document.getElementById('search-dropdown');
+            searchBox.value = decodedText;
+
+            // Auto submit jika form tersedia
+            const searchForm = document.getElementById('searchForm');
+            if (searchForm) {
+                searchForm.submit();
+            }
+        }
+
+        // Inisialisasi scanner untuk mode cari_anggota saja
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", {
+                fps: 10,
+                qrbox: 250
+            },
+            false // verbose
+        );
+
+        html5QrcodeScanner.render(onScanSuccess);
     </script>
 @endsection

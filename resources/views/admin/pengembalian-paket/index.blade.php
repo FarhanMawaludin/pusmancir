@@ -1,24 +1,64 @@
 @extends('layouts.admin-app')
 
 @section('content')
-    <div class="flex justify-between items-center ">
-        <!-- Judul -->
-        <section class="mb-2">
-            <h1 class="text-2xl font-bold text-text mb-8">Data pengembalian</h1>
-            <!-- Form Pencarian -->
-            <form method="GET" action="{{ route('admin.pengembalian-paket.index') }}" class="mb-4 flex items-center gap-2">
-                <input type="text" name="search" value="{{ request('search') }}"
-                    class="block w-full rounded-md bg-white px-2 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                    placeholder="Cari NISN anggota...">
-                <button type="submit" class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
-                    Cari
-                </button>
-                @if (request('search'))
-                    <a href="{{ route('admin.pengembalian-paket.index') }}"
-                        class="text-sm text-gray-600 underline hover:text-blue-600 ml-2">Reset</a>
-                @endif
-            </form>
+    <div class="flex justify-between paketItems-center w-full">
+        <!-- Judul + Form -->
+        <section class="mb-2 w-full"> <!-- ✅ DITAMBAHKAN w-full -->
+
+            <!-- Judul -->
+            <h1 class="text-2xl font-bold text-text mb-4">Data Pengembalian Paket</h1>
+
+            {{-- === FORM UTAMA === --}}
+            <div class="w-full border border-gray-300 rounded p-4">
+                <!-- Grid wrapper -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+                    <!-- === SCAN BARCODE DENGAN KAMERA === -->
+                    <div class="col-span-1 md:col-span-2 md:col-start-2">
+                        <label class="block font-medium text-sm mb-2 text-gray-700 text-center">
+                            Scan Barcode Anggota (Via Kamera)
+                        </label>
+
+                        <!-- Area kamera -->
+                        <div class="flex justify-center">
+                            <div id="reader" class="mb-3 border border-gray-300 rounded-md shadow"
+                                style="width: 100%; max-width: 400px;">
+                            </div>
+                        </div>
+
+                        <!-- Info Mode -->
+                        <p class="text-center text-sm text-gray-500 mb-1">
+                            Kamera akan otomatis mengisi kolom pencarian anggota.
+                        </p>
+                        <small class="text-gray-500 block text-center">
+                            Arahkan barcode ke kamera, data akan dicari otomatis.
+                        </small>
+                    </div>
+
+                </div>
+            </div>
         </section>
+    </div>
+
+    <div class="flex justify-between paketItems-center">
+        <form id="searchForm" method="GET" action="{{ route('admin.pengembalian-paket.index') }}"
+            class="flex w-full max-w-lg my-6">
+            <div class="relative w-full">
+                <input type="search" id="search-dropdown" name="search"
+                    class="block w-full rounded-md bg-white px-3 py-2 text-base text-text 
+                border border-gray-300 placeholder:text-gray-400
+                focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
+                    placeholder="Cari siswa" value="{{ $search ?? '' }}" />
+                <button type="submit"
+                    class="absolute top-0 end-0 p-2.5 h-full text-white bg-blue-700 rounded border-blue-700
+                   hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                    </svg>
+                </button>
+            </div>
+        </form>
     </div>
 
     <div class="overflow-x-auto relative rounded border border-gray-200">
@@ -128,48 +168,6 @@
         });
     </script>
 
-
-    <!-- JavaScript -->
-    <script>
-        const dropdownButton = document.getElementById('dropdown-button');
-        const dropdownMenu = document.getElementById('dropdown');
-        const categoryButtons = document.querySelectorAll('.category-btn');
-        const selectedCategoryInput = document.getElementById('selected-category');
-
-        // Toggle dropdown
-        dropdownButton.addEventListener('click', () => {
-            dropdownMenu.classList.toggle('hidden');
-        });
-
-        // Handle category selection and submit form
-        categoryButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const selectedValue = button.getAttribute('data-value');
-                const displayText = button.textContent.trim();
-
-                selectedCategoryInput.value = selectedValue;
-                dropdownButton.innerHTML = `${displayText}
-            <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 10 6">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="m1 1 4 4 4-4" />
-            </svg>`;
-
-                dropdownMenu.classList.add('hidden');
-
-                // Automatically submit the form when a category is selected
-                button.closest('form').submit();
-            });
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                dropdownMenu.classList.add('hidden');
-            }
-        });
-    </script>
-
     <script>
         function cekAnggota() {
             const nisn = document.getElementById('anggota_id_input').value.trim();
@@ -218,5 +216,29 @@
                     infoBox.innerHTML = `<span class="text-red-500">Gagal mengambil data</span>`;
                 });
         }
+    </script>
+
+    <script>
+        function onScanSuccess(decodedText) {
+            const searchBox = document.getElementById('search-dropdown');
+            searchBox.value = decodedText;
+
+            // Auto submit jika form tersedia
+            const searchForm = document.getElementById('searchForm');
+            if (searchForm) {
+                searchForm.submit();
+            }
+        }
+
+        // Inisialisasi scanner untuk mode cari_anggota saja
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", {
+                fps: 10,
+                qrbox: 250
+            },
+            false // verbose
+        );
+
+        html5QrcodeScanner.render(onScanSuccess);
     </script>
 @endsection

@@ -1,7 +1,7 @@
 @extends('layouts.admin-app')
 
 @section('content')
-    <form method="POST" action="{{ route('admin.jenis-sumber.update', $jenis_sumber->id) }}" class="space-y-8 divide-y divide-gray-900/10')  }}">
+    <form method="POST" action="{{ route('admin.jenis-sumber.update', $jenis_sumber->id) }}" >
         @csrf
         @method('PUT')
         <div class="space-y-4">
@@ -13,7 +13,9 @@
                         <div class="mt-2">
                             <input type="text" name="nama_sumber" id="nama_sumber" value="{{ old('nama_sumber' , $jenis_sumber->nama_sumber) }}"
                                 autocomplete="given-name"
-                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
                                 style="text-transform: uppercase;">
                             @error('nama_sumber')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

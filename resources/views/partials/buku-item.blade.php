@@ -34,7 +34,7 @@
                 <!-- Tombol -->
                 <a href="{{ route('detail-buku', $buku->id) }}" class="w-full px-2 pb-4">
                     <button type="button"
-                        class="w-full text-white bg-blue-600 hover:bg-blue-800 font-semibold rounded-md text-sm px-5 py-2 transition-all duration-300">
+                        class="w-full text-white bg-blue-700 hover:bg-blue-800 font-semibold rounded-md text-sm px-5 py-2 transition-all duration-300">
                         Lihat Buku
                     </button>
                 </a>

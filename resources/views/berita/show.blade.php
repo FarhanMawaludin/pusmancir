@@ -9,9 +9,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <link rel="icon" href="{{ asset('logo-smancir.png') }}" type="image/png">
-    {{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <!-- Flowbite JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script> --}}
+    {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
 </head>
 
 <body class="bg-white text-text">
@@ -78,11 +76,11 @@
                         </li>
                         <li>
                             <a href="{{ route('berita.index') }}"
-                                class="block py-2 px-3 text-gray-400 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0">Berita</a>
+                                class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0">Berita</a>
                         </li>
                         <li>
                             <a href="{{ route('peringkat.index') }}"
-                                class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0">Peringkat</a>
+                                class="block py-2 px-3 text-gray-400 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0">Peringkat</a>
                         </li>
                     </ul>
                 </div>
@@ -90,96 +88,77 @@
         </div>
     </nav>
 
-    <!-- Hero slider -->
-    <section class="container mx-auto px-6 mt-40">
-        <div class="bg-white rounded-lg border border-gray-200 p-12 min-w-full mb-6">
-            <h2 class="text-xl font-bold text-center text-gray-700 mb-8">Top 3 Pengunjung Teraktif</h2>
-            <div
-                class="flex flex-col sm:flex-row items-center sm:items-end justify-center gap-10 sm:gap-20 text-center mt-6">
-                @foreach ($top3_kunjungan as $i => $data)
-                    @php
-                        $mt_card = $i === 0 ? 'mt-0' : 'mt-12';
-                        $crowns = ['🥇', '🥈', '🥉'];
-                        $crown = $crowns[$i] ?? '';
-                        $orderClasses = ['sm:order-1', 'sm:order-0', 'sm:order-2'];
-                        $orderClass = $orderClasses[$i] ?? '';
-                        $style = $i === 0 ? 'transform: translateY(-20px);' : '';
-                    @endphp
+    <section class="container mx-auto px-6 mt-36">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            {{-- Main content --}}
+            <div class="lg:col-span-2">
+                {{-- Judul dan Gambar Utama --}}
+                <h1 class="text-3xl font-bold mb-4 leading-snug">{{ $berita->judul }}</h1>
+                @if ($berita->thumbnail)
+                    <img src="{{ asset('storage/' . $berita->thumbnail) }}" alt="{{ $berita->judul }}"
+                        class="w-full h-64 md:h-96 object-cover rounded mb-6">
+                @endif
 
-                    <div class="flex flex-col items-center gap-2 {{ $mt_card }} {{ $orderClass }}"
-                        style="{{ $style }}">
-                        <div class="text-5xl">{{ $crown }}</div>
-                        <div class="font-bold text-lg text-gray-800">{{ $data->nama }}</div>
-                        <div class="text-sm text-gray-500">Total Kunjungan</div>
-                        <div class="bg-gray-200 rounded-full px-4 py-2 mt-1 font-semibold text-blue-800">
-                            {{ $data->total_kunjungan }} kali
-                        </div>
+                {{-- Meta Info --}}
+                <div class="text-sm text-gray-500 flex items-center gap-4 mb-4">
+                    <span><i class="far fa-calendar-alt"></i> {{ $berita->created_at->format('d M Y') }}</span>
+                    <span><i class="far fa-user"></i> {{ $berita->penulis ?? 'Admin' }}</span>
+                </div>
+
+                {{-- Isi Berita --}}
+                <div class="prose prose-lg max-w-none mb-12">
+                    {!! $berita->isi !!}
+                </div>
+
+                {{-- Related Posts --}}
+                @if ($related->count())
+                    <h2 class="text-xl font-bold text-red-600 mb-4">Postingan Lainnya</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        @foreach ($related as $item)
+                            <a href="{{ route('berita.show', $item->id) }}"
+                                class="bg-white rounded border border-gray-200 hover:shadow-md transition p-3">
+                                @if ($item->thumbnail)
+                                    <img src="{{ asset('storage/' . $item->thumbnail) }}"
+                                        class="rounded mb-2 w-full h-32 object-cover" alt="{{ $item->judul }}">
+                                @else
+                                    <img src="https://source.unsplash.com/random/300x200?news"
+                                        class="rounded mb-2 w-full h-32 object-cover" alt="Default">
+                                @endif
+                                <h4 class="font-semibold text-sm leading-tight">{{ $item->judul }}</h4>
+                                <p class="text-xs text-gray-500 mt-1">{{ $item->created_at->format('d M Y') }}</p>
+                            </a>
+                        @endforeach
                     </div>
-                @endforeach
+                @endif
+            </div>
+
+            {{-- Sidebar --}}
+            <div class="space-y-8">
+                {{-- Top Post --}}
+                <div class="bg-white rounded border border-gray-200 p-4">
+                    <h3 class="text-md font-bold text-red-600 mb-4">Top Post</h3>
+                    @foreach ($related->take(5) as $item)
+                        <a href="{{ route('berita.show', $item->id) }}"
+                            class="flex items-center gap-3 mb-3 hover:bg-gray-100 p-2 rounded">
+                            <div class="w-16 h-16 flex-shrink-0">
+                                @if ($item->thumbnail)
+                                    <img src="{{ asset('storage/' . $item->thumbnail) }}"
+                                        class="w-full h-full object-cover rounded" alt="">
+                                @else
+                                    <img src="https://source.unsplash.com/random/80x80?news"
+                                        class="w-full h-full object-cover rounded" alt="">
+                                @endif
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold leading-tight">{{ Str::limit($item->judul, 40) }}</p>
+                                <span class="text-xs text-gray-400">{{ $item->created_at->format('d M Y') }}</span>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
             </div>
         </div>
     </section>
-
-    <section class="container mx-auto px-6 mt-8">
-        <div class="bg-white rounded-lg border border-gray-200 p-12 min-w-full mb-6">
-            <h2 class="text-xl font-bold text-center text-gray-700 mb-8">Top 3 Peminjam Buku Teraktif</h2>
-            <div
-                class="flex flex-col sm:flex-row items-center sm:items-end justify-center gap-10 sm:gap-20 text-center mt-6">
-                @foreach ($top3_peminjaman as $i => $data)
-                    @php
-                        $mt_card = $i === 0 ? 'mt-0' : 'mt-12';
-                        $crowns = ['🥇', '🥈', '🥉'];
-                        $crown = $crowns[$i] ?? '';
-                        $orderClasses = ['sm:order-1', 'sm:order-0', 'sm:order-2'];
-                        $orderClass = $orderClasses[$i] ?? '';
-                        $style = $i === 0 ? 'transform: translateY(-20px);' : '';
-                        $nama = $data->anggota->user->name ?? 'Tanpa Nama';
-                    @endphp
-
-                    <div class="flex flex-col items-center gap-2 {{ $mt_card }} {{ $orderClass }}"
-                        style="{{ $style }}">
-                        <div class="text-5xl">{{ $crown }}</div>
-                        <div class="font-bold text-lg text-gray-800">{{ $nama }}</div>
-                        <div class="text-sm text-gray-500">Total Peminjaman</div>
-                        <div class="bg-gray-200 rounded-full px-4 py-2 mt-1 font-semibold text-blue-800">
-                            {{ $data->total_peminjaman }} kali
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    <section class="container mx-auto px-6 mt-12">
-        <div class="bg-white rounded-lg border border-gray-200 p-12 min-w-full mb-6">
-            <h2 class="text-xl font-bold text-center text-gray-700 mb-8">Top 3 Buku yang Paling Sering Dipinjam</h2>
-            <div
-                class="flex flex-col sm:flex-row items-center sm:items-end justify-center gap-10 sm:gap-20 text-center mt-6">
-                @foreach ($top3_buku as $i => $data)
-                    @php
-                        $mt_card = $i === 0 ? 'mt-0' : 'mt-12';
-                        $crowns = ['🥇', '🥈', '🥉'];
-                        $crown = $crowns[$i] ?? '';
-                        $orderClasses = ['sm:order-1', 'sm:order-0', 'sm:order-2'];
-                        $orderClass = $orderClasses[$i] ?? '';
-                        $style = $i === 0 ? 'transform: translateY(-20px);' : '';
-                    @endphp
-
-                    <div class="flex flex-col items-center gap-2 {{ $mt_card }} {{ $orderClass }}"
-                        style="{{ $style }}">
-                        <div class="text-5xl">{{ $crown }}</div>
-                        <div class="font-bold text-lg text-gray-800 text-center">{{ $data->judul_buku }}</div>
-                        <div class="text-sm text-gray-500">Total Dipinjam</div>
-                        <div class="bg-gray-200 rounded-full px-4 py-2 mt-1 font-semibold text-blue-800">
-                            {{ $data->total_dipinjam }} kali
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-
 
 
     <!-- Footer -->

@@ -2,33 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
+@import 'flowbite';
 
+/* ===== Custom Pagination Styling ===== */
 
-/* ==== Pagination Terang (Override Tailwind Default) ==== */
+/* Untuk Laravel Pagination (jika pakai class 'pagination') */
 nav[role="navigation"].pagination {
     background-color: white;
 }
 
+/* Item Pagination */
 .pagination .page-link,
 .pagination a,
 .pagination span {
     background-color: white !important;
-    color: #374151 !important; /* Tailwind gray-700 */
+    color: #374151 !important;         /* Tailwind gray-700 */
     border: 1px solid #d1d5db !important; /* Tailwind gray-300 */
     padding: 0.5rem 0.75rem;
-    border-radius: 0.375rem; /* rounded-md */
+    border-radius: 0.375rem;           /* rounded-md */
     margin: 0 2px;
     transition: background-color 0.3s ease;
 }
 
+/* Active Pagination */
 .pagination .active span {
-    background-color: #2563eb !important; /* blue-600 */
+    background-color: #2563eb !important; /* Tailwind blue-600 */
     color: white !important;
     border-color: #2563eb !important;
 }
 
+/* Disabled Pagination */
 .pagination .disabled span {
     color: #9ca3af !important; /* gray-400 */
     cursor: not-allowed;
 }
-
