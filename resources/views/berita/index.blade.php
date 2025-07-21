@@ -109,36 +109,81 @@
     </section>
 
     <!-- Popular Posts -->
-    <section class="max-w-screen-xl mx-auto px-4 py-8 lg:py-16">
-        <div class="text-center mb-8">
-            <h2 class="text-3xl font-bold">Berita Populer</h2>
-            <p class="text-gray-600 mt-2">Berita yang paling banyak dilihat</p>
-        </div>
+    <section class="container mx-auto px-6 mt-10" x-data="{ show: 4 }">
+        <h3 class="text-lg font-semibold mb-4 text-red-600">Postingan</h3>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="popular-posts">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             @foreach ($popular as $index => $item)
                 <a href="{{ route('berita.show', $item->id) }}"
-                    class="post-item block bg-white rounded border border-gray-200 p-3 hover:shadow-lg transition"
-                    data-index="{{ $index }}" @if ($index >= 4) hidden @endif>
-                    <img src="{{ asset($item->thumbnail) }}" alt="{{ $item->judul }}"
-                        class="w-full h-40 object-cover rounded mb-3">
-
-                    <h3 class="text-lg font-semibold text-gray-800 leading-snug">{{ $item->judul }}</h3>
-                    <p class="text-sm text-gray-600 mt-1">
-                        {{ \Illuminate\Support\Str::limit(strip_tags($item->isi), 100) }}</p>
-                    <p class="text-xs text-gray-500 mt-2">Dilihat {{ $item->views }} kali</p>
+                    class="block bg-white rounded border border-gray-200 p-3 hover:shadow-lg transition"
+                    x-show="{{ $index }} < show">
+                    @if ($item->thumbnail)
+                        <img src="{{ asset($item->thumbnail) }}" class="rounded mb-2 w-full h-40 object-cover"
+                            alt="{{ $item->judul }}">
+                    @else
+                        <img src="https://source.unsplash.com/random/300x200?news"
+                            class="rounded mb-2 w-full h-40 object-cover" alt="Default">
+                    @endif
+                    <h4 class="font-semibold text-sm">{{ $item->judul }}</h4>
+                    <p class="text-xs text-gray-500 mt-1">{{ $item->penulis }} -
+                        {{ $item->created_at->format('M d, Y') }}</p>
                 </a>
             @endforeach
         </div>
-
-        @if (count($popular) > 4)
-            <div class="text-center mt-6">
-                <button id="loadMoreBtn" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
-                    Lihat Lebih Banyak
-                </button>
-            </div>
-        @endif
     </section>
+
+
+    @if (count($popular) > 4)
+        <div class="flex justify-center mt-6">
+            <button @click="show += 4" x-show="show < {{ count($popular) }}"
+                class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                Lihat Lebih Banyak
+            </button>
+        </div>
+    @endif
+    </section>
+
+    <!-- Latest Videos -->
+    {{-- <section class="container mx-auto px-6 mt-12">
+        <h3 class="text-lg font-semibold mb-4 text-red-600">Latest Videos</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            @if ($videos->first())
+                <div class="relative">
+                    @if ($videos->first()->thumbnail)
+                        <img src="{{ asset('storage/' . $videos->first()->thumbnail) }}"
+                            class="rounded-lg w-full h-64 object-cover" alt="{{ $videos->first()->judul }}">
+                    @else
+                        <img src="https://source.unsplash.com/random/600x400?video"
+                            class="rounded-lg w-full h-64 object-cover" alt="Video">
+                    @endif
+                    <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <svg class="w-14 h-14 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M6.5 5.5l7 4.5-7 4.5v-9z"></path>
+                        </svg>
+                    </div>
+                    <div class="mt-3">
+                        <h4 class="text-sm font-semibold">{{ $videos->first()->judul }}</h4>
+                        <p class="text-xs text-gray-500">{{ Str::limit(strip_tags($videos->first()->isi), 80) }}</p>
+                    </div>
+                </div>
+            @endif
+
+            <div class="grid grid-cols-2 gap-3">
+                @foreach ($videos->skip(1) as $item)
+                    <div class="flex flex-col gap-2">
+                        @if ($item->thumbnail)
+                            <img src="{{ asset('storage/' . $item->thumbnail) }}"
+                                class="rounded w-full h-24 object-cover" alt="{{ $item->judul }}">
+                        @else
+                            <img src="https://source.unsplash.com/random/200x150?video"
+                                class="rounded w-full h-24 object-cover" alt="Video">
+                        @endif
+                        <h4 class="text-xs font-semibold">{{ $item->judul }}</h4>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </section> --}}
 
     <!-- Footer -->
     <footer class="bg-gray-100 px-4 py-10 mt-16">
@@ -171,28 +216,6 @@
                 href="#" class="underline">Terms</a> · <a href="#" class="underline">Code of Conduct</a>
         </div>
     </footer>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const posts = document.querySelectorAll('.post-item');
-            const loadMoreBtn = document.getElementById('loadMoreBtn');
-
-            loadMoreBtn?.addEventListener('click', () => {
-                let shownCount = 0;
-                posts.forEach((post, index) => {
-                    if (post.hasAttribute('hidden') && shownCount < 4) {
-                        post.removeAttribute('hidden');
-                        shownCount++;
-                    }
-                });
-
-                const remainingHidden = Array.from(posts).filter(post => post.hasAttribute('hidden'));
-                if (remainingHidden.length === 0) {
-                    loadMoreBtn.style.display = 'none';
-                }
-            });
-        });
-    </script>
 </body>
 
 </html>
