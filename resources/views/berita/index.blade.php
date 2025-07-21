@@ -93,7 +93,7 @@
         <a href="{{ route('berita.show', $hero->id) }}">
             <div class="relative rounded-lg overflow-hidden shadow-lg">
                 @if ($hero && $hero->thumbnail)
-                    <img src="{{ asset('storage/thumbnails/' . $hero->thumbnail) }}" alt="{{ $hero->judul }}"
+                    <img src="{{ asset($hero->thumbnail) }}" alt="{{ $hero->judul }}"
                         class="w-full h-64 object-cover">
                 @else
                     <img src="https://source.unsplash.com/random/1024x480?technology" alt="Hero"
@@ -118,7 +118,7 @@
                     class="block bg-white rounded border border-gray-200 p-3 hover:shadow-lg transition"
                     x-show="{{ $index }} < show">
                     @if ($item->thumbnail)
-                        <img src="{{ asset('storage/' . $item->thumbnail) }}"
+                        <img src="{{ asset($item->thumbnail) }}"
                             class="rounded mb-2 w-full h-40 object-cover" alt="{{ $item->judul }}">
                     @else
                         <img src="https://source.unsplash.com/random/300x200?news"
@@ -130,15 +130,17 @@
                 </a>
             @endforeach
         </div>
+    </section>
 
-        @if (count($popular) > 4)
-            <div class="flex justify-center mt-6">
-                <button @click="show += 4" x-show="show < {{ count($popular) }}"
-                    class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
-                    Lihat Lebih Banyak
-                </button>
-            </div>
-        @endif
+
+    @if (count($popular) > 4)
+        <div class="flex justify-center mt-6">
+            <button @click="show += 4" x-show="show < {{ count($popular) }}"
+                class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                Lihat Lebih Banyak
+            </button>
+        </div>
+    @endif
     </section>
 
     <!-- Latest Videos -->

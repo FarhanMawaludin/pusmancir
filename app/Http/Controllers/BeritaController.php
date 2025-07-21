@@ -33,24 +33,52 @@ class BeritaController extends Controller
         return view('admin.berita.create', compact('activeMenu'));
     }
 
+    // public function store(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'judul' => 'required|string|max:255',
+    //         'isi' => 'required',
+    //         'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+    //         'status' => 'required|in:draft,publish',
+    //         'penulis' => 'nullable|string|max:100',
+    //     ]);
+
+    //     if ($request->hasFile('thumbnail')) {
+    //         $validated['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+    //     }
+
+    //     Berita::create($validated);
+
+    //     return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil ditambahkan.');
+    // }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'judul' => 'required|string|max:255',
-            'isi' => 'required',
+            'judul'     => 'required|string|max:255',
+            'isi'       => 'required',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'status' => 'required|in:draft,publish',
-            'penulis' => 'nullable|string|max:100',
+            'status'    => 'required|in:draft,publish',
+            'penulis'   => 'nullable|string|max:100',
         ]);
 
         if ($request->hasFile('thumbnail')) {
-            $validated['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+            $file = $request->file('thumbnail');
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            // Pindahkan file ke public/thumbnails
+            $file->move(public_path('thumbnails'), $filename);
+
+            // Simpan path relatif ke DB
+            $validated['thumbnail'] = 'thumbnails/' . $filename;
         }
 
         Berita::create($validated);
 
-        return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil ditambahkan.');
+        return redirect()->route('admin.berita.index')
+            ->with('success', 'Berita berhasil ditambahkan.');
     }
+
 
 
     public function edit($id)
@@ -60,44 +88,97 @@ class BeritaController extends Controller
         return view('admin.berita.edit', compact('berita', 'activeMenu'));
     }
 
+    // public function update(Request $request, $id)
+    // {
+    //     $berita = Berita::findOrFail($id);
+
+    //     $validated = $request->validate([
+    //         'judul' => 'required|string|max:255',
+    //         'isi' => 'required',
+    //         'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+    //         'status' => 'required|in:draft,publish',
+    //         'penulis' => 'nullable|string|max:100',
+    //         'thumbnail_url' => 'nullable|string|max:255', // input hidden untuk simpan file lama
+    //     ]);
+
+    //     if ($request->hasFile('thumbnail')) {
+    //         // Hapus thumbnail lama
+    //         if ($berita->thumbnail && Storage::exists('public/' . $berita->thumbnail)) {
+    //             Storage::delete('public/' . $berita->thumbnail);
+    //         }
+
+    //         $validated['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+    //     } elseif ($request->filled('thumbnail_url')) {
+    //         // Jika tidak upload baru, simpan yang lama
+    //         $validated['thumbnail'] = $request->thumbnail_url;
+    //     }
+
+    //     $berita->update($validated);
+
+    //     return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil diperbarui.');
+    // }
+
     public function update(Request $request, $id)
     {
         $berita = Berita::findOrFail($id);
 
         $validated = $request->validate([
-            'judul' => 'required|string|max:255',
-            'isi' => 'required',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'status' => 'required|in:draft,publish',
-            'penulis' => 'nullable|string|max:100',
+            'judul'         => 'required|string|max:255',
+            'isi'           => 'required',
+            'thumbnail'     => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'status'        => 'required|in:draft,publish',
+            'penulis'       => 'nullable|string|max:100',
             'thumbnail_url' => 'nullable|string|max:255', // input hidden untuk simpan file lama
         ]);
 
         if ($request->hasFile('thumbnail')) {
-            // Hapus thumbnail lama
-            if ($berita->thumbnail && Storage::exists('public/' . $berita->thumbnail)) {
-                Storage::delete('public/' . $berita->thumbnail);
+            // Hapus thumbnail lama secara manual
+            if ($berita->thumbnail && file_exists(public_path($berita->thumbnail))) {
+                unlink(public_path($berita->thumbnail));
             }
 
-            $validated['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+            $file = $request->file('thumbnail');
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            // Pindahkan file baru ke public/thumbnails
+            $file->move(public_path('thumbnails'), $filename);
+
+            // Simpan path relatif ke DB
+            $validated['thumbnail'] = 'thumbnails/' . $filename;
         } elseif ($request->filled('thumbnail_url')) {
-            // Jika tidak upload baru, simpan yang lama
+            // Simpan path lama jika tidak ada upload baru
             $validated['thumbnail'] = $request->thumbnail_url;
         }
 
         $berita->update($validated);
 
-        return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil diperbarui.');
+        return redirect()->route('admin.berita.index')
+            ->with('success', 'Berita berhasil diperbarui.');
     }
 
+
+
+    // public function destroy($id)
+    // {
+    //     $berita = Berita::findOrFail($id);
+
+    //     // Hapus thumbnail dari storage
+    //     if ($berita->thumbnail && Storage::exists('public/' . $berita->thumbnail)) {
+    //         Storage::delete('public/' . $berita->thumbnail);
+    //     }
+
+    //     $berita->delete();
+
+    //     return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil dihapus.');
+    // }
 
     public function destroy($id)
     {
         $berita = Berita::findOrFail($id);
 
-        // Hapus thumbnail dari storage
-        if ($berita->thumbnail && Storage::exists('public/' . $berita->thumbnail)) {
-            Storage::delete('public/' . $berita->thumbnail);
+        // Hapus thumbnail dari folder public secara manual
+        if ($berita->thumbnail && file_exists(public_path($berita->thumbnail))) {
+            unlink(public_path($berita->thumbnail));
         }
 
         $berita->delete();

@@ -73,7 +73,7 @@
                         {{-- Thumbnail Preview --}}
                         @if ($berita->thumbnail)
                             <p class="text-sm mt-1">Saat ini:
-                                <a href="{{ asset('storage/' . $berita->thumbnail) }}" target="_blank"
+                                <a href="{{ asset($berita->thumbnail) }}" target="_blank"
                                     class="text-blue-600 underline">Lihat Thumbnail</a>
                             </p>
                         @endif
