@@ -128,8 +128,9 @@
 
                         @if ($surat->file_surat)
                             <p class="text-sm mt-1">Saat ini:
-                                <a href="{{ asset('storage/' . $surat->file_surat) }}" target="_blank"
-                                    class="text-blue-600 underline">Lihat Cover</a>
+                                <a href="{{ asset($surat->file_surat) }}" target="_blank" class="text-blue-600 underline">
+                                    Lihat File
+                                </a>
                             </p>
                         @endif
                         @error('file_surat')
