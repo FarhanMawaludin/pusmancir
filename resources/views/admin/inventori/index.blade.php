@@ -71,8 +71,8 @@
             <button id="importExcelButton"
                 class="flex items-center gap-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded text-sm px-4 py-2.5 text-center "
                 type="button">
-                <svg class="w-5 h-5 text-white " aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                    width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-white " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 3v4a1 1 0 0 1-1 1H5m4 8h6m-6-4h6m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z" />
                 </svg>
@@ -116,10 +116,23 @@
                                 <div>
                                     <label for="excel_file" class="block mb-1 text-sm font-medium text-gray-900">Upload File
                                         Excel:</label>
-                                    <input
+                                    <label for="thumbnail"
+                                        class="flex items-center cursor-pointer rounded-md overflow-hidden border border-gray-300 bg-white">
+
+                                        <span class="bg-gray-800 text-white text-sm font-semibold px-4 py-2">
+                                            Pilih File
+                                        </span>
+
+                                        <span id="file_name" class="ml-3 text-sm text-gray-500">
+                                            Tidak ada file dipilih
+                                        </span>
+                                    </label>
+                                    <input type="file" name="file_inventori" id="excel_file" accept=".xlsx,.xls"
+                                        class="hidden">
+                                    {{-- <input
                                         class="block w-full text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none focus:ring focus:border-blue-300"
                                         type="file" id="excel_file" name="file_inventori" accept=".xlsx,.xls"
-                                        required>
+                                        required> --}}
                                 </div>
 
                                 <!-- Footer -->
@@ -252,6 +265,23 @@
             {{ $inventori->links('pagination::tailwind') }}
         </div>
     </div>
+
+    <script>
+        document.getElementById('excel_file').addEventListener('change', function(e) {
+            const fileName = e.target.files.length ? e.target.files[0].name : 'Tidak ada file dipilih';
+            document.getElementById('file_name').textContent = fileName;
+
+            const preview = document.getElementById('cover_preview');
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                preview.src = event.target.result;
+                preview.classList.remove('hidden');
+            };
+            if (e.target.files[0]) {
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    </script>
 
     <script>
         document.querySelectorAll('.btn-delete').forEach(button => {
