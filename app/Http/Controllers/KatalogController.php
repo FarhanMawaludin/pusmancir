@@ -64,6 +64,41 @@ class KatalogController extends Controller
     /**
      * Simpan perubahan data katalog.
      */
+    // public function update(Request $request, $id)
+    // {
+    //     $katalog = Katalog::findOrFail($id);
+
+    //     $validated = $request->validate([
+    //         'isbn'            => 'nullable|string|max:255',
+    //         'ringkasan_buku'  => 'nullable|string',
+    //         'kode_ddc'        => 'nullable|string|max:100',
+    //         'no_panggil'      => 'nullable|string|max:100',
+    //         'cover_buku'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+    //         'cover_buku_url' => 'nullable|string|max:255',
+    //     ]);
+
+    //     // Handle upload cover jika diunggah
+    //     if ($request->hasFile('cover_buku')) {
+    //         // Hapus file lama jika ada
+    //         if ($katalog->cover_buku && Storage::exists('public/' . $katalog->cover_buku)) {
+    //             Storage::delete('public/' . $katalog->cover_buku);
+    //         }
+
+    //         // Simpan file baru yang diupload user
+    //         $validated['cover_buku'] = $request->file('cover_buku')->store('cover_buku', 'public');
+    //     } elseif ($request->filled('cover_buku_url')) {
+    //         // Jika tidak upload, gunakan path dari hidden input
+    //         $validated['cover_buku'] = $request->cover_buku_url;
+    //     }
+
+    //     // Update data katalog
+    //     $katalog->update($validated);
+
+    //     return redirect()->route('admin.katalog.index')
+    //         ->with('success', 'Data katalog berhasil diperbarui.');
+    // }
+
+
     public function update(Request $request, $id)
     {
         $katalog = Katalog::findOrFail($id);
@@ -74,20 +109,24 @@ class KatalogController extends Controller
             'kode_ddc'        => 'nullable|string|max:100',
             'no_panggil'      => 'nullable|string|max:100',
             'cover_buku'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'cover_buku_url' => 'nullable|string|max:255',
+            'cover_buku_url'  => 'nullable|string|max:255',
         ]);
 
         // Handle upload cover jika diunggah
         if ($request->hasFile('cover_buku')) {
             // Hapus file lama jika ada
-            if ($katalog->cover_buku && Storage::exists('public/' . $katalog->cover_buku)) {
-                Storage::delete('public/' . $katalog->cover_buku);
+            if ($katalog->cover_buku && file_exists(public_path($katalog->cover_buku))) {
+                unlink(public_path($katalog->cover_buku));
             }
 
-            // Simpan file baru yang diupload user
-            $validated['cover_buku'] = $request->file('cover_buku')->store('cover_buku', 'public');
+            // Simpan file baru ke public/cover_buku
+            $file = $request->file('cover_buku');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('cover_buku'), $filename);
+
+            $validated['cover_buku'] = 'cover_buku/' . $filename;
         } elseif ($request->filled('cover_buku_url')) {
-            // Jika tidak upload, gunakan path dari hidden input
+            // Jika tidak upload, gunakan path dari input hidden
             $validated['cover_buku'] = $request->cover_buku_url;
         }
 
@@ -202,7 +241,4 @@ class KatalogController extends Controller
             ]);
         }
     }
-
-
-    
 }

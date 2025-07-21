@@ -93,10 +93,18 @@
                             <img id="cover_preview" src="" class="w-24 h-auto rounded border hidden">
                         </div>
 
-                        @if ($katalog->cover_buku)
+                        {{-- @if ($katalog->cover_buku)
                             <p class="text-sm mt-1">Saat ini:
                                 <a href="{{ asset('storage/' . $katalog->cover_buku) }}" target="_blank"
                                     class="text-blue-600 underline">Lihat Cover</a>
+                            </p>
+                        @endif --}}
+
+                        @if ($katalog->cover_buku)
+                            <p class="text-sm mt-1">Saat ini:
+                                <a href="{{ asset($katalog->cover_buku) }}" target="_blank" class="text-blue-600 underline">
+                                    Lihat Cover
+                                </a>
                             </p>
                         @endif
 
@@ -109,7 +117,7 @@
                     <div class="col-span-full">
                         <label for="ringkasan_buku" class="block text-sm font-medium text-text mb-2">Ringkasan Buku</label>
                         <textarea name="ringkasan_buku" id="ringkasan_buku" rows="4"
-                        class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
                         border border-gray-300 placeholder:text-gray-400
                         focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">{{ old('ringkasan_buku', $katalog->ringkasan_buku) }}</textarea>
                         @error('ringkasan_buku')
