@@ -1,68 +1,10 @@
-# Aktifkan mod_rewrite
-
 RewriteEngine On
 
 # Larikan semua request ke folder public/
-
-RewriteRule ^(.\*)$ public/$1 [L]
-
-# =============================
-
-# === Proteksi file penting ===
-
-# =============================
+RewriteRule ^(.*)$ public/$1 [L]
 
 # Lindungi file .env agar tidak bisa diakses dari browser
-
 <Files .env>
-Order allow,deny
-Deny from all
+    Order allow,deny
+    Deny from all
 </Files>
-
-# Lindungi file .htaccess
-
-<Files .htaccess>
-Order allow,deny
-Deny from all
-</Files>
-
-# =============================
-
-# === Proteksi folder penting ===
-
-# =============================
-
-# Blok akses langsung ke folder storage, kecuali file gambar/pdf di public/storage
-
-<IfModule mod_rewrite.c>
-    RewriteCond %{REQUEST_URI} ^/storage/
-    RewriteCond %{REQUEST_URI} !\.(jpg|jpeg|png|gif|svg|webp|mp4|pdf)$ [NC]
-    RewriteRule .* - [F,L]
-</IfModule>
-
-# Cegah eksekusi file PHP di folder resources
-
-<Directory "resources">
-<FilesMatch "\.php$">
-Order allow,deny
-Deny from all
-</FilesMatch>
-</Directory>
-
-# Cegah eksekusi file PHP di folder storage
-
-<Directory "storage">
-<FilesMatch "\.php$">
-Order allow,deny
-Deny from all
-</FilesMatch>
-</Directory>
-
-# Cegah eksekusi file PHP di folder vendor
-
-<Directory "vendor">
-<FilesMatch "\.php$">
-Order allow,deny
-Deny from all
-</FilesMatch>
-</Directory>
