@@ -81,7 +81,7 @@
             <div>
                 <!-- Gambar -->
                 <div class="flex justify-center mb-2">
-                    <img src="{{ asset($buku->cover_buku)) }}" alt="Book Cover"
+                    <img src="{{ asset('storage/' . ($buku->cover_buku ?? 'img/book1.png')) }}" alt="Book Cover"
                         class="w-60 h-auto" />
                 </div>
 
