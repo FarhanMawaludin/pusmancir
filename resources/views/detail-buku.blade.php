@@ -156,9 +156,15 @@
                     <span class="font-bold">PUSMANCIR</span>
                 </div>
                 <ul class="space-y-1 text-gray-500">
-                    <li>Informasi</li>
-                    <li>Berita</li>
-                    <li>Pustakawan</li>
+                    <li>
+                        <a href="{{ route('informasi') }}">Informasi</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('berita.index') }}">Berita</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('peringkat.index') }}">Peringkat</a>
+                    </li>
                 </ul>
             </div>
             <div>
