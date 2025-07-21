@@ -81,8 +81,7 @@
             <div>
                 <!-- Gambar -->
                 <div class="flex justify-center mb-2">
-                    <img src="{{ asset($buku->cover_buku) }}" alt="Book Cover"
-                        class="w-60 h-auto" />
+                    <img src="{{ asset($buku->cover_buku) }}" alt="Book Cover" class="w-60 h-auto" />
                 </div>
 
                 <!-- Judul dan Penulis -->
@@ -93,7 +92,7 @@
 
                 <!-- Info Bar -->
                 <div
-                    class="grid grid-cols-4 gap-4 text-center text-sm text-gray-600 font-medium border-t border-b py-4">
+                    class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-sm text-gray-600 font-medium border-t border-b py-4">
                     <div>
                         <p class="text-gray-400">Kategori</p>
                         <p class="text-text font-semibold">{{ $buku->kategori_buku }}</p>
@@ -103,14 +102,12 @@
                         <p class="text-text font-semibold">{{ $buku->penerbit }}</p>
                     </div>
                     <div>
-                        <p class="text-gray-400">status</p>
+                        <p class="text-gray-400">Status</p>
                         <p class="font-semibold {{ $style }}">{{ $status }}</p>
                     </div>
                     <div>
                         <p class="text-gray-400">ISBN</p>
-                        <p class="text-text font-semibold">
-                            {{ $buku->isbn }}
-                        </p>
+                        <p class="text-text font-semibold break-words">{{ $buku->isbn }}</p>
                     </div>
                 </div>
             </div>
