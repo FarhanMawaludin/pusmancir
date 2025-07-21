@@ -132,12 +132,12 @@
                     <p class="text-sm text-gray-700 leading-relaxed text-justify mb-8">
                         {{ $buku->ringkasan_buku }}
                     </p>
-                    <div>
+                    {{-- <div>
                         <button
                             class="w-full bg-black text-white py-3 rounded-md font-semibold text-sm hover:bg-gray-900 transition duration-200">
                             Start Reading
                         </button>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
