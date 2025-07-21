@@ -177,11 +177,6 @@
                     sekolah.
                 </p>
             </div>
-            <div>
-                <h4 class="font-semibold text-gray-800 mb-2">Cari</h4>
-                <input type="text" placeholder="Cari Buku..."
-                    class="w-full px-4 py-2 border rounded border-base200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
         </div>
 
         <div class="text-center text-xs text-gray-400 mt-8 border-t pt-4">
