@@ -116,7 +116,7 @@
                                 <div>
                                     <label for="excel_file" class="block mb-1 text-sm font-medium text-gray-900">Upload File
                                         Excel:</label>
-                                    <label for="thumbnail"
+                                    <label for="excel_file"
                                         class="flex items-center cursor-pointer rounded-md overflow-hidden border border-gray-300 bg-white">
 
                                         <span class="bg-gray-800 text-white text-sm font-semibold px-4 py-2">
