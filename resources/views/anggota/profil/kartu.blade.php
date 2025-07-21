@@ -21,7 +21,7 @@
             {{-- Foto & Identitas --}}
             <div class="flex flex-col items-center p-5 space-y-3">
                 <div class="w-28 aspect-[3/4] overflow-hidden rounded-md border shadow-md bg-gray-50">
-                    <img src="{{ $user->foto ? asset('storage/' . $user->foto) : asset('img/default.png') }}"
+                    <img src="{{ $user->foto ? asset($user->foto) : asset('img/Profile.jpg') }}"
                         alt="Foto Profil" class="w-full h-full object-cover">
                 </div>
 

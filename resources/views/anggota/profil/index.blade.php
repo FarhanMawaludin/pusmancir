@@ -7,8 +7,7 @@
     <div class="bg-white rounded border border-gray-200 p-6 mb-6 flex items-center gap-6">
         @if (Auth::user()->foto)
             <div class="w-24 h-24 rounded-full overflow-hidden">
-                <img src="{{ asset('storage/' . Auth::user()->foto) }}" alt="Foto Profil"
-                    class="w-full h-full object-cover object-center">
+                <img src="{{ asset(Auth::user()->foto) }}" alt="Foto Profil" class="w-full h-full object-cover object-center">
             </div>
         @else
             <div class="w-24 h-24 rounded-full overflow-hidden border border-gray-300">

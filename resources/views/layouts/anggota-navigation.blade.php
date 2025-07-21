@@ -35,7 +35,7 @@
                             <span class="sr-only">Open user menu</span>
                             @if (Auth::user()->foto)
                                 <div class="w-10 h-10 rounded-full overflow-hidden">
-                                    <img src="{{ asset('storage/' . Auth::user()->foto) }}" alt="Foto Profil"
+                                    <img src="{{ asset(Auth::user()->foto) }}" alt="Foto Profil"
                                         class="w-full h-full object-cover object-center">
                                 </div>
                             @else

@@ -36,6 +36,70 @@ class ProfilAnggotaController extends Controller
         ]);
     }
 
+    // public function update(Request $request, $id)
+    // {
+    //     $validated = $request->validate([
+    //         'name'       => 'nullable|string|max:255',
+    //         'email'      => 'required|email|max:255',
+    //         'nisn'       => 'required',
+    //         'no_telp'    => ['required', 'string', 'max:20', 'regex:/^[0-9+]+$/'],
+    //         'foto'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    //         'kelas_id'   => 'required|exists:kelas,id',
+    //         'password'   => 'nullable|string|min:8|confirmed',
+    //     ], [
+    //         'email.required'      => 'Email wajib diisi',
+    //         'email.max'           => 'Email tidak boleh lebih dari 255 karakter',
+    //         'email.email'         => 'Format email tidak valid',
+    //         'nisn.required'       => 'NISN wajib diisi',
+    //         'no_telp.required'    => 'No Telp wajib diisi',
+    //         'no_telp.max'         => 'No Telp tidak boleh lebih dari 20 karakter',
+    //         'no_telp.regex'       => 'No Telp harus berupa angka atau diawali dengan +62',
+    //         'foto.image'          => 'Foto harus berupa gambar',
+    //         'foto.max'            => 'Ukuran foto tidak boleh lebih dari 2MB',
+    //         'foto.mimes'          => 'Format foto harus jpeg, png, jpg, atau gif',
+    //         'kelas_id.required'   => 'Kelas wajib dipilih',
+    //         'kelas_id.exists'     => 'Kelas tidak ditemukan',
+    //         'password.min'        => 'Password minimal 8 karakter',
+    //         'password.confirmed'  => 'Konfirmasi password tidak cocok',
+    //     ]);
+
+    //     try {
+    //         $user = User::with('anggota')->findOrFail($id);
+
+    //         // Update tabel users
+    //         $user->name = $validated['name'];
+    //         if ($request->hasFile('foto')) {
+    //             $path = $request->file('foto')->store('foto_profil', 'public');
+    //             $user->foto = $path;
+    //         }
+    //         if (!empty($validated['password'])) {
+    //             $user->password = Hash::make($validated['password']);
+    //         }
+    //         $user->save();
+
+    //         // Update tabel anggota
+    //         if ($user->anggota) {
+    //             $anggota = $user->anggota;
+    //             $anggota->email    = $validated['email'];
+    //             $anggota->nisn     = $validated['nisn'];
+    //             $anggota->kelas_id = $validated['kelas_id'];
+
+    //             // Format no_telp
+    //             $anggota->no_telp = $this->formatNoTelp($validated['no_telp']);
+
+    //             $anggota->save();
+    //         }
+
+    //         return redirect()->route('anggota.profil.index')
+    //             ->with('success', 'Profil berhasil diperbarui');
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()
+    //             ->withInput()
+    //             ->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+    //     }
+    // }
+
+
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
@@ -66,25 +130,41 @@ class ProfilAnggotaController extends Controller
         try {
             $user = User::with('anggota')->findOrFail($id);
 
-            // Update tabel users
+            // Update nama
             $user->name = $validated['name'];
+
+            // Upload foto ke public/foto_profil
             if ($request->hasFile('foto')) {
-                $path = $request->file('foto')->store('foto_profil', 'public');
-                $user->foto = $path;
+                // Hapus foto lama jika ada
+                if ($user->foto && file_exists(public_path($user->foto))) {
+                    unlink(public_path($user->foto));
+                }
+
+                $file = $request->file('foto');
+                $filename = time() . '_' . $file->getClientOriginalName();
+
+                // Pindahkan file ke public/foto_profil
+                $file->move(public_path('foto_profil'), $filename);
+
+                // Simpan path relatif ke DB
+                $user->foto = 'foto_profil/' . $filename;
             }
+
+            // Update password jika diisi
             if (!empty($validated['password'])) {
                 $user->password = Hash::make($validated['password']);
             }
+
             $user->save();
 
-            // Update tabel anggota
+            // Update relasi anggota
             if ($user->anggota) {
                 $anggota = $user->anggota;
                 $anggota->email    = $validated['email'];
                 $anggota->nisn     = $validated['nisn'];
                 $anggota->kelas_id = $validated['kelas_id'];
 
-                // Format no_telp
+                // Misal kamu punya method formatNoTelp untuk format nomor telepon
                 $anggota->no_telp = $this->formatNoTelp($validated['no_telp']);
 
                 $anggota->save();
