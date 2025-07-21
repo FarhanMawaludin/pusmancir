@@ -14,28 +14,36 @@
                     <div class="sm:col-span-3">
                         <label class="block text-sm font-medium text-text mb-2">Judul Buku</label>
                         <input type="text" id="judul_buku_display" value="{{ $katalog->judul_buku }}" disabled
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                     </div>
 
                     {{-- Pengarang --}}
                     <div class="sm:col-span-3">
                         <label class="block text-sm font-medium text-text mb-2">Pengarang</label>
                         <input type="text" id="pengarang_display" value="{{ $katalog->pengarang }}" disabled
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                     </div>
 
                     {{-- Penerbit --}}
                     <div class="sm:col-span-3">
                         <label class="block text-sm font-medium text-text mb-2">Penerbit</label>
                         <input type="text" id="penerbit_display" value="{{ $katalog->penerbit }}" disabled
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                     </div>
 
                     {{-- Kategori Buku --}}
                     <div class="sm:col-span-3">
                         <label class="block text-sm font-medium text-text mb-2">Kategori Buku</label>
                         <input type="text" value="{{ $katalog->kategori_buku }}" disabled
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                     </div>
 
                     {{-- ISBN --}}
@@ -44,7 +52,9 @@
 
                         <div class="flex gap-2 items-stretch mt-2">
                             <input type="text" name="isbn" id="isbn" value="{{ old('isbn', $katalog->isbn) }}"
-                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
 
                             <button type="button" id="btn-cek-cover"
                                 class="px-4 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
@@ -60,20 +70,29 @@
 
                     {{-- Cover Buku --}}
                     <div class="sm:col-span-3">
-                        <label for="cover_buku" class="block text-sm font-medium text-text mb-2">Cover Buku</label>
-                        <input type="file" name="cover_buku" id="cover_buku"
-                            class="mt-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-md cursor-pointer bg-white">
+                        <label class="block text-sm font-medium text-text mb-2">Cover Buku</label>
 
-                        {{-- Hidden input untuk menyimpan path cover otomatis --}}
+                        <label for="cover_buku"
+                            class="flex items-center cursor-pointer rounded-md overflow-hidden border border-gray-300 bg-white">
+
+                            <span class="bg-gray-800 text-white text-sm font-semibold px-4 py-2">
+                                Pilih File
+                            </span>
+
+                            <span id="file_name" class="ml-3 text-sm text-gray-500">
+                                Tidak ada file dipilih
+                            </span>
+                        </label>
+
+                        <input type="file" name="cover_buku" id="cover_buku" accept="image/*" class="hidden">
+
                         <input type="hidden" name="cover_buku_url" id="cover_buku_url">
 
-                        {{-- Status hasil cek & preview gambar --}}
                         <div class="mt-2 space-y-2" id="cover_buku_feedback">
                             <small id="cover_buku_status" class="text-sm text-gray-600 block"></small>
                             <img id="cover_preview" src="" class="w-24 h-auto rounded border hidden">
                         </div>
 
-                        {{-- Jika sebelumnya sudah ada cover manual --}}
                         @if ($katalog->cover_buku)
                             <p class="text-sm mt-1">Saat ini:
                                 <a href="{{ asset('storage/' . $katalog->cover_buku) }}" target="_blank"
@@ -90,14 +109,16 @@
                     <div class="col-span-full">
                         <label for="ringkasan_buku" class="block text-sm font-medium text-text mb-2">Ringkasan Buku</label>
                         <textarea name="ringkasan_buku" id="ringkasan_buku" rows="4"
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 mt-2">{{ old('ringkasan_buku', $katalog->ringkasan_buku) }}</textarea>
+                        class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                        border border-gray-300 placeholder:text-gray-400
+                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">{{ old('ringkasan_buku', $katalog->ringkasan_buku) }}</textarea>
                         @error('ringkasan_buku')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                         @enderror
 
                         <!-- Tombol Generate -->
                         <button type="button" id="generate-ringkasan"
-                            class="mt-2 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            class="mt-2 inline-flex items-center px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800">
                             Generate Ringkasan
                         </button>
 
@@ -120,7 +141,9 @@
                         <label for="kode_ddc" class="block text-sm font-medium text-text mb-2">Kode DDC</label>
                         <input type="text" name="kode_ddc" id="kode_ddc"
                             value="{{ old('kode_ddc', $katalog->kode_ddc) }}"
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 mt-2">
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         @error('kode_ddc')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                         @enderror
@@ -131,7 +154,9 @@
                         <label for="no_panggil" class="block text-sm font-medium text-text mb-2">Nomor Panggil</label>
                         <input type="text" name="no_panggil" id="no_panggil"
                             value="{{ old('no_panggil', $katalog->no_panggil) }}"
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 mt-2">
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         @error('no_panggil')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                         @enderror
@@ -152,6 +177,23 @@
             </div>
         </div>
     </form>
+
+    <script>
+        document.getElementById('cover_buku').addEventListener('change', function(e) {
+            const fileName = e.target.files.length ? e.target.files[0].name : 'Tidak ada file dipilih';
+            document.getElementById('file_name').textContent = fileName;
+
+            const preview = document.getElementById('cover_preview');
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                preview.src = event.target.result;
+                preview.classList.remove('hidden');
+            };
+            if (e.target.files[0]) {
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    </script>
 
     <script>
         document.getElementById('generate-ringkasan').addEventListener('click', async function() {

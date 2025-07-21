@@ -14,6 +14,8 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <link rel="icon" href="{{ asset('logo-smancir.png') }}" type="image/png">
     {{-- <script src="https://cdn.jsdelivr.net/npm/apexcharts@latest/dist/apexcharts.min.js"></script> --}}
 
     <!-- Flowbite CSS -->

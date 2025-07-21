@@ -13,7 +13,9 @@
                         <div class="mt-2">
                             <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}"
                                 autocomplete="given-name"
-                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                             @error('name')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -24,7 +26,9 @@
                         <label for="country" class="block text-sm/6 font-medium text-text">Posisi</label>
                         <div class="mt-2 grid grid-cols-1">
                             <select id="role" name="role" autocomplete="role-name"
-                                class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-text outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                            border border-gray-300 placeholder:text-gray-400
+                            focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                                 <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
                                 <option value="pustakawan" {{ old('role', $user->role) == 'pustakawan' ? 'selected' : '' }}>Pustakawan</option>
                                 <option value="anggota" {{ old('role', $user->role) == 'anggota' ? 'selected' : '' }}>Anggota</option>
@@ -37,7 +41,9 @@
                         <div class="mt-2">
                             <input id="username" name="username" type="username" value="{{ old('username', $user->username) }}"
                                 autocomplete="username"
-                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                             @error('username')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -50,7 +56,9 @@
                         </label>
                         <div class="mt-2">
                             <input type="password" name="password" id="password" autocomplete="password"
-                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                                 <p class="mt-1 text-sm text-gray-500">Biarkan kosong jika tidak ingin mengubah kata sandi</p>
                             @error('password')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -65,7 +73,9 @@
                         <div class="mt-2">
                             <input type="password" name="password_confirmation" id="password_confirmation"
                                 autocomplete="password_confirmation"
-                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                             @error('password_confirmation')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror

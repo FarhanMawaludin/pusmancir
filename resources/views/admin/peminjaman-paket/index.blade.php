@@ -47,11 +47,12 @@
             class="flex w-full max-w-lg my-6">
             <div class="relative w-full">
                 <input type="search" id="search-dropdown" name="search"
-                    class="block p-2.5 w-full z-20 text-sm text-text bg-gray-50 rounded-md border border-gray-300
-                   focus:ring-blue-500 focus:border-blue-500"
+                class="block w-full rounded-md bg-white px-3 py-2 text-base text-text 
+                border border-gray-300 placeholder:text-gray-400
+                focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
                     placeholder="Cari siswa" value="{{ $search ?? '' }}" />
                 <button type="submit"
-                    class="absolute top-0 end-0 p-2.5 h-full text-white bg-primary700 rounded border-primary700
+                    class="absolute top-0 end-0 p-2.5 h-full text-white bg-blue-700 rounded border-blue-700
                    hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

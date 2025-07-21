@@ -19,8 +19,11 @@
                         <label for="anggota_id_input" class="block text-sm font-medium text-gray-700">NISN Anggota</label>
                         <div class="flex gap-2 mt-1">
                             <input type="text" name="anggota_id" id="anggota_id_input" required
-                                class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300"
-                                placeholder="Masukkan NISN" autocomplete="off" autofocus>
+                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text >
+                                border border-gray-300 placeholder:text-gray-400>
+                                focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm
+                                placeholder="Masukkan
+                                NISN" autocomplete="off" autofocus>
                             <button type="button" onclick="cekAnggota()"
                                 class="bg-blue-700 text-white px-2 rounded hover:bg-blue-800 text-sm">Cek</button>
                         </div>
@@ -34,7 +37,9 @@
                         </label>
                         <div class="flex gap-2 mt-1">
                             <input type="text" name="eksemplar_id" id="eksemplar_id_input" required
-                                class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300"
+                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                border border-gray-300 placeholder:text-gray-400
+                                focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
                                 placeholder="Masukkan RFID Eksemplar" autocomplete="off">
                             <button type="button" onclick="cekEksemplar()"
                                 class="bg-blue-700 text-white px-2 rounded hover:bg-blue-800 text-sm">Cek</button>
@@ -49,14 +54,18 @@
                     <div>
                         <label for="tanggal_pinjam" class="block text-sm font-medium text-gray-700">Tanggal Pinjam</label>
                         <input type="date" name="tanggal_pinjam" id="tanggal_pinjam" required
-                            class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300 mt-1">
+                            class="mt-1 lock w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                            border border-gray-300 placeholder:text-gray-400
+                            focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                     </div>
 
                     {{-- Tanggal Kembali --}}
                     <div>
                         <label for="tanggal_kembali" class="block text-sm font-medium text-gray-700">Tanggal Kembali</label>
                         <input type="date" name="tanggal_kembali" id="tanggal_kembali" required
-                            class="w-full rounded-md px-3 py-1.5 text-sm border border-gray-300 mt-1">
+                            class="mt-1 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text
+                            border border-gray-300 placeholder:text-gray-400
+                            focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                     </div>
                 </div>
 

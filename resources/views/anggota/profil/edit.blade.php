@@ -15,7 +15,9 @@
                     <div class="mt-2">
                         <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}"
                             autocomplete="given-name" readonly
-                            class="block w-full rounded-md bg-gray-100 px-3 py-1.5 text-base text-gray-500 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none sm:text-sm">
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         @error('name')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -28,7 +30,9 @@
                     <div class="mt-2">
                         <input type="text" name="nisn" id="nisn"
                             value="{{ old('nisn', $user->anggota->nisn ?? '') }}"
-                            class="block w-full rounded-md bg-gray-100 px-3 py-1.5 text-base text-gray-500 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none sm:text-sm">
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         @error('nisn')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -41,7 +45,9 @@
                     <div class="mt-2">
                         <input type="email" name="email" id="email"
                             value="{{ old('email', $user->anggota->email ?? '') }}"
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 sm:text-sm">
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         @error('email')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -54,7 +60,9 @@
                     <div class="mt-2">
                         <input type="text" name="no_telp" id="no_telp"
                             value="{{ old('no_telp', $user->anggota->no_telp ?? '') }}"
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 sm:text-sm"
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
                             oninput="formatNoTelp(this)">
 
                         @error('no_telp')
@@ -67,7 +75,9 @@
                 <div class="sm:col-span-3">
                     <label for="kelas_id" class="block text-sm font-medium text-text">Kelas</label>
                     <select id="kelas_id" name="kelas_id"
-                        class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 sm:text-sm">
+                        class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                    border border-gray-300 placeholder:text-gray-400
+                    focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         @foreach ($kelas as $item)
                             <option value="{{ $item->id }}"
                                 {{ old('kelas_id', optional($user->anggota)->kelas_id) == $item->id ? 'selected' : '' }}>
@@ -82,9 +92,19 @@
 
                 {{-- Foto Upload --}}
                 <div class="col-span-full sm:col-span-3">
-                    <label for="foto" class="block text-sm font-medium text-text">Upload Foto Profil</label>
-                    <input type="file" id="foto" name="foto" accept="image/*"
-                        class="mt-2 block w-full text-sm text-text border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none">
+                    <label for="foto" class="block text-sm font-medium text-text mb-2">Upload Foto Profil</label>
+                    <label for="foto"
+                        class="flex items-center cursor-pointer rounded-md overflow-hidden border border-gray-300 bg-white">
+
+                        <span class="bg-gray-800 text-white text-sm font-semibold px-4 py-2">
+                            Pilih File
+                        </span>
+
+                        <span id="file_name" class="ml-3 text-sm text-gray-500">
+                            Tidak ada file dipilih
+                        </span>
+                    </label>
+                    <input type="file" name="foto" id="foto" accept="image/*" class="hidden">
                     <p class="mt-1 text-sm text-gray-500">JPG, PNG, atau GIF. Max 2MB.</p>
                     @error('foto')
                         <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
@@ -96,7 +116,9 @@
                     <label for="password" class="block text-sm font-medium text-text">Kata Sandi</label>
                     <div class="mt-2">
                         <input type="password" name="password" id="password"
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 sm:text-sm">
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         <p class="mt-1 text-sm text-gray-500">Biarkan kosong jika tidak ingin mengubah kata sandi</p>
                         @error('password')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -110,7 +132,9 @@
                         Sandi</label>
                     <div class="mt-2">
                         <input type="password" name="password_confirmation" id="password_confirmation"
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 sm:text-sm">
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                        border border-gray-300 placeholder:text-gray-400
+                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         @error('password_confirmation')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -139,5 +163,22 @@
                 input.value = val.replace(/^0/, '+62');
             }
         }
+    </script>
+
+    <script>
+        document.getElementById('foto').addEventListener('change', function(e) {
+            const fileName = e.target.files.length ? e.target.files[0].name : 'Tidak ada file dipilih';
+            document.getElementById('file_name').textContent = fileName;
+
+            const preview = document.getElementById('cover_preview');
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                preview.src = event.target.result;
+                preview.classList.remove('hidden');
+            };
+            if (e.target.files[0]) {
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
     </script>
 @endsection

@@ -5,7 +5,7 @@
         <h2 class="text-xl font-semibold text-text">Detail Inventori</h2>
 
         <div class="bg-white border rounded border-base200 p-6">
-            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
                 📘 Informasi Buku
             </h3>
 
@@ -83,7 +83,7 @@
                             <td class="px-4 py-2 border">{{ $eks->no_inventori }}</td>
                             <td class="px-4 py-2 border">{{ $eks->no_rfid }}</td>
                             <td class="px-4 py-2 border">{{ ucfirst($eks->status) }}</td>
-                            <td class="px-4 py-2 border text-center">
+                            <td class="px-4 py-3 border text-center">
                                 <a href="{{ route('admin.eksemplar.edit', $eks->id) }}"
                                     class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
                                     Ubah Status

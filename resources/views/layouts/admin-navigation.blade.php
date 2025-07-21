@@ -14,9 +14,10 @@
                     </svg>
                 </button>
                 <a href="#" class="flex items-center ms-2 md:me-24">
-                    <img src="{{ asset('img/logo-smancir.png') }}" class="h-10 me-3 md:ml-6" alt="PUSMANCIR Logo" />
+                    <img src="{{ asset('/logo-banten.png') }}" class="h-10" alt="Logo" />
+                    <img src="{{ asset('img/logo-smancir.png') }}" class="h-10 me-3 md:ml-2" alt="PUSMANCIR Logo" />
 
-                    <span class="hidden md:inline self-center text-[18px] font-medium whitespace-nowrap text-text">
+                    <span class="hidden md:inline self-center text-[18px] font-semibold whitespace-nowrap text-text">
                         PUSMANCIR
                     </span>
                 </a>

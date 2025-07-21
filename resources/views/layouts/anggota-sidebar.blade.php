@@ -6,7 +6,7 @@
             <!-- Dashboard -->
             <li class="mb-4">
                 <a href="{{ route('anggota.dashboard.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'dashboard' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}">
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'dashboard' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}">
                     <svg class="w-5 h-5 {{ $activeMenu == 'dashboard' ? 'text-white' : 'text-base300 ' }}"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

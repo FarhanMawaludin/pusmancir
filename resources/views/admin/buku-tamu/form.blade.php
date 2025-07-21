@@ -56,7 +56,9 @@
                     <div>
                         <label for="nisn" class="block text-sm font-medium text-gray-700">NISN</label>
                         <input type="text" name="nisn" id="nisn" value="{{ old('nisn') }}" required
-                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                border border-gray-300 placeholder:text-gray-400
+                                focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         <small class="text-gray-500">Wajib diisi oleh semua pengunjung</small>
                     </div>
 
@@ -64,7 +66,9 @@
                     <div>
                         <label for="keperluan" class="block text-sm font-medium text-gray-700">Keperluan</label>
                         <input type="text" name="keperluan" id="keperluan" value="{{ old('keperluan') }}"
-                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                border border-gray-300 placeholder:text-gray-400
+                                focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         <small class="text-gray-500">Opsional untuk anggota</small>
                     </div>
 
@@ -72,14 +76,18 @@
                     <div>
                         <label for="nama" class="block text-sm font-medium text-gray-700">Nama (non anggota)</label>
                         <input type="text" name="nama" id="nama" value="{{ old('nama') }}"
-                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                border border-gray-300 placeholder:text-gray-400
+                                focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                     </div>
 
                     <!-- Asal Instansi (Non Anggota) -->
                     <div>
                         <label for="asal_instansi" class="block text-sm font-medium text-gray-700">Asal Instansi</label>
                         <input type="text" name="asal_instansi" id="asal_instansi" value="{{ old('asal_instansi') }}"
-                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                border border-gray-300 placeholder:text-gray-400
+                                focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                     </div>
 
                     <!-- Tombol -->

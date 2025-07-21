@@ -44,7 +44,8 @@ Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
 Route::get('/katalog/{id}', [WelcomeController::class, 'show'])->name('detail-buku');
 
-Route::get('/berita', [BeritaController::class, 'index'])->name('berita.index');
+Route::get('/berita', [BeritaController::class, 'indexPublish'])->name('berita.index');
+Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('berita.show');
 
 Route::get('/peringkat', [PeringkatController::class, 'index'])->name('peringkat.index');
 

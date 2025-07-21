@@ -1,71 +1,33 @@
 @extends('layouts.anggota-app')
 
 @section('content')
-    <div class="max-w-6xl mx-auto px-6 py-6">
+    <div class="max-w-4xl mx-auto px-6 py-6">
+        <!-- Judul Halaman -->
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-gray-800">Detail Buku</h1>
+        </div>
+
         <!-- Main Content -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <!-- KIRI: Gambar dan info buku -->
+        <div class="grid grid-cols-1 gap-10">
             @php
                 $available = (int) ($buku->stok_tersedia ?? 0);
                 $isAvailable = $available > 0;
-
                 $status = $isAvailable ? 'Tersedia' : 'Tidak Tersedia';
                 $statusStyle = $isAvailable ? 'text-green-600' : 'text-red-600';
             @endphp
-            <div>
-                <!-- Gambar -->
-                <div class="flex justify-center mb-2">
-                    <img src="{{ asset('storage/' . ($buku->cover_buku ?? 'img/book1.png')) }}" alt="Book Cover"
-                        class="w-60 h-auto" />
-                </div>
 
-                <!-- Judul dan Penulis -->
-                <h1 class="text-2xl font-semibold text-text leading-tight text-center mb-1">
-                    {{ $buku->judul_buku }}
-                </h1>
-                <p class="text-md text-center text-gray-500 mb-6">Penulis: {{ $buku->pengarang }}</p>
 
-                <!-- Info Bar -->
-                <div class="grid grid-cols-4 gap-4 text-center text-sm text-gray-600 font-medium border-t border-b py-4">
-                    <div>
-                        <p class="text-gray-400">Kategori</p>
-                        <p class="text-text font-semibold">{{ $buku->kategori_buku }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-400">Penerbit</p>
-                        <p class="text-text font-semibold">{{ $buku->penerbit }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-400">status</p>
-                        <p class="font-semibold {{ $statusStyle }}">{{ $status }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-400">ISBN</p>
-                        <p class="text-text font-semibold">
-                            {{ $buku->isbn }}
-                        </p>
-                    </div>
-                </div>
+            <!-- Sinopsis -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Deskripsi</h3>
+                <p class="text-sm text-gray-700 leading-relaxed text-justify">
+                    {{ $buku->deskripsi }}
+                </p>
             </div>
 
-            <!-- KANAN: Tabs dan Konten -->
-            <div class="flex flex-col justify-start h-full">
-                <!-- Judul Halaman -->
-                <div class="mb-6">
-                    <h2 class="text-xl font-semibold text-gray-800 text-left">Detail Buku</h2>
-                </div>
-
-                <!-- Tabs -->
-                <div class="flex gap-6 border-b mb-4 text-sm font-medium text-gray-500">
-                    <button class="pb-2 border-b-2 border-blue-600 text-blue-600">Sinopsis</button>
-                </div>
-
-
-                <div class="flex-1">
-                    <p class="text-sm text-gray-700 leading-relaxed text-justify mb-8">
-                        {{ $buku->deskripsi_buku }}
-                    </p>
-                    @if($buku->stok_tersedia > 0)
+            <!-- Tombol Pinjam -->
+            <div>
+                @if ($buku->stok_tersedia > 0)
                     <form id="pinjamForm" action="{{ route('anggota.peminjaman-paket.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="paket_id" value="{{ $buku->id }}">
@@ -74,16 +36,15 @@
                             Pinjam Buku
                         </button>
                     </form>
-                    @else
+                @else
                     <button disabled
                         class="w-full bg-gray-400 text-white py-3 rounded-md font-semibold text-sm cursor-not-allowed">
                         Tidak Tersedia
                     </button>
-                    @endif
-                </div>
-
+                @endif
             </div>
         </div>
+    </div>
     </div>
 
     <script>
@@ -101,7 +62,7 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = "{{ route('anggota.profil.index') }}"; // sesuaikan route
+                        window.location.href = "{{ route('anggota.profil.index') }}";
                     }
                 });
             } else {

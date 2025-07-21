@@ -53,7 +53,7 @@
                         class="block p-2.5 w-full z-20 text-sm text-text bg-gray-50 rounded-r-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
                         placeholder="Cari berdasarkan kategori yang dipilih..." value="{{ $search ?? '' }}" />
                     <button type="submit"
-                        class="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-primary700 border rounded border-primary700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-primary700 dark:hover:bg-primary700 dark:focus:ring-blue-800">
+                        class="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-blue-700 border rounded border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-700 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                         <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 20 20">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -71,13 +71,12 @@
             <button id="importExcelButton"
                 class="flex items-center gap-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded text-sm px-4 py-2.5 text-center "
                 type="button">
-
-                <svg class="w-5 h-5 md:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v16h16V8l-6-4H4z" />
+                <svg class="w-5 h-5 text-white " aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                    width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 3v4a1 1 0 0 1-1 1H5m4 8h6m-6-4h6m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z" />
                 </svg>
-
-                <span class="hidden md:inline">Import Excel</span>
+                <span class="hidden md:inline">Import</span>
             </button>
 
             <!-- Modal Import Excel -->
@@ -119,7 +118,8 @@
                                         Excel:</label>
                                     <input
                                         class="block w-full text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none focus:ring focus:border-blue-300"
-                                        type="file" id="excel_file" name="file_inventori" accept=".xlsx,.xls" required>
+                                        type="file" id="excel_file" name="file_inventori" accept=".xlsx,.xls"
+                                        required>
                                 </div>
 
                                 <!-- Footer -->
@@ -139,14 +139,19 @@
                 </div>
             </div>
             <a href="{{ route('admin.inventori.export') }}"
-                class="inline-block px-4 py-2 text-sm text-white bg-green-600 rounded hover:bg-green-700">
-                Export Inventori
+                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M5 17v-5h1.5a1.5 1.5 0 1 1 0 3H5m12 2v-5h2m-2 3h2M5 10V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1v6M5 19v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1M10 3v4a1 1 0 0 1-1 1H5m6 4v5h1.375A1.627 1.627 0 0 0 14 15.375v-1.75A1.627 1.627 0 0 0 12.375 12H11Z" />
+                </svg>
+                Export
             </a>
 
 
             <!-- Button Tambah -->
             <button id="dropdownDividerButton" data-dropdown-toggle="dropdownDivider"
-                class="flex items-center gap-2 text-white bg-primary700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2.5 text-center dark:bg-primary700 dark:hover:bg-primary700 dark:focus:ring-blue-800"
+                class="flex items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2.5 text-center dark:bg-blue-700 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 type="button" onclick="location.href='{{ route('admin.inventori.create') }}'">
 
                 <svg class="w-5 h-5 md:hidden" fill="none" stroke="currentColor" stroke-width="2"
@@ -192,7 +197,7 @@
                             <div class="flex flex-row space-x-2 items-center">
                                 <!-- Detail -->
                                 <button onclick="location.href='{{ route('admin.inventori.show', $item->id) }}'"
-                                    class="inline-flex items-center bg-primary700 text-white px-3 py-2 rounded hover:bg-blue-800 transition">
+                                    class="inline-flex items-center bg-blue-700 text-white px-3 py-2 rounded hover:bg-blue-800 transition">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:mr-1" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

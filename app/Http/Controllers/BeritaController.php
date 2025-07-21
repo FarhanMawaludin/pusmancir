@@ -104,4 +104,32 @@ class BeritaController extends Controller
 
         return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil dihapus.');
     }
+
+
+    public function indexPublish()
+    {
+        $berita = Berita::where('status', 'publish')->latest()->get();
+
+        // Ambil berita pertama sebagai Hero (optional)
+        $hero = $berita->first();
+
+        // Popular posts = semua berita publish, random urutannya
+        $popular = Berita::where('status', 'publish')->inRandomOrder()->get();
+
+        return view('berita.index', compact('berita', 'hero', 'popular'));
+    }
+
+    public function show($id)
+    {
+        $berita = Berita::where('status', 'publish')->findOrFail($id);
+
+        // Ambil 4 berita populer lainnya untuk ditampilkan di bawah
+        $related = Berita::where('status', 'publish')
+            ->where('id', '!=', $berita->id)
+            ->inRandomOrder()
+            ->take(4)
+            ->get();
+
+        return view('berita.show', compact('berita', 'related'));
+    }
 }

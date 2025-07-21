@@ -47,21 +47,22 @@ class SuratMasukController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nomor_surat' => 'required|string|max:255',
-            'tanggal_terima' => 'required|date',
-            'asal_surat' => 'required|string|max:255',
-            'perihal' => 'required|string|max:255',
-            'lampiran' => 'nullable|integer',
-            'file_surat' => 'nullable|file|mimes:pdf|max:2048',
+            'nomor_surat'    => ['required', 'string', 'max:255'],
+            'tanggal_terima' => ['required', 'date'],
+            'asal_surat'     => ['required', 'string', 'max:255'],
+            'perihal'        => ['required', 'string', 'max:255'],
+            'lampiran'       => ['nullable', 'integer'],
+            'file_surat'     => ['nullable', 'file', 'mimes:pdf', 'max:2048'],
         ]);
 
         if ($request->hasFile('file_surat')) {
-            $validated['file_surat'] = $request->file('file_surat')->store('surat-masuk');
+            $validated['file_surat'] = $request->file('file_surat')->store('surat-masuk', 'public');
         }
 
         SuratMasuk::create($validated);
 
-        return redirect()->route('admin.surat-masuk.index')->with('success', 'Surat masuk berhasil ditambahkan.');
+        return redirect()->route('admin.surat-masuk.index')
+            ->with('success', 'Surat masuk berhasil ditambahkan.');
     }
 
     public function edit($id)

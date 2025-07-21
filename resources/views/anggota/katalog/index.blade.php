@@ -12,8 +12,9 @@
                 <div class="mt-2 max-w-2xl mx-auto flex gap-2 items-center">
                     {{-- Dropdown filter kategori --}}
                     <select name="category"
-                        class="h-10 px-4 py-2 border rounded border-base200 bg-white text-sm text-gray-700
-                           focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="h-10 px-4` rounded-md bg-white text-base text-text 
+                    border border-gray-300 placeholder:text-gray-400
+                    focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         <option value="all">Semua</option>
                         <option value="judul_buku">Judul</option>
                         <option value="pengarang">Pengarang</option>
@@ -24,8 +25,9 @@
 
                     {{-- Input pencarian --}}
                     <input type="text" name="search" placeholder="Cari Buku..." value="{{ request('search') }}"
-                        class="h-10 w-full px-4 py-2 border rounded border-base200
-                           focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    class="h-10 w-full rounded-md bg-white px-4 py-2 text-base text-text 
+                    border border-gray-300 placeholder:text-gray-400
+                    focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm" />
                 </div>
             </form>
         </div>
@@ -42,7 +44,7 @@
                 ) }}">
                 <button
                     class="px-4 py-2 border rounded-full transition
-                           {{ empty($kategori) ? 'bg-blue-600 text-white' : 'border-gray-300 hover:bg-gray-100' }}">
+                           {{ empty($kategori) ? 'bg-blue-700 text-white' : 'border-gray-300 hover:bg-gray-100' }}">
                     Semua
                 </button>
             </a>

@@ -86,7 +86,7 @@
                             <input type="hidden" name="tanggal_kembali" value="{{ $returnDate }}">
 
                             <button type="button" id="pinjamBtn"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md font-semibold text-sm transition">
+                                class="w-full bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-md font-semibold text-sm transition">
                                 Pinjam Buku
                             </button>
                         </form>

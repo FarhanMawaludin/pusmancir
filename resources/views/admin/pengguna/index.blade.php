@@ -59,7 +59,7 @@
                         class="block p-2.5 w-full z-20 text-sm text-text bg-gray-50 rounded-r-md border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 "
                         placeholder="Cari pengguna berdasarkan nama atau NISN..." value="{{ $search ?? '' }}" />
                     <button type="submit"
-                        class="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-primary700 border rounded border-primary700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
+                        class="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-blue-700 border rounded border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
                         <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 20 20">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -148,7 +148,7 @@
 
             <!-- Button Tambah -->
             <button id="dropdownDividerButton" data-dropdown-toggle="dropdownDivider"
-                class="flex items-center gap-2 text-white bg-primary700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2.5 text-center"
+                class="flex items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2.5 text-center"
                 type="button" onclick="location.href='{{ route('admin.pengguna.create') }}'">
 
                 <svg class="w-5 h-5 md:hidden" fill="none" stroke="currentColor" stroke-width="2"
@@ -159,7 +159,6 @@
                 <span class="hidden md:inline">Tambah</span>
             </button>
         </div>
-
     </div>
 
     <div class="overflow-x-auto relative rounded border border-gray-200">
@@ -199,7 +198,7 @@
 
                                 <!-- Detail -->
                                 <button
-                                    class="inline-flex items-center bg-primary700 text-white px-3 py-2 rounded hover:bg-blue-800 transition"
+                                    class="inline-flex items-center bg-blue-700 text-white px-3 py-2 rounded hover:bg-blue-800 transition"
                                     onclick="location.href='{{ route('admin.pengguna.show', $userItem->id) }}'">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:mr-1" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
