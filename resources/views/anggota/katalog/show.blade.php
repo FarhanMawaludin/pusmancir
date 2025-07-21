@@ -15,7 +15,7 @@
             <div>
                 <!-- Gambar -->
                 <div class="flex justify-center mb-2">
-                    <img src="{{ asset($buku->cover_buku}}" alt="Book Cover"
+                    <img src="{{asset($buku->cover_buku)}}" alt="Book Cover"
                         class="w-60 h-auto" />
                 </div>
 

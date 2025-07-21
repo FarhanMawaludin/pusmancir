@@ -79,7 +79,7 @@
                 <div class="bg-white p-3 text-left">
                     {{-- Sampul --}}
                     <div class="h-44 flex items-center justify-center mb-2">
-                        <img src="{{ asset($buku->cover_buku}}"
+                        <img src="{{asset($buku->cover_buku)}}"
                             alt="{{ $buku->judul_buku }}" class="max-h-full max-w-full object-contain" />
                     </div>
 
