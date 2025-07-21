@@ -95,7 +95,7 @@
                 {{-- Judul dan Gambar Utama --}}
                 <h1 class="text-3xl font-bold mb-4 leading-snug">{{ $berita->judul }}</h1>
                 @if ($berita->thumbnail)
-                    <img src="{{ asset('storage/' . $berita->thumbnail) }}" alt="{{ $berita->judul }}"
+                    <img src="{{ asset($berita->thumbnail) }}" alt="{{ $berita->judul }}"
                         class="w-full h-64 md:h-96 object-cover rounded mb-6">
                 @endif
 
@@ -118,7 +118,7 @@
                             <a href="{{ route('berita.show', $item->id) }}"
                                 class="bg-white rounded border border-gray-200 hover:shadow-md transition p-3">
                                 @if ($item->thumbnail)
-                                    <img src="{{ asset('storage/' . $item->thumbnail) }}"
+                                    <img src="{{ asset($item->thumbnail) }}"
                                         class="rounded mb-2 w-full h-32 object-cover" alt="{{ $item->judul }}">
                                 @else
                                     <img src="https://source.unsplash.com/random/300x200?news"
@@ -142,7 +142,7 @@
                             class="flex items-center gap-3 mb-3 hover:bg-gray-100 p-2 rounded">
                             <div class="w-16 h-16 flex-shrink-0">
                                 @if ($item->thumbnail)
-                                    <img src="{{ asset('storage/' . $item->thumbnail) }}"
+                                    <img src="{{ asset($item->thumbnail) }}"
                                         class="w-full h-full object-cover rounded" alt="">
                                 @else
                                     <img src="https://source.unsplash.com/random/80x80?news"

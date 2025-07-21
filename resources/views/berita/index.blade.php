@@ -109,17 +109,17 @@
     </section>
 
     <!-- Popular Posts -->
-    <section class="container mx-auto px-6 mt-10" x-data="{ show: 4 }">
+    <section class="container mx-auto px-6 mt-10">
         <h3 class="text-lg font-semibold mb-4 text-red-600">Postingan</h3>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="postingan-container">
             @foreach ($popular as $index => $item)
                 <a href="{{ route('berita.show', $item->id) }}"
-                    class="block bg-white rounded border border-gray-200 p-3 hover:shadow-lg transition"
-                    x-show="{{ $index }} < show">
+                    class="post-item block bg-white rounded border border-gray-200 p-3 hover:shadow-lg transition"
+                    data-index="{{ $index }}" {{ $index >= 4 ? 'hidden' : '' }}>
                     @if ($item->thumbnail)
-                        <img src="{{ asset($item->thumbnail) }}"
-                            class="rounded mb-2 w-full h-40 object-cover" alt="{{ $item->judul }}">
+                        <img src="{{ asset($item->thumbnail) }}" class="rounded mb-2 w-full h-40 object-cover"
+                            alt="{{ $item->judul }}">
                     @else
                         <img src="https://source.unsplash.com/random/300x200?news"
                             class="rounded mb-2 w-full h-40 object-cover" alt="Default">
@@ -130,17 +130,14 @@
                 </a>
             @endforeach
         </div>
-    </section>
 
-
-    @if (count($popular) > 4)
-        <div class="flex justify-center mt-6">
-            <button @click="show += 4" x-show="show < {{ count($popular) }}"
-                class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
-                Lihat Lebih Banyak
-            </button>
-        </div>
-    @endif
+        @if (count($popular) > 4)
+            <div class="flex justify-center mt-6">
+                <button id="loadMoreBtn" class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                    Lihat Lebih Banyak
+                </button>
+            </div>
+        @endif
     </section>
 
     <!-- Latest Videos -->
@@ -216,6 +213,29 @@
                 href="#" class="underline">Terms</a> · <a href="#" class="underline">Code of Conduct</a>
         </div>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const items = document.querySelectorAll('.post-item');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            let visibleCount = 4;
+            const totalItems = items.length;
+
+            loadMoreBtn?.addEventListener('click', function() {
+                const nextVisible = visibleCount + 4;
+
+                for (let i = visibleCount; i < nextVisible && i < totalItems; i++) {
+                    items[i].hidden = false;
+                }
+
+                visibleCount = nextVisible;
+
+                if (visibleCount >= totalItems) {
+                    loadMoreBtn.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
