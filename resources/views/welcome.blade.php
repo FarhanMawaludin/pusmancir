@@ -136,10 +136,10 @@
     <!-- Kategori Populer -->
     <section class="px-4 md:px-10 py-10">
         <div class="relative mb-6">
-            {{-- Panah kiri --}}
+            {{-- Panah kiri (disembunyikan di desktop) --}}
             <button id="btn-left"
-                class="absolute left-0 top-1/2 -translate-y-1/2 bg-blue-600 text-white rounded-full p-2 shadow-md z-10"
-                aria-label="Scroll Left" style="display: none;">
+                class="absolute left-0 top-1/2 -translate-y-1/2 bg-blue-600 text-white rounded-full p-2 shadow-md z-10 md:hidden"
+                aria-label="Scroll Left">
                 <svg class="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M15 19l-7-7 7-7" />
@@ -147,7 +147,8 @@
             </button>
 
             {{-- Container tombol kategori --}}
-            <div id="kategori-container" class="flex overflow-hidden gap-3 px-10">
+            <div id="kategori-container"
+                class="flex md:flex-wrap md:justify-center overflow-x-auto md:overflow-visible gap-3 px-10 scrollbar-hide">
                 {{-- Tombol Semua --}}
                 <a
                     href="{{ route('welcome', array_filter(['search' => request('search'), 'search_by' => request('search_by')])) }}">
@@ -169,9 +170,9 @@
                 @endforeach
             </div>
 
-            {{-- Panah kanan --}}
+            {{-- Panah kanan (disembunyikan di desktop) --}}
             <button id="btn-right"
-                class="absolute right-0 top-1/2 -translate-y-1/2 bg-blue-600 text-white rounded-full p-2 shadow-md z-10"
+                class="absolute right-0 top-1/2 -translate-y-1/2 bg-blue-600 text-white rounded-full p-2 shadow-md z-10 md:hidden"
                 aria-label="Scroll Right">
                 <svg class="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -180,6 +181,7 @@
                 </svg>
             </button>
         </div>
+
 
         {{-- LIST BUKU UTAMA --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 max-w-6xl mx-auto" id="buku-container">
