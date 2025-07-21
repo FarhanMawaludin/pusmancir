@@ -1,2 +1,10 @@
 RewriteEngine On
+
+# Larikan semua request ke folder public/
 RewriteRule ^(.*)$ public/$1 [L]
+
+# Lindungi file .env agar tidak bisa diakses dari browser
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
