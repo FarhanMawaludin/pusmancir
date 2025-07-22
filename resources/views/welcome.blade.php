@@ -26,13 +26,13 @@
                 <div class="flex justify-between items-center w-full md:hidden">
                     <!-- Logo -->
                     <a href="#" class="flex items-center space-x-2 rtl:space-x-reverse max-w-[65%]">
-                        {{-- <img src="{{ asset('/logo-banten.png') }}" class="h-5 md:h-8" alt="Logo Banten" />
-                        <img src="{{ asset('/logo-smancir.png') }}" class="h-5 md:h-8" alt="Logo SMANCIR" /> --}}
+                        <img src="{{ asset('/logo-banten.png') }}" class="h-6 md:h-8" alt="Logo Banten" />
+                        <img src="{{ asset('/logo-smancir.png') }}" class="h-6 md:h-8" alt="Logo SMANCIR" />
 
                         <div class="flex flex-col leading-tight text-text">
-                            <span class="text-[14px] font-bold">PUSMANCIR</span>
-                            <span style="font-size: 10px" class="whitespace-nowrap">Perpustakaan SMAN 1 Ciruas</span>
-                            <span style="font-size: 10px">NPP: <strong>3604091E1000002</strong></span>
+                            <span class="text-[12px] font-bold">PUSMANCIR</span>
+                            <span style="font-size: 8px" class="whitespace-nowrap">Perpustakaan SMAN 1 Ciruas</span>
+                            <span style="font-size: 8px">NPP: <strong>3604091E1000002</strong></span>
                         </div>
                     </a>
 
