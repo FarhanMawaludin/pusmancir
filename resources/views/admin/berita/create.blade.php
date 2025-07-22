@@ -43,7 +43,7 @@
 
                     <!-- Isi -->
                     <div class="col-span-full">
-                        <label for="isi" class="block text-sm font-medium text-text">Isi Berita</label>
+                        <label for="isi" class="block text-sm font-medium text-text mb-2">Isi Berita</label>
 
                         <!-- Hidden input untuk menyimpan isi -->
                         <input id="isi" type="hidden" name="isi" value="{{ old('isi') }}">
