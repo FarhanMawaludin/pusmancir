@@ -25,21 +25,10 @@
                 <!-- Row untuk logo dan tombol di mobile -->
                 <div class="flex justify-between items-center w-full md:hidden">
                     <!-- Logo -->
-                    <a href="{{ route('welcome') }}" class="flex items-center space-x-3 rtl:space-x-reverse w-full">
-                        <!-- Logo Kiri -->
-                        <div class="flex space-x-2">
-                            <img src="{{ asset('/logo-banten.png') }}" class="h-10" alt="Logo Banten" />
-                            <img src="{{ asset('/logo-smancir.png') }}" class="h-10" alt="Logo SMANCIR" />
-                        </div>
-
-                        <!-- Teks Kanan -->
-                        <div class="flex flex-col leading-tight text-sm text-black">
-                            <strong class="text-base">PUSMANCIR</strong>
-                            <span>Perpustakaan SMAN 1 Ciruas</span>
-                            <span>NPP: <strong>3604091E1000002</strong></span>
-                        </div>
+                    <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
+                        <img src="{{ asset('/logo-banten.png') }}" class="h-10" alt="Logo" />
+                        <img src="{{ asset('/logo-smancir.png') }}" class="h-10" alt="Logo" />
                     </a>
-
 
                     <!-- Tombol Masuk + Burger (mobile only) -->
                     <div class="flex items-center space-x-2">
@@ -61,10 +50,19 @@
                 </div>
 
                 <!-- Kiri (logo + teks - desktop only) -->
-                <a href="#" class="hidden md:flex items-center space-x-3 rtl:space-x-reverse w-full md:w-60">
-                    <img src="{{ asset('/logo-banten.png') }}" class="h-10" alt="Logo" />
-                    <img src="{{ asset('/logo-smancir.png') }}" class="h-10" alt="Logo" />
-                    <span class="self-center text-xl font-bold whitespace-nowrap text-text">PUSMANCIR</span>
+                <a href="#" class="hidden md:flex items-center space-x-4 rtl:space-x-reverse w-full md:w-60">
+                    <!-- Logo -->
+                    <div class="flex space-x-2">
+                        <img src="{{ asset('/logo-banten.png') }}" class="h-10" alt="Logo Banten" />
+                        <img src="{{ asset('/logo-smancir.png') }}" class="h-10" alt="Logo SMANCIR" />
+                    </div>
+                
+                    <!-- Teks -->
+                    <div class="flex flex-col leading-tight text-sm text-text">
+                        <span class="text-xl font-bold">PUSMANCIR</span>
+                        <span class="text-[10px] whitespace-nowrap">Perpustakaan SMAN 1 Ciruas</span>
+                        <span class="text-[10px]">NPP: <strong>3604091E1000002</strong></span>
+                    </div>
                 </a>
 
                 <!-- Kanan (tombol masuk - desktop only) -->

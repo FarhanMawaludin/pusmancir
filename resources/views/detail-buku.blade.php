@@ -21,10 +21,19 @@
     <!-- Header -->
     <nav class="bg-white fixed w-full z-20 top-0 left-0">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-            <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
-                <img src="{{ asset('/logo-banten.png') }}" class="h-10" alt="Logo" />
-                <img src="{{ asset('img/logo-smancir.png') }}" class="h-10" alt="Logo" />
-                <span class="self-center text-xl font-bold whitespace-nowrap text-text hidden md:block">PUSMANCIR</span>
+            <a href="#" class="hidden md:flex items-center space-x-4 rtl:space-x-reverse w-full md:w-60">
+                <!-- Logo -->
+                <div class="flex space-x-2">
+                    <img src="{{ asset('/logo-banten.png') }}" class="h-10" alt="Logo Banten" />
+                    <img src="{{ asset('/logo-smancir.png') }}" class="h-10" alt="Logo SMANCIR" />
+                </div>
+
+                <!-- Teks -->
+                <div class="flex flex-col leading-tight text-sm text-text">
+                    <span class="text-xl font-bold">PUSMANCIR</span>
+                    <span class="text-[10px] whitespace-nowrap">Perpustakaan SMAN 1 Ciruas</span>
+                    <span class="text-[10px]">NPP: <strong>3604091E1000002</strong></span>
+                </div>
             </a>
             <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
                 <button type="button" onclick="location.href='{{ route('login') }}'"
