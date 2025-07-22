@@ -17,6 +17,7 @@ class Eksemplar extends Model
         'no_inventori',
         'no_rfid',
         'status',
+        'sudah_dicetak'
     ];
 
     /**
