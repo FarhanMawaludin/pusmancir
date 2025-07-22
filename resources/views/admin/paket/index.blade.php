@@ -11,7 +11,7 @@
         <div class="flex flex-wrap gap-2">
             <!-- Button Tambah -->
             <button id="dropdownDividerButton" data-dropdown-toggle="dropdownDivider"
-                class="flex items-center gap-2 text-white bg-primary700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2.5 text-center dark:bg-primary700 dark:hover:bg-primary700 dark:focus:ring-blue-800"
+                class="flex items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2.5 text-center dark:bg-blue-700 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 type="button" onclick="location.href='{{ route('admin.paket.create') }}'">
 
                 <svg class="w-5 h-5 md:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
@@ -57,7 +57,7 @@
 
                                 <!-- Detail -->
                                 {{-- <button
-                                    class="inline-flex items-center bg-primary700 text-white px-3 py-2 rounded hover:bg-blue-800 transition"
+                                    class="inline-flex items-center bg-blue-700 text-white px-3 py-2 rounded hover:bg-blue-800 transition"
                                     onclick="location.href='{{ route('admin.paket.show', $item->id) }}'">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:mr-1" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
