@@ -7,6 +7,7 @@
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>Cetak Label Barcode - Satuan (TJ121)</title>
@@ -43,7 +44,38 @@
             font-size: 8pt;
             display: flex;
             flex-direction: column;
+            justify-content: center;
+        }
+
+        .label-columns {
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+        }
+
+        .left-column {
+            width: 75%;
+            display: flex;
+            flex-direction: column;
             justify-content: space-between;
+        }
+
+        .right-column {
+            width: 25%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 7pt;
+            font-weight: bold;
+            text-align: center;
+            padding-left: 0.2cm;
+            box-sizing: border-box;
+            word-break: break-word;
+        }
+
+        .no-panggil {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
         }
 
         .label-top {
@@ -53,14 +85,13 @@
         }
 
         .top-left {
-            width: 70%;
             display: flex;
             align-items: center;
             gap: 2mm;
         }
 
         .top-left img.logo {
-            width: 9mm;
+            width: 0.8cm;
             height: auto;
         }
 
@@ -72,17 +103,6 @@
 
         .header-text strong {
             font-size: 6pt;
-        }
-
-        .top-right {
-            width: 30%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 7pt;
-            font-weight: bold;
-            text-align: center;
-            word-break: break-word;
         }
 
         .label-content {
@@ -118,36 +138,43 @@
         }
     </style>
 </head>
+
 <body>
     <div class="sheet">
-        {{-- Label pertama aktif --}}
         <div class="label">
-            {{-- Header --}}
-            <div class="label-top">
-                <div class="top-left">
-                    <img class="logo" src="{{ asset('/logo-banten.png') }}" alt="Logo Banten">
-                    <img class="logo" src="{{ asset('/logo-smancir.png') }}" alt="Logo SMANCIR">
-                    <div class="header-text">
-                        <strong>PUSMANCIR</strong><br>
-                        Perpustakaan SMAN 1 Ciruas<br>
-                        NPP: <strong>3604091E1000002</strong>
+            <div class="label-columns">
+                {{-- Kolom Kiri --}}
+                <div class="left-column">
+                    <div class="label-top">
+                        <div class="top-left">
+                            <img class="logo" src="{{ asset('/logo-banten.png') }}" alt="Logo Banten">
+                            <img class="logo" src="{{ asset('/logo-smancir.png') }}" alt="Logo Smancir">
+                            <div class="header-text">
+                                <strong>PUSMANCIR</strong><br>
+                                Perpustakaan SMAN 1 Ciruas<br>
+                                NPP: <strong>3604091E1000002</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="label-content">
+                        <p><strong>{{ Str::limit($eksemplar->inventori->judul_buku, 25) }}</strong></p>
+                        <p>{{ $eksemplar->no_induk }}</p>
+                        <img class="barcode" src="data:image/png;base64,{{ $barcode }}" alt="Barcode">
+                        <p>{{ $eksemplar->no_rfid }}</p>
                     </div>
                 </div>
-                <div class="top-right">
-                    {{ optional($eksemplar->inventori->katalog)->no_panggil ?? '-' }}
-                </div>
-            </div>
 
-            {{-- Konten --}}
-            <div class="label-content">
-                <p><strong>{{ Str::limit($eksemplar->inventori->judul_buku, 25) }}</strong></p>
-                <p>{{ $eksemplar->no_induk }}</p>
-                <img class="barcode" src="data:image/png;base64,{{ $barcode }}" alt="Barcode">
-                <p>{{ $eksemplar->no_rfid }}</p>
+                {{-- Kolom Kanan --}}
+                <div class="right-column">
+                    <div class="no-panggil">
+                        {{ optional($eksemplar->inventori->katalog)->no_panggil ?? '-' }}
+                    </div>
+                </div>
             </div>
         </div>
 
-        {{-- Kosongkan 9 slot sisanya (2 kolom x 5 baris = 10 slot total) --}}
+        {{-- Sisakan 9 slot kosong --}}
         @for ($i = 0; $i < 9; $i++)
             <div class="empty"></div>
         @endfor
@@ -157,4 +184,5 @@
         window.print();
     </script>
 </body>
+
 </html>

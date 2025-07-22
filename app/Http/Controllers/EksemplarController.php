@@ -45,6 +45,10 @@ class EksemplarController extends Controller
     public function cetakBarcode($id)
     {
         $eksemplar = Eksemplar::with('inventori')->findOrFail($id);
+
+        // Tandai sebagai sudah dicetak
+        $eksemplar->update(['sudah_dicetak' => true]);
+
         return view('admin.eksemplar.cetak-barcode', compact('eksemplar'));
     }
 
@@ -67,9 +71,7 @@ class EksemplarController extends Controller
 
             //Tandai sudah dicetak
             Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
-        }
-
-        elseif ($start && $end && $end >= $start) {
+        } elseif ($start && $end && $end >= $start) {
             $take = $end - $start + 1;
 
             $eksemplarList = Eksemplar::with('inventori.katalog')
@@ -82,9 +84,7 @@ class EksemplarController extends Controller
             // Ambil ID untuk update cetak
             $updateIds = $eksemplarList->pluck('id')->toArray();
             Eksemplar::whereIn('id', $updateIds)->update(['sudah_dicetak' => true]);
-        }
-
-        else {
+        } else {
             return back()->with('error', 'Pilih data lewat checkbox atau isi rentang No. Induk.');
         }
 
