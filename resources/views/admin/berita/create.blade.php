@@ -44,8 +44,14 @@
                     <!-- Isi -->
                     <div class="col-span-full">
                         <label for="isi" class="block text-sm font-medium text-text">Isi Berita</label>
-                        <textarea name="isi" id="isi" rows="6"
-                            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text border border-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm">{{ old('isi') }}</textarea>
+
+                        <!-- Hidden input untuk menyimpan isi -->
+                        <input id="isi" type="hidden" name="isi" value="{{ old('isi') }}">
+
+                        <!-- Trix editor -->
+                        <trix-editor input="isi"
+                            class="mt-2 block w-full bg-white border border-gray-300 rounded-md"></trix-editor>
+
                         @error('isi')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -67,7 +73,7 @@
                         </label>
                         <input type="file" name="thumbnail" id="thumbnail"
                             accept="image/png, image/jpeg, image/jpg, image/gif, image/webp" class="hidden">
-                            <small>Format: .png, .jpg, .jpeg, .gif, .webp | Maksimal: 2MB</small>
+                        <small>Format: .png, .jpg, .jpeg, .gif, .webp | Maksimal: 2MB</small>
                         @error('thumbnail')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror

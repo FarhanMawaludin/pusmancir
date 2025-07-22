@@ -15,7 +15,7 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    
+
     <link rel="icon" href="{{ asset('logo-smancir.png') }}" type="image/png">
     {{-- <script src="https://cdn.jsdelivr.net/npm/apexcharts@latest/dist/apexcharts.min.js"></script> --}}
 
@@ -36,6 +36,9 @@
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Trix Editor -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.min.css">
 
     {{-- <!-- Vite Assets (Simulated) -->
     <link href="/dist/app.css" rel="stylesheet" />
@@ -59,6 +62,9 @@
 
     @stack('scripts')
     <x-alert />
+
+    <!-- Trix Editor JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.min.js"></script>
 </body>
 
 </html>
