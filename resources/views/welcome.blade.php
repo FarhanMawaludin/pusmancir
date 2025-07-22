@@ -34,7 +34,7 @@
 
                         <!-- Teks Kanan -->
                         <div class="flex flex-col leading-tight text-sm">
-                            <strong class="text-base">PUSMANCIR</strong>
+                            <strong class="text-base"></strong>
                             <span>Perpustakaan SMAN 1 Ciruas</span>
                             <span>NPP: <strong>3604091E1000002</strong></span>
                         </div>
