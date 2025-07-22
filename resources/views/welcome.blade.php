@@ -25,18 +25,14 @@
                 <!-- Row untuk logo dan tombol di mobile -->
                 <div class="flex justify-between items-center w-full md:hidden">
                     <!-- Logo -->
-                    <a href="#" class="flex items-center space-x-2 rtl:space-x-reverse">
-                        <!-- Logo Banten -->
-                        <img src="{{ asset('/logo-banten.png') }}" class="h-6 md:h-10" alt="Logo Banten" />
+                    <a href="#" class="flex items-center space-x-2 rtl:space-x-reverse max-w-[65%]">
+                        <img src="{{ asset('/logo-banten.png') }}" class="h-5 md:h-8" alt="Logo Banten" />
+                        <img src="{{ asset('/logo-smancir.png') }}" class="h-5 md:h-8" alt="Logo SMANCIR" />
 
-                        <!-- Logo SMANCIR -->
-                        <img src="{{ asset('/logo-smancir.png') }}" class="h-6 md:h-10" alt="Logo SMANCIR" />
-
-                        <!-- Teks -->
                         <div class="flex flex-col leading-tight text-text">
-                            <span class="text-sm md:text-lg font-bold">PUSMANCIR</span>
-                            <span class="text-[6px] md:text-[9px] whitespace-nowrap">Perpustakaan SMAN 1 Ciruas</span>
-                            <span class="text-[6px] md:text-[9px]">NPP: <strong>3604091E1000002</strong></span>
+                            <span class="text-[10px] font-bold">PUSMANCIR</span>
+                            <span class="text-[5px] whitespace-nowrap">Perpustakaan SMAN 1 Ciruas</span>
+                            <span class="text-[5px]">NPP: <strong>3604091E1000002</strong></span>
                         </div>
                     </a>
 
