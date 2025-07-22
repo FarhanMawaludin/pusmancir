@@ -30,9 +30,9 @@
                         <img src="{{ asset('/logo-smancir.png') }}" class="h-5 md:h-8" alt="Logo SMANCIR" /> --}}
 
                         <div class="flex flex-col leading-tight text-text">
-                            <span class="text-[10px] font-bold">PUSMANCIR</span>
-                            <span style="font-size: 5px" class="whitespace-nowrap">Perpustakaan SMAN 1 Ciruas</span>
-                            <span style="font-size: 5px">NPP: <strong>3604091E1000002</strong></span>
+                            <span class="text-[14px] font-bold">PUSMANCIR</span>
+                            <span style="font-size: 10px" class="whitespace-nowrap">Perpustakaan SMAN 1 Ciruas</span>
+                            <span style="font-size: 10px">NPP: <strong>3604091E1000002</strong></span>
                         </div>
                     </a>
 
