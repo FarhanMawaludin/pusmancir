@@ -12,7 +12,9 @@
                     <div class="sm:col-span-3">
                         <label for="nama_paket" class="block text-sm font-medium text-text mb-2">Nama Buku</label>
                         <input type="text" name="nama_paket" id="nama_paket" value="{{ old('nama_paket') }}"
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                        class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                        border border-gray-300 placeholder:text-gray-400
+                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
                             required>
                         @error('nama_paket')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -23,7 +25,9 @@
                     <div class="sm:col-span-3">
                         <label for="stok_total" class="block text-sm font-medium text-text mb-2">Total Buku Paket</label>
                         <input type="number" name="stok_total" id="stok_total" value="{{ old('stok_total') }}"
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                        class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                        border border-gray-300 placeholder:text-gray-400
+                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
                             required>
                         @error('stok_total')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -33,7 +37,9 @@
                     <div class="sm:col-span-full">
                         <label for="deskripsi" class="block text-sm font-medium text-text mb-2">Deskripsi</label>
                         <textarea name="deskripsi" id="deskripsi" rows="4"
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 mt-2"></textarea>
+                        class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                        border border-gray-300 placeholder:text-gray-400
+                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"></textarea>
                         @error('deskripsi')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                         @enderror
