@@ -13,12 +13,19 @@
                         </path>
                     </svg>
                 </button>
-                <a href="#" class="flex items-center ms-2 md:me-24">
-                    <img src="{{ asset('img/logo-smancir.png') }}" class="h-10 me-3 md:ml-6" alt="PUSMANCIR Logo" />
+                <a href="#" class="hidden md:flex items-center space-x-2 rtl:space-x-reverse w-full md:w-60">
+                    <!-- Logo -->
+                    <div class="flex space-x-1">
+                        <img src="{{ asset('/logo-banten.png') }}" class="h-10" alt="Logo Banten" />
+                        <img src="{{ asset('/logo-smancir.png') }}" class="h-10" alt="Logo SMANCIR" />
+                    </div>
 
-                    <span class="hidden md:inline self-center text-[18px] font-bold whitespace-nowrap text-text">
-                        PUSMANCIR
-                    </span>
+                    <!-- Teks -->
+                    <div class="flex flex-col leading-tight text-sm text-text">
+                        <span class="text-xl font-bold">PUSMANCIR</span>
+                        <span class="text-[10px] whitespace-nowrap">Perpustakaan SMAN 1 Ciruas</span>
+                        <span class="text-[10px]">NPP: <strong>3604091E1000002</strong></span>
+                    </div>
                 </a>
 
             </div>
