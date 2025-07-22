@@ -122,10 +122,23 @@
                                 <div>
                                     <label for="excel_file" class="block mb-1 text-sm font-medium text-gray-900">Upload File
                                         Excel:</label>
-                                    <input
+                                    <label for="excel_file"
+                                        class="flex items-center cursor-pointer rounded-md overflow-hidden border border-gray-300 bg-white">
+
+                                        <span class="bg-gray-800 text-white text-sm font-semibold px-4 py-2">
+                                            Pilih File
+                                        </span>
+
+                                        <span id="file_name" class="ml-3 text-sm text-gray-500">
+                                            Tidak ada file dipilih
+                                        </span>
+                                    </label>
+                                    <input type="file" name="file_pengguna" id="excel_file" accept=".xlsx,.xls"
+                                        class="hidden">
+                                    {{-- <input
                                         class="block w-full text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none focus:ring focus:border-blue-300"
                                         type="file" id="excel_file" name="file_pengguna" accept=".xlsx,.xls"
-                                        required>
+                                        required> --}}
                                 </div>
 
                                 <!-- Footer -->
@@ -256,6 +269,23 @@
             {{ $user->links('pagination::tailwind') }}
         </div>
     </div>
+
+    <script>
+        document.getElementById('excel_file').addEventListener('change', function(e) {
+            const fileName = e.target.files.length ? e.target.files[0].name : 'Tidak ada file dipilih';
+            document.getElementById('file_name').textContent = fileName;
+
+            const preview = document.getElementById('cover_preview');
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                preview.src = event.target.result;
+                preview.classList.remove('hidden');
+            };
+            if (e.target.files[0]) {
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    </script>
 
     <script>
         document.querySelectorAll('.btn-delete').forEach(button => {
