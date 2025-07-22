@@ -13,7 +13,7 @@
 
     {{-- ======= LIST SEMUA BUKU ======= --}}
     <section class="md:px-10 pb-12">
-        <div class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-6 gap-4 max-w-6xl mx-auto">
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-6 gap-4 max-w-6xl mx-auto">
             @foreach ($katalogList as $buku)
                 @php
                     $available = (int) ($buku->stok_tersedia ?? 0);
@@ -23,7 +23,7 @@
                     $statusStyle = $isAvailable ? 'text-green-600' : 'text-red-600';
                 @endphp
 
-                <div class="bg-white p-3 text-left">
+                <div class="bg-white p-3 text-left w-full">
                     {{-- Sampul --}}
                     <div
                         class="h-44 flex items-center justify-center mb-2 relative border border-gray-300 rounded-lg bg-white shadow-inner overflow-hidden">
@@ -34,7 +34,6 @@
                             </span>
                         </div>
                     </div>
-
 
                     {{-- Info --}}
                     <p class="text-xs text-gray-400 truncate">{{ $buku->pengarang }}</p>
