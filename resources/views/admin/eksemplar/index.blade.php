@@ -57,7 +57,7 @@
                                 <div class="flex flex-row space-x-2 items-center">
                                     <button onclick="location.href='{{ route('admin.eksemplar.cetakBarcode', $item->id) }}'"
                                         type="button"
-                                        class="inline-flex items-center bg-blue-700 text-white px-3 py-2 rounded hover:bg-blue-800 transition">
+                                        class="inline-flex items-center bg-blue-700 text-white px-3 py-2 rounded hover:bg-blue-800 transition" target="_blank">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:mr-1" fill="none"
                                             viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke="currentColor" stroke-linejoin="round" stroke-width="2"
@@ -125,7 +125,6 @@
                     </div>
                 </div>
             </div>
-
         </form>
 
         <!-- Pagination -->
