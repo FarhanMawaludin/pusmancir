@@ -31,8 +31,8 @@
 
                         <div class="flex flex-col leading-tight text-text">
                             <span class="text-[10px] font-bold">PUSMANCIR</span>
-                            <span class="text-[5px] whitespace-nowrap">Perpustakaan SMAN 1 Ciruas</span>
-                            <span class="text-[5px]">NPP: <strong>3604091E1000002</strong></span>
+                            <span style="font-size: 5px" class="whitespace-nowrap">Perpustakaan SMAN 1 Ciruas</span>
+                            <span style="font-size: 5px">NPP: <strong>3604091E1000002</strong></span>
                         </div>
                     </a>
 
