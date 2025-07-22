@@ -12,48 +12,94 @@ use Illuminate\Support\Facades\Auth;
 
 class PeminjamanController extends Controller
 {
+    // public function index(Request $request)
+    // {
+    //     $activeMenu = "peminjaman";
+
+    //     $search = $request->input('search');
+    //     $category = $request->input('category', 'all');
+
+    //     $query = DetailPeminjaman::with(['eksemplar', 'peminjaman.anggota.user'])
+    //         ->whereHas('peminjaman', function ($q) use ($search) {
+    //             $q->where('status', 'menunggu');
+
+    //             // Filter berdasarkan NISN jika ada pencarian
+    //             if (!empty($search)) {
+    //                 $q->whereHas('anggota', function ($q2) use ($search) {
+    //                     $q2->where('nisn', 'like', "%{$search}%");
+    //                 });
+    //             }
+    //         });
+
+    //     // Filter kategori kelas jika ada
+    //     if ($category !== 'all') {
+    //         $query->whereHas('peminjaman.anggota.kelas', function ($q) use ($category) {
+    //             preg_match('/(\d+) (IPA|IPS|Bahasa)/', $category, $match);
+    //             if ($match) {
+    //                 $kelas = $match[1] . ' ' . $match[2];
+    //                 $q->where('nama_kelas', 'like', $kelas . '%');
+    //             }
+    //         });
+    //     }
+
+    //     $peminjaman = $query->paginate(10)->appends([
+    //         'search' => $search,
+    //         'category' => $category
+    //     ]);
+
+    //     return view('admin.peminjaman.index', [
+    //         'activeMenu' => $activeMenu,
+    //         'peminjaman' => $peminjaman,
+    //         'category' => $category,
+    //         'search' => $search,
+    //     ]);
+    // }
+
     public function index(Request $request)
     {
-        $activeMenu = "peminjaman";
+        try {
+            $activeMenu = "peminjaman";
 
-        $search = $request->input('search');
-        $category = $request->input('category', 'all');
+            $search = $request->input('search');
+            $category = $request->input('category', 'all');
 
-        $query = DetailPeminjaman::with(['eksemplar', 'peminjaman.anggota.user'])
-            ->whereHas('peminjaman', function ($q) use ($search) {
-                $q->where('status', 'menunggu');
+            $query = DetailPeminjaman::with(['eksemplar', 'peminjaman.anggota.user'])
+                ->whereHas('peminjaman', function ($q) use ($search) {
+                    $q->where('status', 'menunggu');
 
-                // Filter berdasarkan NISN jika ada pencarian
-                if (!empty($search)) {
-                    $q->whereHas('anggota', function ($q2) use ($search) {
-                        $q2->where('nisn', 'like', "%{$search}%");
-                    });
-                }
-            });
+                    if (!empty($search)) {
+                        $q->whereHas('anggota', function ($q2) use ($search) {
+                            $q2->where('nisn', 'like', "%{$search}%");
+                        });
+                    }
+                });
 
-        // Filter kategori kelas jika ada
-        if ($category !== 'all') {
-            $query->whereHas('peminjaman.anggota.kelas', function ($q) use ($category) {
-                preg_match('/(\d+) (IPA|IPS|Bahasa)/', $category, $match);
-                if ($match) {
-                    $kelas = $match[1] . ' ' . $match[2];
-                    $q->where('nama_kelas', 'like', $kelas . '%');
-                }
-            });
+            if ($category !== 'all') {
+                $query->whereHas('peminjaman.anggota.kelas', function ($q) use ($category) {
+                    preg_match('/(\d+) (IPA|IPS|Bahasa)/', $category, $match);
+                    if ($match) {
+                        $kelas = $match[1] . ' ' . $match[2];
+                        $q->where('nama_kelas', 'like', $kelas . '%');
+                    }
+                });
+            }
+
+            $peminjaman = $query->paginate(10)->appends([
+                'search' => $search,
+                'category' => $category
+            ]);
+
+            return view('admin.peminjaman.index', [
+                'activeMenu' => $activeMenu,
+                'peminjaman' => $peminjaman,
+                'category' => $category,
+                'search' => $search,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        $peminjaman = $query->paginate(10)->appends([
-            'search' => $search,
-            'category' => $category
-        ]);
-
-        return view('admin.peminjaman.index', [
-            'activeMenu' => $activeMenu,
-            'peminjaman' => $peminjaman,
-            'category' => $category,
-            'search' => $search,
-        ]);
     }
+
 
 
 
