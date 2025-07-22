@@ -25,7 +25,7 @@
                 <!-- Row untuk logo dan tombol di mobile -->
                 <div class="flex justify-between items-center w-full md:hidden">
                     <!-- Logo -->
-                    <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
+                    <a href="{{ route('welcome') }}" class="flex items-center space-x-3 rtl:space-x-reverse w-full">
                         <!-- Logo Kiri -->
                         <div class="flex space-x-2">
                             <img src="{{ asset('/logo-banten.png') }}" class="h-10" alt="Logo Banten" />
@@ -33,12 +33,13 @@
                         </div>
 
                         <!-- Teks Kanan -->
-                        <div class="flex flex-col leading-tight text-sm">
-                            <strong class="text-base"></strong>
+                        <div class="flex flex-col leading-tight text-sm text-black">
+                            <strong class="text-base">PUSMANCIR</strong>
                             <span>Perpustakaan SMAN 1 Ciruas</span>
                             <span>NPP: <strong>3604091E1000002</strong></span>
                         </div>
                     </a>
+
 
                     <!-- Tombol Masuk + Burger (mobile only) -->
                     <div class="flex items-center space-x-2">
