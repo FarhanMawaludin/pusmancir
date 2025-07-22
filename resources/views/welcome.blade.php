@@ -23,28 +23,27 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between">
 
                 <!-- Row untuk logo dan tombol di mobile -->
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full md:hidden gap-2">
+                <div class="flex justify-between items-center w-full md:hidden">
+                    <!-- Logo -->
+                    <a href="#" class="flex items-center space-x-2 rtl:space-x-reverse max-w-[65%]">
+                        {{-- <img src="{{ asset('/logo-banten.png') }}" class="h-5 md:h-8" alt="Logo Banten" />
+                        <img src="{{ asset('/logo-smancir.png') }}" class="h-5 md:h-8" alt="Logo SMANCIR" /> --}}
 
-                    <!-- Logo + Teks -->
-                    <div class="flex items-start space-x-2 rtl:space-x-reverse">
-                        <img src="{{ asset('/logo-banten.png') }}" class="h-5 md:h-8" alt="Logo Banten" />
-                        <img src="{{ asset('/logo-smancir.png') }}" class="h-5 md:h-8" alt="Logo SMANCIR" />
-                
                         <div class="flex flex-col leading-tight text-text">
                             <span class="text-[10px] font-bold">PUSMANCIR</span>
-                            <span class="text-[4px] whitespace-nowrap">Perpustakaan SMAN 1 Ciruas</span>
-                            <span class="text-[4px]">NPP: <strong>3604091E1000002</strong></span>
+                            <span class="text-[5px] whitespace-nowrap">Perpustakaan SMAN 1 Ciruas</span>
+                            <span class="text-[5px]">NPP: <strong>3604091E1000002</strong></span>
                         </div>
-                    </div>
-                
-                    <!-- Tombol Masuk + Burger -->
-                    <div class="flex items-center justify-end space-x-2">
+                    </a>
+
+                    <!-- Tombol Masuk + Burger (mobile only) -->
+                    <div class="flex items-center space-x-2">
                         <button type="button" onclick="location.href='{{ route('login') }}'"
-                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-[10px] px-3 py-1.5">
+                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2 text-center">
                             Masuk
                         </button>
                         <button data-collapse-toggle="navbar-sticky" type="button"
-                            class="inline-flex items-center p-2 w-9 h-9 justify-center text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                            class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
                             aria-controls="navbar-sticky" aria-expanded="false">
                             <span class="sr-only">Open main menu</span>
                             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14"
