@@ -210,18 +210,17 @@
             <div>
                 <h4 class="font-semibold text-gray-800 mb-2">Tentang Kami</h4>
                 <p class="text-gray-500">
-                    Perpustakaan SMAN 1 Harapan Bangsa adalah sarana belajar yang menyediakan berbagai koleksi buku
-                    pelajaran, fiksi, referensi, dan digital untuk menunjang kegiatan akademik dan pengembangan literasi
-                    siswa. Berdiri sejak 2008, perpustakaan ini berkomitmen menjadi pusat ilmu dan budaya baca di
-                    lingkungan
-                    sekolah.
+                    Perpustakaan SMAN 1 Ciruas merupakan fasilitas penunjang pendidikan yang menyediakan berbagai
+                    koleksi buku pelajaran, fiksi, referensi, dan sumber digital guna mendukung kegiatan belajar
+                    mengajar serta meningkatkan minat baca siswa. Berdiri sejak tahun 2008, perpustakaan ini berkomitmen
+                    untuk menjadi pusat informasi, literasi, dan budaya baca di lingkungan SMA Negeri 1 Ciruas,
+                    Kabupaten Serang, Banten.
                 </p>
             </div>
         </div>
 
-        <div class="text-center text-xs text-gray-400 mt-8 border-t pt-4">
-            © 2025 · PUSMANCIR &nbsp; | &nbsp; <a href="#" class="underline">Privacy Policy</a> · <a
-                href="#" class="underline">Terms</a> · <a href="#" class="underline">Code of Conduct</a>
+        <div class="text-center text-xs text-gray-600 mt-8 border-t pt-4">
+            Hanware &nbsp; · &nbsp; © 2025 · PUSMANCIR &nbsp; 
         </div>
     </footer>
 

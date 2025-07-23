@@ -30,7 +30,8 @@
                 <!-- Row untuk logo dan tombol di mobile -->
                 <div class="flex justify-between items-center w-full md:hidden">
                     <!-- Logo -->
-                    <a href="{{ route('welcome') }}" class="flex items-center space-x-2 rtl:space-x-reverse max-w-[65%]">
+                    <a href="{{ route('welcome') }}"
+                        class="flex items-center space-x-2 rtl:space-x-reverse max-w-[65%]">
                         <img src="{{ asset('/logo-banten.png') }}" class="h-6 md:h-8" alt="Logo Banten" />
                         <img src="{{ asset('/logo-smancir.png') }}" class="h-6 md:h-8" alt="Logo SMANCIR" />
 
@@ -119,10 +120,10 @@
         <div class="md:w-1/2">
             <h1 class="text-3xl font-bold mb-4">PUSMANCIR</h1>
             <p class="text-gray-700 leading-relaxed">
-                Perpustakaan SMAN 1 Harapan Bangsa adalah sarana belajar yang menyediakan berbagai koleksi buku
-                pelajaran, fiksi, referensi, dan digital untuk menunjang kegiatan akademik dan pengembangan literasi
-                siswa. Berdiri sejak 2008, perpustakaan ini berkomitmen menjadi pusat ilmu dan budaya baca di lingkungan
-                sekolah.
+                Perpustakaan SMAN 1 Ciruas merupakan fasilitas penunjang pendidikan yang menyediakan berbagai koleksi
+                buku pelajaran, fiksi, referensi, dan sumber digital guna mendukung kegiatan belajar mengajar serta
+                meningkatkan minat baca siswa. Berdiri sejak tahun 2008, perpustakaan ini berkomitmen untuk menjadi
+                pusat informasi, literasi, dan budaya baca di lingkungan SMA Negeri 1 Ciruas, Kabupaten Serang, Banten.
             </p>
         </div>
 
@@ -409,9 +410,8 @@
             </div>
         </div>
 
-        <div class="text-center text-xs text-gray-400 mt-8 border-t pt-4">
-            © 2025 · PUSMANCIR &nbsp; | &nbsp; <a href="#" class="underline">Privacy Policy</a> · <a
-                href="#" class="underline">Terms</a> · <a href="#" class="underline">Code of Conduct</a>
+        <div class="text-center text-xs text-gray-600 mt-8 border-t pt-4">
+            Hanware &nbsp; · &nbsp; © 2025 · PUSMANCIR &nbsp;
         </div>
     </footer>
 
