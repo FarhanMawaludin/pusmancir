@@ -65,7 +65,7 @@ class BukuElektronikController extends Controller
             'kelas' => 'required|string|max:50',
             'kategori' => 'required|string|max:100',
             'kurikulum' => 'nullable|string|max:100',
-            'pdf_path' => 'nullable|file|mimes:pdf|max:10240', // max 10MB
+            'pdf_path' => 'nullable|file|mimes:pdf|max:max:102400', // max 10MB
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // max 5MB
         ]);
 
@@ -113,7 +113,7 @@ class BukuElektronikController extends Controller
             'kelas' => 'required|string|max:50',
             'kategori' => 'required|string|max:100',
             'kurikulum' => 'nullable|string|max:100',
-            'pdf_path' => 'nullable|file|mimes:pdf|max:10240',
+            'pdf_path' => 'nullable|file|mimes:pdf|max:max:102400',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
