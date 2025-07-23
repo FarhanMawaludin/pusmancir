@@ -114,9 +114,13 @@
         <!-- Main Content -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
             <!-- KIRI: Gambar buku -->
-            <div class="flex justify-center">
-                <img src="{{ asset($buku->cover_image) }}" alt="Book Cover" class="w-60 md:w-80 h-auto" />
+            <div class="flex flex-col items-center">
+                <img src="{{ asset($buku->cover_image) }}" alt="Book Cover" class="w-60 md:w-80 h-auto rounded-lg shadow-lg border border-gray-300" />
+                <h1 class="text-2xl font-semibold text-text leading-tight text-center mt-4 mb-1 border-b-2 border-blue-700 pb-2 w-fit">
+                    {{ $buku->judul }}
+                </h1>
             </div>
+            
 
             <!-- KANAN: Info detail + tombol aksi -->
             <div class="flex flex-col justify-start h-full space-y-6">
