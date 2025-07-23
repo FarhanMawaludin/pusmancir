@@ -208,6 +208,11 @@
                             class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
                             Buku Paket</a>
                     </li>
+                    <li>
+                        <a href="{{ route('admin.buku-elektronik.index') }}"
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
+                            Buku Elektronik</a>
+                    </li>
                 </ul>
             </li>
 

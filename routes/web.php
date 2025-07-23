@@ -36,13 +36,15 @@ use App\Http\Controllers\KodeJenisSuratController;
 use App\Http\Controllers\InstansiController;
 use App\Http\Controllers\SuratKeluarController;
 use App\Http\Controllers\SuratMasukController;
-
+use App\Http\Controllers\BukuElektronikController;
 
 use Illuminate\Support\Facades\Http;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
 Route::get('/katalog/{id}', [WelcomeController::class, 'show'])->name('detail-buku');
+
+Route::get('/ebook/{id}', [WelcomeController::class, 'showEbook'])->name('detail-buku-elektronik');
 
 Route::get('/berita', [BeritaController::class, 'indexPublish'])->name('berita.index');
 Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('berita.show');
@@ -162,6 +164,14 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     Route::get('/paket-buku/{id}/edit', [PaketBukuController::class, 'edit'])->name('paket.edit');
     Route::put('/paket-buku/{id}', [PaketBukuController::class, 'update'])->name('paket.update');
     Route::delete('/paket-buku/{id}', [PaketBukuController::class, 'destroy'])->name('paket.destroy');
+
+    //Katalog-Buku Elektronik
+    Route::get('/buku-elektronik', [BukuElektronikController::class, 'index'])->name('buku-elektronik.index');
+    Route::get('/buku-elektronik/create', [BukuElektronikController::class, 'create'])->name('buku-elektronik.create');
+    Route::post('/buku-elektronik', [BukuElektronikController::class, 'store'])->name('buku-elektronik.store');
+    Route::get('/buku-elektronik/{id}/edit', [BukuElektronikController::class, 'edit'])->name('buku-elektronik.edit');
+    Route::put('/buku-elektronik/{id}', [BukuElektronikController::class, 'update'])->name('buku-elektronik.update');
+    Route::delete('/buku-elektronik/{id}', [BukuElektronikController::class, 'destroy'])->name('buku-elektronik.destroy');
 
 
     //Eksemplar
