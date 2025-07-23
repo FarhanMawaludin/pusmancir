@@ -25,7 +25,7 @@
                 <!-- Row untuk logo dan tombol di mobile -->
                 <div class="flex justify-between items-center w-full md:hidden">
                     <!-- Logo -->
-                    <a href="#" class="flex items-center space-x-2 rtl:space-x-reverse max-w-[65%]">
+                    <a href="{{ route('welcome') }}" class="flex items-center space-x-2 rtl:space-x-reverse max-w-[65%]">
                         <img src="{{ asset('/logo-banten.png') }}" class="h-6 md:h-8" alt="Logo Banten" />
                         <img src="{{ asset('/logo-smancir.png') }}" class="h-6 md:h-8" alt="Logo SMANCIR" />
 
