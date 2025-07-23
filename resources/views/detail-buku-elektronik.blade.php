@@ -110,7 +110,7 @@
     </nav>
 
 
-    <div class="max-w-6xl mx-auto px-6 py-20">
+    <div class="max-w-6xl mx-auto px-6 py-28">
         <!-- Main Content -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
             <!-- KIRI: Gambar buku -->
