@@ -22,7 +22,7 @@
 
                     <!-- Teks -->
                     <div class="flex flex-col leading-tight text-sm text-text">
-                        <span class="text-xl font-bold">PUSMANCIR</span>
+                        <span class="text-md font-bold">PUSMANCIR</span>
                         <span class="text-[10px] whitespace-nowrap">Perpustakaan SMAN 1 Ciruas</span>
                         <span class="text-[10px]">NPP: <strong>3604091E1000002</strong></span>
                     </div>
