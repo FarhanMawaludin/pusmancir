@@ -150,7 +150,7 @@
 
 
     <!-- Kategori Populer -->
-    <section class="px-4 md:px-10 mt-16">
+    <section class="px-4 md:px-10 mt-16 md:mt-20">
         <div class="relative mb-6">
             {{-- Panah kiri (disembunyikan di desktop) --}}
             <button id="btn-left"
@@ -307,7 +307,7 @@
     </section>
 
 
-    <section class="container mx-auto px-4 mt-20" x-data="{ show: 4 }">
+    <section class="container mx-auto px-4 mt-16 md:mt-24" x-data="{ show: 4 }">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold text-red-600">Berita Terbaru</h3>
             <p>
