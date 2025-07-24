@@ -112,7 +112,7 @@
 
 
     <!-- Hero Section -->
-    <section class="bg-white px-4 py-40 text-center">
+    <section class="bg-white px-4 mt-40 text-center">
         <div class="container mx-auto">
             <h1 class="text-3xl md:text-5xl font-semibold leading-tight">
                 Cari <span class="text-blue-700">Buku Favoritmu</span>,<br />
@@ -150,11 +150,11 @@
 
 
     <!-- Kategori Populer -->
-    <section class="px-4 md:px-10 py-10">
+    <section class="px-4 md:px-10 mt-16">
         <div class="relative mb-6">
             {{-- Panah kiri (disembunyikan di desktop) --}}
             <button id="btn-left"
-                class="absolute left-0 top-1/2 -translate-y-1/2 bg-blue-600 text-white rounded-full p-2 shadow-md z-10 md:hidden"
+                class="absolute left-0 top-1/2 -translate-y-1/2 bg-blue-700 text-white rounded-full p-2 shadow-md z-10 md:hidden"
                 aria-label="Scroll Left">
                 <svg class="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -256,7 +256,7 @@
 
             {{-- Panah kanan (disembunyikan di desktop) --}}
             <button id="btn-right"
-                class="absolute right-0 top-1/2 -translate-y-1/2 bg-blue-600 text-white rounded-full p-2 shadow-md z-10 md:hidden"
+                class="absolute right-0 top-1/2 -translate-y-1/2 bg-blue-700 text-white rounded-full p-2 shadow-md z-10 md:hidden"
                 aria-label="Scroll Right">
                 <svg class="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -297,13 +297,54 @@
 
         {{-- Tombol Lihat Lebih Banyak --}}
         @if ((request('ebook') && $ebookList->count() > 6) || (!request('ebook') && $katalogList->count() > 6))
-            <div class="text-center mt-10">
+            <div class="text-center mt-6">
                 <button id="lihat-lebih"
                     class="font-medium px-4 py-2 border border-primary700 rounded-md border-blue-700 text-blue-700 transition duration-200 delay-100 hover:bg-blue-700 hover:text-white">
                     Lihat Lebih Banyak
                 </button>
             </div>
         @endif
+    </section>
+
+
+    <section class="container mx-auto px-4 mt-20" x-data="{ show: 4 }">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-red-600">Berita Terbaru</h3>
+            <p>
+                <a href="{{ route('berita.index') }}" class="text-sm text-blue-700 hover:underline">
+                    Lihat Semua
+                </a>
+            </p>
+        </div>
+
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            @foreach ($popular as $index => $item)
+                <a href="{{ route('berita.show', $item->id) }}"
+                    class="block bg-white rounded border border-gray-200 p-3 hover:shadow-lg transition"
+                    x-show="{{ $index }} < show">
+                    @if ($item->thumbnail)
+                        <img src="{{ asset($item->thumbnail) }}" class="rounded mb-2 w-full h-40 object-cover"
+                            alt="{{ $item->judul }}">
+                    @else
+                        <img src="https://source.unsplash.com/random/300x200?news"
+                            class="rounded mb-2 w-full h-40 object-cover" alt="Default">
+                    @endif
+                    <h4 class="font-semibold text-sm">{{ $item->judul }}</h4>
+                    <p class="text-xs text-gray-500 mt-1">{{ $item->penulis }} -
+                        {{ $item->created_at->format('M d, Y') }}</p>
+                </a>
+            @endforeach
+        </div>
+
+        {{-- @if (count($popular) > 4)
+            <div class="flex justify-center mt-6">
+                <button @click="show += 4" x-show="show < {{ count($popular) }}"
+                    class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                    Lihat Lebih Banyak
+                </button>
+            </div>
+        @endif --}}
     </section>
 
 

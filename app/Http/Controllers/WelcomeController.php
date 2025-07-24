@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Katalog;
 use App\Models\BukuElektronik;
+use App\Models\Berita;
 
 class WelcomeController extends Controller
 {
@@ -27,17 +28,14 @@ class WelcomeController extends Controller
             // ✅ EBOOK MODE
             $ebookQuery = BukuElektronik::query()->latest();
 
-            // Filter kategori
             if (!empty($kategori)) {
                 $ebookQuery->whereIn('kategori', (array) $kategori);
             }
 
-            // Filter kelas
             if (!empty($kelas)) {
                 $ebookQuery->whereIn('kelas', (array) $kelas);
             }
 
-            // Filter pencarian
             if ($search) {
                 if ($searchBy === 'all') {
                     $ebookQuery->where(function ($q) use ($search) {
@@ -52,10 +50,8 @@ class WelcomeController extends Controller
                 }
             }
 
-            // Ambil hasil
             $ebookList = $ebookQuery->get();
 
-            // Ambil kategori dan kelas unik
             $kategoriList = BukuElektronik::select('kategori')
                 ->distinct()
                 ->orderBy('kategori')
@@ -73,12 +69,10 @@ class WelcomeController extends Controller
             // ✅ KATALOG MODE
             $katalogQuery = Katalog::with('inventori.eksemplar')->latest();
 
-            // Filter kategori
             if (!empty($kategori)) {
                 $katalogQuery->whereIn('kategori_buku', (array) $kategori);
             }
 
-            // Filter pencarian
             if ($search) {
                 if ($searchBy === 'all') {
                     $katalogQuery->where(function ($q) use ($search) {
@@ -93,10 +87,8 @@ class WelcomeController extends Controller
                 }
             }
 
-            // Ambil hasil
             $katalogList = $katalogQuery->get();
 
-            // Ambil kategori unik
             $kategoriList = Katalog::select('kategori_buku')
                 ->distinct()
                 ->orderBy('kategori_buku')
@@ -104,6 +96,11 @@ class WelcomeController extends Controller
                 ->unique()
                 ->values();
         }
+
+        $berita = Berita::where('status', 'publish')->latest()->get();
+        $hero = $berita->first(); // Hero section: berita pertama
+        $popular = Berita::where('status', 'publish')->latest()->take(5)->get(); // ✅ 5 berita terbaru
+
 
         return view('welcome', compact(
             'katalogList',
@@ -113,9 +110,13 @@ class WelcomeController extends Controller
             'kategori',
             'kelas',
             'search',
-            'searchBy'
+            'searchBy',
+            'berita',
+            'hero',
+            'popular'
         ));
     }
+
 
 
 
