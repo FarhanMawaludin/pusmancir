@@ -44,6 +44,9 @@ class LoginRequest extends FormRequest
         if (! Auth::attempt($this->only('username', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
+            // Tambahkan flash message ke session
+            session()->flash('login_error', 'Username atau kata sandi salah. Silakan coba lagi.');
+
             throw ValidationException::withMessages([
                 'username' => trans('auth.failed'),
             ]);
@@ -51,6 +54,7 @@ class LoginRequest extends FormRequest
 
         RateLimiter::clear($this->throttleKey());
     }
+
 
     /**
      * Ensure the login request is not rate limited.
@@ -80,6 +84,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('username')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('username')) . '|' . $this->ip());
     }
 }

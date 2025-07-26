@@ -65,6 +65,35 @@
 
     <!-- Trix Editor JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Push dummy state untuk mendeteksi tombol back
+            history.pushState(null, '', location.href);
+
+            window.addEventListener('popstate', function(event) {
+                // Saat tombol back ditekan
+                Swal.fire({
+                    title: 'Konfirmasi Keluar',
+                    text: 'Apakah Anda yakin ingin keluar dari akun?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, Keluar',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Submit form logout secara manual
+                        document.getElementById('logout-form').submit();
+                    } else {
+                        // Dorong history lagi supaya user tetap di halaman
+                        history.pushState(null, '', location.href);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

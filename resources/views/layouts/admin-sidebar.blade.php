@@ -430,12 +430,11 @@
 
             <!-- Logout -->
             <li class="mt-4">
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}" id="logout-form">
                     @csrf
-                    <button type="submit"
-                        onclick="event.preventDefault(); localStorage.removeItem('auth_token'); this.closest('form').submit();"
+                    <button type="button" id="logout-button"
                         class="w-full flex items-center p-2 text-red-600 rounded hover:bg-red-200 group cursor-pointer">
-                        <svg class="w-6 h-6 text-red-600 " fill="none" viewBox="0 0 24 24">
+                        <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                 stroke-width="2"
                                 d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2" />
@@ -447,3 +446,26 @@
         </ul>
     </div>
 </aside>
+
+<script>
+    document.getElementById('logout-button').addEventListener('click', function(e) {
+        Swal.fire({
+            title: 'Yakin ingin keluar?',
+            text: 'Anda harus login kembali untuk mengakses akun.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e11d48',
+            cancelButtonColor: '#3b82f6',
+            confirmButtonText: 'Ya, keluar!',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Hapus token (jika ada)
+                localStorage.removeItem('auth_token');
+
+                // Submit form logout
+                document.getElementById('logout-form').submit();
+            }
+        });
+    });
+</script>

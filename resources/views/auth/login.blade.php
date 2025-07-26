@@ -10,8 +10,8 @@
     <link rel="icon" href="{{ asset('logo-smancir.png') }}" type="image/png">
     {{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <!-- Flowbite JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script> --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-white text-text">
@@ -51,9 +51,6 @@
                         <input type="text" name="username" id="username" value="{{ old('username') }}" required
                             autofocus
                             class="form-input block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        @error('username')
-                            <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
-                        @enderror
                     </div>
                     <!-- Password -->
                     <div class="mb-4">
@@ -63,9 +60,6 @@
                             <input type="password" name="password" id="password" required
                                 class="form-input block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none pr-4">
                         </div>
-                        @error('password')
-                            <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <!-- Ingat Saya & Lupa Password -->
@@ -98,6 +92,20 @@
             </div>
         </div>
     </section>
+    @if (session('login_error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal Login',
+                text: '{{ session('login_error') }}',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    @endif
+
+    
+
+
 </body>
 
 </html>

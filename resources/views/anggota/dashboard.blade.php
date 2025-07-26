@@ -12,7 +12,29 @@
         </p>
 
         <div class="flex justify-center items-center">
-            <a href="{{ route('anggota.profil.index') }}" class="btn bg-blue-700 hover:bg-blue-800 text-white font-semibold px-4 py-2 rounded">Lengkapi Profil</a>
+            <a href="{{ route('anggota.profil.index') }}"
+                class="btn bg-blue-700 hover:bg-blue-800 text-white font-semibold px-4 py-2 rounded">Lengkapi Profil</a>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    @if (session('force_password_change'))
+        <script>
+            Swal.fire({
+                icon: 'warning',
+                title: 'Peringatan keamanan ubah kata sandi',
+                text: '{{ session('warning') }}',
+                confirmButtonText: 'Ubah Sekarang',
+                confirmButtonColor: '#eab308',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('anggota.profil.edit', ['id' => Auth::user()->id]) }}";
+                }
+            });
+        </script>
+    @endif
+@endpush
