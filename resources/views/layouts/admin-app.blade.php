@@ -67,62 +67,43 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.min.js"></script>
 
     <script>
+        let isLogoutClicked = false;
+
         document.addEventListener('DOMContentLoaded', () => {
-            let isLogoutConfirmed = false;
+            const logoutBtn = document.getElementById('logout-button');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    isLogoutClicked = true;
+                });
+            }
 
-            // Tambahkan dua state ke history untuk cegah keluar langsung
-            history.pushState({
-                page: 1
-            }, '', '');
-            history.pushState({
-                page: 2
-            }, '', '');
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'hidden' && !isLogoutClicked) {
+                    // Mungkin tampilkan notifikasi atau kirim log
+                    console.log('User mungkin keluar tanpa logout.');
+                }
+            });
 
-            // Deteksi tombol back
-            window.addEventListener('popstate', function() {
-                if (!isLogoutConfirmed) {
+            if (window.location.pathname === '/dashboard') {
+                history.pushState(null, null, location.href);
+                window.addEventListener('popstate', function() {
                     Swal.fire({
-                        title: 'Konfirmasi Keluar',
+                        title: 'Keluar Aplikasi?',
                         text: 'Apakah Anda yakin ingin keluar dari akun?',
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
                         confirmButtonText: 'Ya, Keluar',
-                        cancelButtonText: 'Batal'
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#d33'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            isLogoutConfirmed = true;
                             document.getElementById('logout-form').submit();
                         } else {
-                            // Tambah lagi state agar tidak langsung keluar
-                            history.pushState({
-                                page: 2
-                            }, '', '');
+                            history.pushState(null, null, location.href);
                         }
                     });
-                }
-            });
-
-            // Untuk Safari: halaman di-reload dari cache, push state ulang
-            window.addEventListener('pageshow', function(event) {
-                if (event.persisted) {
-                    history.pushState({
-                        page: 1
-                    }, '', '');
-                    history.pushState({
-                        page: 2
-                    }, '', '');
-                }
-            });
-
-            // Cegah tutup tab/browser kalau belum logout
-            window.addEventListener('beforeunload', function(e) {
-                if (!isLogoutConfirmed) {
-                    e.preventDefault();
-                    e.returnValue = '';
-                }
-            });
+                });
+            }
         });
     </script>
 
