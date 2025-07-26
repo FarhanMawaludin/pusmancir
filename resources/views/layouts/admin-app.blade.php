@@ -68,12 +68,11 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Tambah 2 dummy history supaya tombol back tidak langsung keluar
-            history.pushState(null, '', location.href);
+            // Push dummy state untuk mendeteksi tombol back
             history.pushState(null, '', location.href);
 
-            // Tangani tombol kembali
-            window.addEventListener('popstate', function() {
+            window.addEventListener('popstate', function(event) {
+                // Saat tombol back ditekan
                 Swal.fire({
                     title: 'Konfirmasi Keluar',
                     text: 'Apakah Anda yakin ingin keluar dari akun?',
@@ -85,30 +84,16 @@
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        // Submit form logout secara manual
                         document.getElementById('logout-form').submit();
                     } else {
-                        // Tambahkan kembali state agar user tidak langsung keluar
+                        // Dorong history lagi supaya user tetap di halaman
                         history.pushState(null, '', location.href);
                     }
                 });
             });
-
-            // Tangani reload dari cache (khusus Safari)
-            window.addEventListener('pageshow', function(event) {
-                if (event.persisted) {
-                    // Jika halaman dimuat ulang dari cache, reset history
-                    history.pushState(null, '', location.href);
-                }
-            });
-
-            // Opsional: Cegah refresh/tab close tanpa logout
-            window.addEventListener('beforeunload', function(e) {
-                e.preventDefault();
-                e.returnValue = '';
-            });
         });
     </script>
-
 </body>
 
 </html>
