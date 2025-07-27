@@ -163,6 +163,9 @@
                     @endforelse
                 </tbody>
             </table>
+            <div class="p-4 bg-white rounded border border-gray-200 mt-4">
+                {{ $users->links('pagination::tailwind') }}
+            </div>
         </div>
     </form>
 
