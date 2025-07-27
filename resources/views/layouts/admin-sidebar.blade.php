@@ -233,7 +233,7 @@
             </li>
 
             <!-- Manajemen Peminjaman -->
-            <li class="text-xs px-2 text-text uppercase">Data Peminjaman</li>
+            <li class="text-xs px-2 text-text uppercase">Sirkulasi</li>
 
             <li class="mb-4">
                 <button type="button"
