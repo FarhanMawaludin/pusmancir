@@ -10,9 +10,9 @@
         hideClass: {
             popup: 'animate__animated animate__fadeOutUp'
         },
-        timer: '{{ session('success') ? 2000 : 4000 }}',  // Auto close in 2 seconds for success, 4 seconds for others
-        timerProgressBar: true,  // Optional: Shows a progress bar while the alert is visible
-        showConfirmButton: false  // Disable the "OK" button
+        // timer: '{{ session('success') ? 2000 : 4000 }}',  // Auto close in 2 seconds for success, 4 seconds for others
+        // timerProgressBar: false,  // Optional: Shows a progress bar while the alert is visible
+        showConfirmButton: true  // Show the "OK" button
     });
 </script>
 @endif
