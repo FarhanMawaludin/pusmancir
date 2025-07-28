@@ -85,6 +85,8 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     Route::get('/anggota/alumni', [AnggotaController::class, 'indexAlumni'])->name('anggota.indexAlumni');
     Route::post('/anggota/set-alumni', [AnggotaController::class, 'setAlumni'])->name('anggota.setAlumni');
     Route::post('/anggota/set-aktif', [AnggotaController::class, 'setAktif'])->name('anggota.setAktif');
+    Route::get('/anggota/{id}', [AnggotaController::class, 'show'])->name('anggota.show');
+
 
     //Data Master Inventori
     //Jenis Media

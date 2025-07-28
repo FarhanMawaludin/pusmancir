@@ -109,17 +109,30 @@ class AnggotaController extends Controller
     }
 
     public function setAktif(Request $request)
-{
-    $ids = $request->anggota_ids;
+    {
+        $ids = $request->anggota_ids;
 
-    if (!$ids || count($ids) === 0) {
-        return redirect()->back()->with('error', 'Tidak ada anggota yang dipilih.');
+        if (!$ids || count($ids) === 0) {
+            return redirect()->back()->with('error', 'Tidak ada anggota yang dipilih.');
+        }
+
+        DB::table('anggota')
+            ->whereIn('id', $ids)
+            ->update(['status' => 'aktif']);
+
+        return redirect()->back()->with('success', 'Status anggota berhasil diubah menjadi aktif.');
     }
 
-    DB::table('anggota')
-        ->whereIn('id', $ids)
-        ->update(['status' => 'aktif']);
+    public function show($id)
+    {
+        $activeMenu = 'anggota';
 
-    return redirect()->back()->with('success', 'Status anggota berhasil diubah menjadi aktif.');
-}
+        $user = User::with(['anggota.kelas'])->where('role', 'anggota')->findOrFail($id);
+
+        if (!$user->anggota) {
+            return redirect()->route('admin.anggota.index')->with('error', 'Data anggota tidak ditemukan.');
+        }
+
+        return view('admin.anggota.show', compact('user', 'activeMenu'));
+    }
 }

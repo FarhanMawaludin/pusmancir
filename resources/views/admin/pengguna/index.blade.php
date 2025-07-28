@@ -211,7 +211,7 @@
                             <div
                                 class="flex flex-row space-x-2 md:flex-row md:space-y-0 md:space-x-1 items-start md:items-center">
 
-                                <!-- Detail -->
+                                {{-- <!-- Detail -->
                                 <button
                                     class="inline-flex items-center bg-blue-700 text-white px-3 py-2 rounded hover:bg-blue-800 transition"
                                     onclick="location.href='{{ route('admin.pengguna.show', $userItem->id) }}'">
@@ -221,7 +221,7 @@
                                             d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     <span class="hidden md:inline">Detail</span>
-                                </button>
+                                </button> --}}
 
                                 <!-- Edit -->
                                 <a href="{{ route('admin.pengguna.edit', $userItem->id) }}"
