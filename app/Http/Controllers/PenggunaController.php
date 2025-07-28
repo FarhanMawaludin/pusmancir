@@ -34,7 +34,8 @@ class PenggunaController extends Controller
             $query->where('role', $category);
         }
 
-        $query->orderByRaw("FIELD(role, 'admin', 'pustakawan', 'anggota')");
+        $query->orderByRaw("FIELD(role, 'admin', 'pustakawan', 'anggota')")
+            ->orderBy('created_at', 'asc'); 
 
         $user = $query->paginate(10)->appends([
             'search' => $search,
