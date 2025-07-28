@@ -129,7 +129,7 @@
 
         <!-- Image -->
         <div class="md:w-1/2">
-            <img src="{{ asset('img/ruang-perpus.jpg') }}" alt="Perpustakaan"
+            <img src="{{ asset('img/perpus-foto.jpg') }}" alt="Perpustakaan"
                 class="rounded w-full h-auto object-cover">
         </div>
     </section>
