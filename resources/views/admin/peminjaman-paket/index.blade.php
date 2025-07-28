@@ -111,10 +111,19 @@
                         <td class="px-6 py-4">
                             <span
                                 class="px-3 py-1 text-sm rounded-full
-                                @if ($status === 'berhasil') bg-green-600
-                                @elseif ($status === 'tolak') bg-red-600
-                                @else bg-orange-600 @endif text-white">
-                                {{ ucfirst($status) }}
+                                  @if ($status === 'menunggu') bg-orange-600 text-white
+                                  @elseif ($status === 'berhasil') bg-green-600 text-white
+                                  @elseif ($status === 'tolak') bg-red-600 text-white
+                                  @else bg-gray-100 text-gray-600 @endif">
+                                @if ($status === 'menunggu')
+                                    Menunggu
+                                @elseif ($status === 'berhasil')
+                                    Dipinjam
+                                @elseif ($status === 'tolak')
+                                    Ditolak
+                                @else
+                                    Selesai
+                                @endif
                             </span>
                         </td>
 

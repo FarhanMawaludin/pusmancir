@@ -275,9 +275,6 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     Route::get('/admin/laporan-peminjaman/paket/export', [PeminjamanPaketController::class, 'exportLaporanPaketExcel'])->name('laporan.exportPaket');
     Route::get('/laporan-peminjaman/non-paket', [PeminjamanController::class, 'laporanPeminjamanNonPaket'])->name('laporan.non-paket');
     Route::get('/admin/laporan-peminjaman/non-paket/export', [PeminjamanController::class, 'exportLaporanNonPaketExcel'])->name('laporan.exportNonPaket');
-    
-
-    
 });
 
 // Cek anggota berdasarkan NISN
@@ -339,6 +336,8 @@ Route::middleware(['auth', 'role:anggota'])->prefix('anggota')->name('anggota.')
     //Peminjaman
     Route::get('/peminjaman', [PeminjamanAnggotaController::class, 'index'])->name('peminjaman.index');
     Route::post('/peminjaman/store', [PeminjamanAnggotaController::class, 'store'])->name('peminjaman.store');
+    Route::post('/anggota/peminjaman/{id}/perpanjang', [PeminjamanAnggotaController::class, 'perpanjang'])
+        ->name('peminjaman.perpanjang');
 
     //peminjaman-paket
     Route::get('/peminjaman-paket', [PeminjamanPaketAnggotaController::class, 'index'])->name('peminjaman-paket.index');

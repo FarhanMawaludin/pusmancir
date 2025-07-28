@@ -4,7 +4,7 @@
 
     <div class="flex justify-between paketItems-center w-full">
         <!-- Judul + Form -->
-        <section class="mb-2 w-full"> <!-- ✅ DITAMBAHKAN w-full -->
+        <section class="mb-2 w-full">
 
             <!-- Judul -->
             <h1 class="text-2xl font-bold text-text mb-4">Data Pengembalian</h1>

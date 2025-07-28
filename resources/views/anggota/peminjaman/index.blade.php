@@ -11,45 +11,66 @@
                 <tr>
                     <th scope="col" class="px-6 py-3 w-4 md:w-10">No</th>
                     <th scope="col" class="px-6 py-3">Nama</th>
-                    <th scope="col" class="px-6 py-3 ">NISN</th>
+                    <th scope="col" class="px-6 py-3">NISN</th>
                     <th scope="col" class="px-6 py-3">Judul Buku</th>
                     <th scope="col" class="px-6 py-3">Tanggal Pinjam</th>
                     <th scope="col" class="px-6 py-3">Tanggal Kembali</th>
                     <th scope="col" class="px-6 py-3">Status</th>
+                    <th scope="col" class="px-6 py-3">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($peminjaman as $key => $peminjamanItem)
                     @php
-                        $pinjam = $peminjamanItem->peminjaman; // relasi Peminjaman
-                        $status = $pinjam->status; // menunggu | berhasil | tolak
+                        $pinjam = $peminjamanItem->peminjaman;
+                        $status = $pinjam->status;
+                        $tanggalKembali = \Carbon\Carbon::parse($pinjam->tanggal_kembali)->startOfDay();
+                        $besok = \Carbon\Carbon::tomorrow()->startOfDay();
                     @endphp
                     <tr class="bg-white border-b border-gray-200">
                         <td class="px-6 py-4">{{ $peminjaman->firstItem() + $key }}</td>
-                        <td class="px-6 py-4">
-                            <div class="min-w-0">
-                                <div class="font-medium md:text-base break-words truncate md:whitespace-normal">
-                                    {{ $peminjamanItem->peminjaman->anggota->user->name ?? '-' }}
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">{{ $peminjamanItem->peminjaman->anggota->nisn ?? '-' }}</td>
+                        <td class="px-6 py-4">{{ $pinjam->anggota->user->name ?? '-' }}</td>
+                        <td class="px-6 py-4">{{ $pinjam->anggota->nisn ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $peminjamanItem->eksemplar->inventori->judul_buku ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $peminjamanItem->peminjaman->tanggal_pinjam ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $peminjamanItem->peminjaman->tanggal_kembali ?? '-' }}</td>
+                        <td class="px-6 py-4">{{ $pinjam->tanggal_pinjam ?? '-' }}</td>
+                        <td class="px-6 py-4">{{ $pinjam->tanggal_kembali ?? '-' }}</td>
                         <td class="px-6 py-4">
                             <span
                                 class="px-3 py-1 text-sm rounded-full
-                                @if ($status === 'berhasil') bg-green-600 text-white
-                                @elseif ($status === 'tolak') bg-red-600 text-white
-                                @else bg-orange-600 text-white @endif">
-                                {{ ucfirst($status) }}
+                                  @if ($status === 'menunggu') bg-orange-600 text-white
+                                  @elseif ($status === 'berhasil') bg-green-600 text-white
+                                  @elseif ($status === 'tolak') bg-red-600 text-white
+                                  @else bg-gray-100 text-gray-600 @endif">
+                                @if ($status === 'menunggu')
+                                    Menunggu
+                                @elseif ($status === 'berhasil')
+                                    Dipinjam
+                                @elseif ($status === 'tolak')
+                                    Ditolak
+                                @else
+                                    Selesai
+                                @endif
                             </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            @if ($status === 'berhasil' && $tanggalKembali->equalTo($besok))
+                                <form id="perpanjang-form-{{ $pinjam->id }}"
+                                    action="{{ route('anggota.peminjaman.perpanjang', $pinjam->id) }}" method="POST">
+                                    @csrf
+                                    <button type="button"
+                                        class="btn-perpanjang bg-indigo-600 hover:bg-indigo-700 text-white text-md font-medium px-4 py-2 rounded"
+                                        data-id="{{ $pinjam->id }}">
+                                        Perpanjang
+                                    </button>
+                                </form>
+                            @else
+                                <span class="text-gray-400 text-xs">-</span>
+                            @endif
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
                             Tidak ada peminjaman ditemukan.
                         </td>
                     </tr>
@@ -57,11 +78,36 @@
             </tbody>
         </table>
 
+
         <!-- Pagination -->
         <div class="p-4">
             {{ $peminjaman->links('pagination::tailwind') }}
         </div>
     </div>
+
+    <script>
+        document.querySelectorAll('.btn-perpanjang').forEach(button => {
+            button.addEventListener('click', function() {
+                const pinjamId = this.getAttribute('data-id');
+
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Perpanjangan hanya bisa dilakukan sekali dan perlu dikonfirmasi.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, perpanjang!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('perpanjang-form-' + pinjamId).submit();
+                    }
+                });
+            });
+        });
+    </script>
+
 
     <script>
         document.querySelectorAll('.btn-delete').forEach(button => {

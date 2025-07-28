@@ -9,6 +9,8 @@ use App\Models\Anggota;
 use App\Models\Eksemplar;
 use App\Models\Peminjaman;
 use App\Models\DetailPeminjaman;
+use Carbon\Carbon;
+
 
 class PeminjamanAnggotaController extends Controller
 {
@@ -29,7 +31,7 @@ class PeminjamanAnggotaController extends Controller
             ->whereHas('peminjaman.anggota', function ($q) use ($user) {
                 $q->where('user_id', $user->id);          // hanya data milik user login
             })
-            ->whereIn('peminjaman.status', ['menunggu', 'berhasil'])
+            ->whereIn('peminjaman.status', ['menunggu', 'berhasil','tolak', 'selesai'])
             ->orderByDesc('peminjaman.created_at');
 
         /* ─────────────────────────────────────────
@@ -55,7 +57,7 @@ class PeminjamanAnggotaController extends Controller
         /* ─────────────────────────────────────────
        4.  Urutan: menunggu → berhasil, lalu terbaru
     ───────────────────────────────────────── */
-        $query->orderByRaw("FIELD(peminjaman.status, 'menunggu', 'berhasil')")
+        $query->orderByRaw("FIELD(peminjaman.status, 'menunggu', 'berhasil', 'tolak', 'selesai')")
             ->orderByDesc('peminjaman.created_at')
             // supaya select * berasal dari detail_peminjaman
             ->select('detail_peminjaman.*');
@@ -166,5 +168,26 @@ class PeminjamanAnggotaController extends Controller
             return back()->withInput()
                 ->with('error', 'Gagal menyimpan data: ' . $th->getMessage());
         }
+    }
+
+    public function perpanjang($id)
+    {
+        $peminjaman = Peminjaman::findOrFail($id);
+
+        // Validasi hanya boleh perpanjang jika status berhasil dan H-1
+        if (
+            $peminjaman->status !== 'berhasil' ||
+            !\Carbon\Carbon::parse($peminjaman->tanggal_kembali)->isSameDay(\Carbon\Carbon::tomorrow())
+        ) {
+            return redirect()->back()->with('error', 'Perpanjangan hanya bisa dilakukan H-1 sebelum tanggal kembali.');
+        }
+
+        // Update tanggal dan ubah status menjadi 'menunggu'
+        $peminjaman->update([
+            'tanggal_kembali' => \Carbon\Carbon::parse($peminjaman->tanggal_kembali)->addDays(7),
+            'status' => 'menunggu',
+        ]);
+
+        return redirect()->back()->with('success', 'Perpanjangan berhasil diajukan dan menunggu konfirmasi.');
     }
 }
