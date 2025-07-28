@@ -425,7 +425,46 @@
                         <span class="ml-3 {{ $activeMenu == 'berita' ? 'text-white' : 'text-base300' }}">Berita</span>
                     </a>
                 </li>
+
+
+                <li class="text-xs px-2 text-text uppercase">Data Laporan Peminjaman</li>
+
+                <li class="mb-4">
+                    <button type="button"
+                        class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'laporanPaket' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}"
+                        aria-controls="dropdown-example" data-collapse-toggle="dropdown-example-laporanPaket">
+                        <svg class="w-5 h-5 {{ $activeMenu == 'laporanPaket' ? 'text-white' : 'text-gray-400 ' }}"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z" />
+                        </svg>
+                        <span
+                            class="flex-1 ms-3  text-left {{ $activeMenu == 'laporanPaket' ? 'text-white' : 'text-gray-400' }}
+                        rtl:text-right whitespace-nowrap">Laporan</span>
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 10 6">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" d="m1 1 4 4 4-4" />
+                        </svg>
+                    </button>
+                    <ul id="dropdown-example-laporanPaket" class="hidden py-2 space-y-2">
+                        <li>
+                            <a href="{{ route('admin.laporan.non-paket') }}"
+                                class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
+                                Non Paket</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.laporan.paket') }}"
+                                class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
+                                Paket</a>
+                        </li>
+                    </ul>
+                </li>
             @endif
+
+
 
 
             <!-- Logout -->

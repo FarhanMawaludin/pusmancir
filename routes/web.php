@@ -212,9 +212,13 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     Route::get('/pengembalian-paket', [PengembalianPaketController::class, 'index'])->name('pengembalian-paket.index');
     Route::put('/pengembalian-paket/update/{id}', [PengembalianPaketController::class, 'update'])->name('pengembalian-paket.update');
 
+
+    //Buku Tamu
     Route::get('/buku-tamu', [BukuTamuController::class, 'create'])->name('buku-tamu.form');
     Route::post('/buku-tamu', [BukuTamuController::class, 'store'])->name('buku-tamu.store');
     Route::get('/buku-tamu/log-tamu', [BukuTamuController::class, 'LogTamu'])->name('buku-tamu.log-tamu');
+    Route::get('/log-tamu/export', [BukuTamuController::class, 'exportLogTamuExcel'])->name('buku-tamu.export');
+
 
 
     //Kode Jenis Surat
@@ -259,6 +263,13 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     Route::put('/berita/{id}', [BeritaController::class, 'update'])->name('berita.update');
     Route::delete('/berita/{id}', [BeritaController::class, 'destroy'])->name('berita.destroy');
     Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('berita.show');
+
+
+    //Data Laporan Peminjaman
+    Route::get('/laporan-peminjaman/paket', [PeminjamanPaketController::class, 'laporanPeminjamanPaket'])->name('laporan.paket');
+    Route::get('/admin/laporan-peminjaman/paket/export', [PeminjamanPaketController::class, 'exportLaporanPaketExcel'])->name('laporan.exportPaket');
+    Route::get('/laporan-peminjaman/non-paket', [PeminjamanController::class, 'laporanPeminjamanNonPaket'])->name('laporan.non-paket');
+    Route::get('/admin/laporan-peminjaman/non-paket/export', [PeminjamanController::class, 'exportLaporanNonPaketExcel'])->name('laporan.exportNonPaket');
     
 
     
