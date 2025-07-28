@@ -168,7 +168,7 @@
                 {{-- Kolom Kanan --}}
                 <div class="right-column">
                     <div class="no-panggil">
-                        {{ optional($eksemplar->inventori->katalog)->no_panggil ?? '-' }}
+                        {{ optional($eksemplar->inventori->katalog->first())->no_panggil ?? '-' }}
                     </div>
                 </div>
             </div>
