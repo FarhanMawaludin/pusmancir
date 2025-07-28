@@ -17,7 +17,7 @@ class BukuTamuController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nisn' => 'required|string',
+            'nisn' => 'nullable|string',
         ]);
 
         $anggota = Anggota::where('nisn', $request->nisn)->first();
@@ -26,7 +26,7 @@ class BukuTamuController extends Controller
             // Anggota: keperluan opsional
             BukuTamu::create([
                 'anggota_id' => $anggota->id,
-                'nisn' => $request->nisn,
+                'nisn' => $request->nisn ?? null,
                 'nama' => $anggota->user->name, // asumsikan user relasi ada dan ada nama
                 'asal_instansi' => null,
                 'keperluan' => $request->keperluan ?? null,
