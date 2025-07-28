@@ -18,7 +18,7 @@ class BukuTamuController extends Controller
     public function create()
     {
         $activeMenu = 'buku-tamu';
-        return view('admin.buku-tamu.form', compact('activeMenu'));
+        return view('form', compact('activeMenu'));
     }
 
     public function store(Request $request)
@@ -27,42 +27,45 @@ class BukuTamuController extends Controller
             'nisn' => 'nullable|string',
         ]);
 
-        $anggota = Anggota::where('nisn', $request->nisn)->first();
+        // Jika NISN diisi dan ditemukan
+        if ($request->nisn) {
+            $anggota = Anggota::with('user')->where('nisn', $request->nisn)->first();
 
-        if ($anggota) {
-            // Anggota: keperluan opsional
-            BukuTamu::create([
-                'anggota_id' => $anggota->id,
-                'nisn' => $request->nisn ?? null,
-                'nama' => $anggota->user->name, // asumsikan user relasi ada dan ada nama
-                'asal_instansi' => null,
-                'keperluan' => $request->keperluan ?? null,
-            ]);
+            if ($anggota) {
+                BukuTamu::create([
+                    'anggota_id' => $anggota->id,
+                    'nisn' => $anggota->nisn,
+                    'nama' => $anggota->user->name,
+                    'asal_instansi' => null,
+                    'keperluan' => $request->keperluan ?? null,
+                ]);
 
-            return redirect()->back()->with('success', 'Kunjungan anggota berhasil dicatat.');
-        } else {
-            // Non anggota wajib isi nama, asal_instansi, dan keperluan
-            $request->validate([
-                'nama' => 'required|string',
-                'asal_instansi' => 'required|string',
-                'keperluan' => 'required|string',
-            ], [
-                'nama.required' => 'Nama wajib diisi untuk non anggota.',
-                'asal_instansi.required' => 'Asal instansi wajib diisi untuk non anggota.',
-                'keperluan.required' => 'Keperluan wajib diisi untuk non anggota.',
-            ]);
-
-            BukuTamu::create([
-                'anggota_id' => null,
-                'nisn' => $request->nisn,
-                'nama' => $request->nama,
-                'asal_instansi' => $request->asal_instansi,
-                'keperluan' => $request->keperluan,
-            ]);
-
-            return redirect()->back()->with('success', 'Kunjungan tamu berhasil dicatat.');
+                return redirect()->back()->with('success', 'Kunjungan anggota berhasil dicatat.');
+            }
         }
+
+        // Kalau tidak ada NISN / tidak ditemukan → validasi sebagai tamu
+        $request->validate([
+            'nama' => 'required|string',
+            'asal_instansi' => 'required|string',
+            'keperluan' => 'required|string',
+        ], [
+            'nama.required' => 'Nama wajib diisi untuk non anggota.',
+            'asal_instansi.required' => 'Asal instansi wajib diisi untuk non anggota.',
+            'keperluan.required' => 'Keperluan wajib diisi untuk non anggota.',
+        ]);
+
+        BukuTamu::create([
+            'anggota_id' => null,
+            'nisn' => $request->nisn,
+            'nama' => $request->nama,
+            'asal_instansi' => $request->asal_instansi,
+            'keperluan' => $request->keperluan,
+        ]);
+
+        return redirect()->back()->with('success', 'Kunjungan tamu berhasil dicatat.');
     }
+
 
     public function LogTamu(Request $request)
     {

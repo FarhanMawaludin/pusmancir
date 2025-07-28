@@ -138,6 +138,7 @@ class KatalogController extends Controller
     }
 
 
+
     public function generateRingkasan(Request $request)
     {
         $judul = $request->input('judul');
@@ -177,6 +178,64 @@ class KatalogController extends Controller
             ]);
         }
     }
+
+    public function generateKodeDDC(Request $request)
+    {
+        $judul = $request->input('judul');
+        $pengarang = $request->input('pengarang');
+
+        $prompt = "Tentukan Kode DDC dan Nomor Panggil untuk buku berjudul \"$judul\" karya \"$pengarang\". 
+Nomor Panggil harus mengikuti standar penulisan perpustakaan: dimulai dengan kode DDC, diikuti garis miring (/), lalu tiga huruf pertama dari nama belakang pengarang, semua tanpa penjelasan tambahan. 
+Tampilkan hasil akhir hanya seperti ini:
+
+Kode DDC: [kode]
+Nomor Panggil: [kode_ddc]/[3huruf_nama_belakang_pengarang]";
+
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . config('services.openrouter.api_key'),
+            ])->post('https://openrouter.ai/api/v1/chat/completions', [
+                'model' => 'google/gemma-3n-e2b-it:free',
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt]
+                ]
+            ]);
+
+            $data = $response->json();
+
+            logger()->info('OpenRouter Response DDC:', is_array($data) ? $data : ['response' => $response->body()]);
+
+            $text = $data['choices'][0]['message']['content'] ?? null;
+
+            if (!$text) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Jawaban tidak tersedia dari AI.'
+                ]);
+            }
+
+            // Ekstrak kode DDC dan nomor panggil dengan regex
+            preg_match('/Kode DDC:\s*(.+)/i', $text, $ddcMatch);
+            preg_match('/Nomor Panggil:\s*(.+)/i', $text, $panggilMatch);
+
+            return response()->json([
+                'success' => true,
+                'kode_ddc' => trim($ddcMatch[1] ?? ''),
+                'no_panggil' => trim($panggilMatch[1] ?? '')
+            ]);
+        } catch (\Exception $e) {
+            logger()->error('OpenRouter Error DDC:', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Terjadi kesalahan saat memanggil API.'
+            ]);
+        }
+    }
+
+
+
 
 
     // public function fetchCoverByIsbn($isbn)

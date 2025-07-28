@@ -171,6 +171,26 @@
                     </div>
                 </div>
 
+                <div class="sm:col-span-6 mt-4">
+                    <button type="button" id="generate-ddc"
+                        class="inline-flex items-center px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition">
+                        Generate Kode DDC & Nomor Panggil
+                    </button>
+
+                    <!-- Spinner (diletakkan setelah tombol) -->
+                    <div id="spinner-ddc" class="mt-3 hidden">
+                        <div class="flex items-center text-sm text-gray-700">
+                            <svg class="animate-spin h-5 w-5 mr-2 text-indigo-600" viewBox="0 0 24 24" fill="none">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4" />
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z" />
+                            </svg>
+                            Sedang menghasilkan kode DDC dan nomor panggil...
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Tombol Aksi -->
                 <div class="mt-6 flex items-center justify-start gap-x-4">
                     <a href="{{ route('admin.katalog.index') }}"
@@ -185,6 +205,50 @@
             </div>
         </div>
     </form>
+
+    <script>
+        document.getElementById('generate-ddc').addEventListener('click', async function() {
+            const judul = document.getElementById('judul_buku_display').value;
+            const pengarang = document.getElementById('pengarang_display').value;
+            const spinner = document.getElementById('spinner-ddc');
+            const button = this;
+
+            // Tampilkan spinner & disable tombol
+            spinner.classList.remove('hidden');
+            button.disabled = true;
+            button.classList.add('opacity-50', 'cursor-not-allowed');
+
+            try {
+                const res = await fetch("{{ route('admin.katalog.generate-ddc') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        judul,
+                        pengarang
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('kode_ddc').value = data.kode_ddc;
+                    document.getElementById('no_panggil').value = data.no_panggil;
+                } else {
+                    alert("Gagal generate kode DDC.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Terjadi kesalahan saat menghubungi server.");
+            } finally {
+                spinner.classList.add('hidden');
+                button.disabled = false;
+                button.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        });
+    </script>
+
 
     <script>
         document.getElementById('cover_buku').addEventListener('change', function(e) {

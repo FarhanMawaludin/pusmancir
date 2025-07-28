@@ -51,6 +51,10 @@ Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('berita.show
 
 Route::get('/peringkat', [PeringkatController::class, 'index'])->name('peringkat.index');
 
+// Buku Tamu - Bisa diakses publik tanpa login
+Route::get('/buku-tamu', [BukuTamuController::class, 'create'])->name('form');
+Route::post('/buku-tamu', [BukuTamuController::class, 'store'])->name('store');
+
 
 
 Route::get('/informasi', function () {
@@ -156,6 +160,7 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     Route::put('/katalog/{id}', [KatalogController::class, 'update'])->name('katalog.update');
     Route::delete('/katalog/{id}', [KatalogController::class, 'destroy'])->name('katalog.destroy');
     Route::post('/generate-ringkasan', [KatalogController::class, 'generateRingkasan'])->name('katalog.generate-ringkasan');
+    Route::post('/generate-ddc', [KatalogController::class, 'generateKodeDDC'])->name('katalog.generate-ddc');
     Route::get('/katalog/fetch-cover/{isbn}', [KatalogController::class, 'fetchCoverByIsbn'])->name('katalog.fetch-cover');
 
 
@@ -202,8 +207,6 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
         ->name('pengembalian.kirim_wa');
 
 
-
-
     //Peminjaman Paket
     Route::get('/peminjaman-paket', [PeminjamanPaketController::class, 'index'])->name('peminjaman-paket.index');
     Route::patch('/peminjaman-paket/{id}/status', [PeminjamanPaketController::class, 'updateStatus'])
@@ -216,8 +219,8 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
 
 
     //Buku Tamu
-    Route::get('/buku-tamu', [BukuTamuController::class, 'create'])->name('buku-tamu.form');
-    Route::post('/buku-tamu', [BukuTamuController::class, 'store'])->name('buku-tamu.store');
+    // Route::get('/buku-tamu', [BukuTamuController::class, 'create'])->name('buku-tamu.form');
+    // Route::post('/buku-tamu', [BukuTamuController::class, 'store'])->name('buku-tamu.store');
     Route::get('/buku-tamu/log-tamu', [BukuTamuController::class, 'LogTamu'])->name('buku-tamu.log-tamu');
     Route::get('/log-tamu/export', [BukuTamuController::class, 'exportLogTamuExcel'])->name('buku-tamu.export');
 

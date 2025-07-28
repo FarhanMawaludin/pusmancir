@@ -325,11 +325,11 @@
                     </svg>
                 </button>
                 <ul id="dropdown-example-tamu" class="hidden py-2 space-y-2">
-                    <li>
+                    {{-- <li>
                         <a href="{{ route('admin.buku-tamu.form') }}"
                             class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
                             Buku Tamu</a>
-                    </li>
+                    </li> --}}
                     <li>
                         <a href="{{ route('admin.buku-tamu.log-tamu') }}"
                             class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
