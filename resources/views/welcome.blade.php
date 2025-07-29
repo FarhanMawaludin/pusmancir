@@ -151,155 +151,32 @@
 
     <!-- Kategori Populer -->
     <section class="px-4 md:px-10 mt-16 md:mt-20">
-        <div class="relative mb-6">
-            {{-- Panah kiri (disembunyikan di desktop) --}}
-            <button id="btn-left"
-                class="absolute left-0 top-1/2 -translate-y-1/2 bg-blue-700 text-white rounded-full p-2 shadow-md z-10 md:hidden"
-                aria-label="Scroll Left">
-                <svg class="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-
-            {{-- Container tombol kategori --}}
-            <div id="kategori-container"
-                class="flex flex-row gap-4 overflow-x-auto px-4 scrollbar-hide whitespace-nowrap md:flex-wrap md:justify-center md:px-10">
-
-                {{-- Tombol Semua --}}
-                <a
-                    href="{{ route('welcome', array_filter(['search' => request('search'), 'search_by' => request('search_by')])) }}">
-                    <button
-                        class="px-4 py-2 border rounded-full {{ empty(request('kategori')) && !request('ebook') ? 'bg-blue-700 text-white' : '' }} min-w-max whitespace-nowrap">
-                        Semua Buku
-                    </button>
-                </a>
-
-                {{-- Tombol E-Book --}}
-                <a
-                    href="{{ route('welcome', array_filter(['ebook' => 1, 'search' => request('search'), 'search_by' => request('search_by')])) }}">
-                    <button
-                        class="px-4 py-2 border rounded-full {{ request('ebook') ? 'bg-blue-700 text-white' : '' }} min-w-max whitespace-nowrap">
-                        E-Book
-                    </button>
-                </a>
-
-                {{-- Jika bukan E-Book: tampilkan kategori sebagai tombol --}}
-                @unless (request('ebook'))
-                    @foreach ($kategoriList as $kat)
-                        <a
-                            href="{{ route('welcome', array_filter(['kategori' => $kat, 'search' => request('search'), 'search_by' => request('search_by')])) }}">
-                            <button
-                                class="px-4 py-2 border rounded-full {{ request('kategori') === $kat ? 'bg-blue-700 text-white' : '' }} min-w-max whitespace-nowrap">
-                                {{ $kat }}
-                            </button>
-                        </a>
-                    @endforeach
-                @endunless
-            </div>
-
-            {{-- Jika request ebook tampilkan filter form --}}
-            @if (request('ebook'))
-                <form method="GET" action="{{ route('welcome') }}" class="px-4 md:px-10 mt-6 w-full max-w-full">
-                    <input type="hidden" name="ebook" value="1">
-                    <input type="hidden" name="search" value="{{ request('search') }}">
-                    <input type="hidden" name="search_by" value="{{ request('search_by') }}">
-
-                    <div class="grid grid-cols-1 md:grid-cols-[3fr_3fr_1fr] gap-2 w-full max-w-full">
-                        {{-- Kolom Kategori --}}
-                        <div class="border rounded-md p-4 w-full">
-                            <h3 class="text-sm font-semibold text-gray-800 mb-2">Kategori</h3>
-                            <div class="-mx-6 px-6 overflow-x-auto scrollbar-hide">
-                                <div class="flex gap-4 w-full min-w-max">
-                                    @foreach ($kategoriList as $kat)
-                                        <label
-                                            class="inline-flex items-center gap-2 text-sm text-gray-700 whitespace-nowrap min-w-max relative">
-                                            <input type="checkbox" name="kategori[]" value="{{ $kat }}"
-                                                class="w-4 h-4 text-blue-600 border-gray-300 rounded"
-                                                {{ is_array(request('kategori')) && in_array($kat, request('kategori')) ? 'checked' : '' }}>
-                                            <span>{{ $kat }}</span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Kolom Kelas --}}
-                        <div class="border rounded-md p-4 w-full">
-                            <h3 class="text-sm font-semibold text-gray-800 mb-2">Kelas</h3>
-                            <div class="-mx-6 px-6 overflow-x-auto scrollbar-hide">
-                                <div class="flex gap-4 w-full min-w-max">
-                                    @foreach ($kelasList as $kelas)
-                                        <label
-                                            class="inline-flex items-center gap-2 text-sm text-gray-700 whitespace-nowrap min-w-max relative">
-                                            <input type="checkbox" name="kelas[]" value="{{ $kelas }}"
-                                                class="w-4 h-4 text-blue-600 border-gray-300 rounded"
-                                                {{ is_array(request('kelas')) && in_array($kelas, request('kelas')) ? 'checked' : '' }}>
-                                            <span>{{ $kelas }}</span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Kolom Tombol Filter --}}
-                        <div
-                            class="flex md:items-start items-center justify-center md:justify-start pt-2 md:pt-0 w-full">
-                            <button type="submit"
-                                class="px-5 py-2 bg-blue-700 text-white rounded-md text-sm font-medium hover:bg-blue-800 transition whitespace-nowrap">
-                                Terapkan Filter
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            @endif
-
-            {{-- Panah kanan (disembunyikan di desktop) --}}
-            <button id="btn-right"
-                class="absolute right-0 top-1/2 -translate-y-1/2 bg-blue-700 text-white rounded-full p-2 shadow-md z-10 md:hidden"
-                aria-label="Scroll Right">
-                <svg class="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M9 5l7 7-7 7" />
-                </svg>
-            </button>
-        </div>
-
-
-        {{-- LIST BUKU UTAMA --}}
+        {{-- Grid buku --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 max-w-6xl mx-auto" id="buku-container">
-            @if (request('ebook'))
-                @foreach ($ebookList->take(6) as $buku)
-                    @include('partials.buku-elektronik-item', ['buku' => $buku])
-                @endforeach
-            @else
-                @foreach ($katalogList->take(6) as $buku)
-                    @include('partials.buku-item', ['buku' => $buku])
-                @endforeach
-            @endif
-        </div>
+            @php
+                $books = request('ebook') ? $ebookList : $katalogList;
+            @endphp
 
-        {{-- LIST BUKU TAMBAHAN --}}
-        @if (request('ebook') && $ebookList->count() > 6)
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 max-w-6xl mx-auto hidden" id="buku-more">
-                @foreach ($ebookList->slice(6)->take(6) as $buku)
-                    @include('partials.buku-elektronik-item', ['buku' => $buku])
-                @endforeach
-            </div>
-        @elseif (!request('ebook') && $katalogList->count() > 6)
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 max-w-6xl mx-auto hidden" id="buku-more">
-                @foreach ($katalogList->slice(6)->take(6) as $buku)
-                    @include('partials.buku-item', ['buku' => $buku])
-                @endforeach
-            </div>
-        @endif
+            @foreach ($books as $index => $buku)
+                @if ($index < 6)
+                    @include(request('ebook') ? 'partials.buku-elektronik-item' : 'partials.buku-item', [
+                        'buku' => $buku,
+                    ])
+                @else
+                    <div class="buku-hidden hidden">
+                        @include(request('ebook') ? 'partials.buku-elektronik-item' : 'partials.buku-item',
+                            ['buku' => $buku]
+                        )
+                    </div>
+                @endif
+            @endforeach
+        </div>
 
         {{-- Tombol Lihat Lebih Banyak --}}
-        @if ((request('ebook') && $ebookList->count() > 6) || (!request('ebook') && $katalogList->count() > 6))
+        @if ($books->count() > 6)
             <div class="text-center mt-6">
                 <button id="lihat-lebih"
-                    class="font-medium px-4 py-2 border border-primary700 rounded-md border-blue-700 text-blue-700 transition duration-200 delay-100 hover:bg-blue-700 hover:text-white">
+                    class="font-medium px-4 py-2 border border-blue-700 rounded-md text-blue-700 transition duration-200 hover:bg-blue-700 hover:text-white">
                     Lihat Lebih Banyak
                 </button>
             </div>
@@ -402,35 +279,23 @@
     </script> --}}
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const lihatBtn = document.getElementById('lihat-lebih');
+        document.addEventListener("DOMContentLoaded", function() {
+            const tombol = document.getElementById("lihat-lebih");
+            const hiddenBooks = [...document.querySelectorAll('.buku-hidden')];
+            let index = 0;
+            const BATCH_SIZE = 6;
 
-            // Gabung semua buku jadi satu list
-            const bukuContainers = [
-                ...document.querySelectorAll('#buku-container > div'),
-                ...document.querySelectorAll('#buku-more > div')
-            ];
+            function showNextBooks() {
+                const next = hiddenBooks.slice(index, index + BATCH_SIZE);
+                next.forEach(el => el.classList.remove('hidden'));
+                index += BATCH_SIZE;
 
-            const perPage = 6;
-            let shown = 6;
-
-            if (lihatBtn) {
-                lihatBtn.addEventListener('click', () => {
-                    let next = shown + perPage;
-
-                    for (let i = shown; i < next && i < bukuContainers.length; i++) {
-                        bukuContainers[i].classList.remove('hidden');
-                        document.getElementById('buku-container').appendChild(bukuContainers[
-                        i]); // Pindahkan dari buku-more ke container
-                    }
-
-                    shown += perPage;
-
-                    if (shown >= bukuContainers.length) {
-                        lihatBtn.classList.add('hidden');
-                    }
-                });
+                if (index >= hiddenBooks.length) {
+                    tombol.style.display = 'none'; // sembunyikan tombol jika habis
+                }
             }
+
+            tombol?.addEventListener("click", showNextBooks);
         });
     </script>
 
