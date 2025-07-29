@@ -722,19 +722,25 @@ class InventoriController extends Controller
 
     private function parseHarga($value)
     {
-        // Hapus simbol dan spasi
+        // Hapus simbol Rp dan spasi
         $value = trim(str_replace(['Rp', ' '], '', $value));
 
-        // Jika pakai koma desimal → ubah menjadi float lalu ke int
+        // Jika pakai koma (contoh: 109.000,00)
         if (strpos($value, ',') !== false) {
             $value = str_replace('.', '', $value);       // hapus titik ribuan
-            $value = str_replace(',', '.', $value);      // ganti koma jadi titik desimal
-            return (int) round(floatval($value));
+            $value = str_replace(',', '.', $value);      // ubah koma jadi titik desimal
+            return (int) round(floatval($value));        // hasil akhir: integer
         }
 
-        // Jika hanya angka atau titik ribuan
-        $value = str_replace('.', '', $value);           // hapus titik ribuan
-        return (int) $value;
+        // Jika hanya angka atau angka dengan titik ribuan (contoh: 109.000)
+        $cleaned = str_replace('.', '', $value);
+
+        // Jika nilainya kecil (misal: 109), anggap ribuan
+        if (is_numeric($cleaned) && (int)$cleaned < 1000) {
+            return ((int)$cleaned) * 1000;               // jadi 109000
+        }
+
+        return (int) $cleaned; // hasil akhir integer
     }
 
 
