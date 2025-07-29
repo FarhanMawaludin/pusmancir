@@ -36,3 +36,7 @@ nav[role="navigation"].pagination {
     color: #9ca3af !important; /* gray-400 */
     cursor: not-allowed;
 }
+
+.apexcharts-tooltip {
+    z-index: 9999 !important;
+}

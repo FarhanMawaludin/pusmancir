@@ -29,7 +29,7 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <!-- ApexCharts -->
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts@latest/dist/apexcharts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Flowbite JS -->
     {{-- <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script> --}}

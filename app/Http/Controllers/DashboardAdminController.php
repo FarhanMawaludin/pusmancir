@@ -7,7 +7,7 @@ use App\Models\Anggota;
 use App\Models\Peminjaman;
 use App\Models\Eksemplar;
 use App\Models\Inventori;
-use App\Models\DetailPeminjaman;
+use App\Models\BukuTamu;
 
 class DashboardAdminController extends Controller
 {
@@ -15,99 +15,82 @@ class DashboardAdminController extends Controller
     {
         $activeMenu = 'dashboard';
 
-        // ========================
-        // Statistik Dashboard
-        // ========================
         $totalAnggota = Anggota::where('status', 'aktif')->count();
         $totalPeminjamanMenunggu = Peminjaman::where('status', 'menunggu')->count();
         $totalJudulBuku = Inventori::count();
         $totalEksemplar = Eksemplar::count();
 
-        // ========================
-        // Peminjaman Menunggu
-        // ========================
-        $search = $request->input('search');
-        $category = $request->input('category', 'all');
+        $years = collect(array_unique(array_merge(
+            Peminjaman::selectRaw('YEAR(created_at) as year')->distinct()->pluck('year')->toArray(),
+            BukuTamu::selectRaw('YEAR(created_at) as year')->distinct()->pluck('year')->toArray()
+        )))->sortDesc()->values();
 
-        $queryPeminjaman = DetailPeminjaman::with(['eksemplar', 'peminjaman.anggota.user'])
-            ->whereHas('peminjaman', function ($q) use ($search) {
-                $q->where('status', 'menunggu');
+        $selectedYear = $request->input('year', 'all');
 
-                if (!empty($search)) {
-                    $q->whereHas('anggota', function ($q2) use ($search) {
-                        $q2->where('nisn', 'like', "%{$search}%");
-                    });
-                }
-            });
+        // === Grafik Peminjaman ===
+        if ($selectedYear === 'all') {
+            $peminjamanData = Peminjaman::selectRaw('YEAR(created_at) as year, COUNT(*) as total')
+                ->whereIn('status', ['berhasil', 'selesai'])
+                ->groupBy('year')
+                ->orderBy('year')
+                ->pluck('total', 'year')
+                ->toArray();
 
-        if ($category !== 'all') {
-            $queryPeminjaman->whereHas('peminjaman.anggota.kelas', function ($q) use ($category) {
-                preg_match('/(\d+) (IPA|IPS|Bahasa)/', $category, $match);
-                if ($match) {
-                    $kelas = $match[1] . ' ' . $match[2];
-                    $q->where('nama_kelas', 'like', $kelas . '%');
-                }
-            });
+            $monthlyPeminjaman = array_values($peminjamanData);
+            $peminjamanLabels = array_keys($peminjamanData);
+        } else {
+            $peminjamanRaw = Peminjaman::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+                ->whereYear('created_at', $selectedYear)
+                ->whereIn('status', ['berhasil', 'selesai'])
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month')
+                ->toArray();
+
+            $monthlyPeminjaman = [];
+            for ($i = 1; $i <= 12; $i++) {
+                $monthlyPeminjaman[] = $peminjamanRaw[$i] ?? 0;
+            }
+            $peminjamanLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
         }
 
-        $peminjaman = $queryPeminjaman->paginate(5)->appends([
-            'search' => $search,
-            'category' => $category
-        ]);
+        // === Grafik Pengunjung ===
+        if ($selectedYear === 'all') {
+            $pengunjungData = BukuTamu::selectRaw('YEAR(created_at) as year, COUNT(*) as total')
+                ->groupBy('year')
+                ->orderBy('year')
+                ->pluck('total', 'year')
+                ->toArray();
 
-        // ========================
-        // Pengembalian Berhasil / Selesai
-        // ========================
-        $queryPengembalian = DetailPeminjaman::with([
-            'peminjaman.anggota.user',
-            'eksemplar.inventori'
-        ])->whereHas('peminjaman', function ($q) {
-            $q->whereIn('status', ['berhasil']);
-        });
+            $monthlyPengunjung = array_values($pengunjungData);
+            $pengunjungLabels = array_keys($pengunjungData);
+        } else {
+            $pengunjungRaw = BukuTamu::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+                ->whereYear('created_at', $selectedYear)
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month')
+                ->toArray();
 
-        $queryPengembalian->addSelect([
-            'peminjaman_status' => Peminjaman::select('status')
-                ->whereColumn('peminjaman.id', 'detail_peminjaman.peminjaman_id')
-                ->limit(1),
-            'tanggal_kembali' => Peminjaman::select('tanggal_kembali')
-                ->whereColumn('peminjaman.id', 'detail_peminjaman.peminjaman_id')
-                ->limit(1),
-        ]);
-
-        if ($search) {
-            $queryPengembalian->whereHas('peminjaman.anggota', function ($q) use ($search) {
-                $q->where('nisn', 'like', "%{$search}%");
-            });
+            $monthlyPengunjung = [];
+            for ($i = 1; $i <= 12; $i++) {
+                $monthlyPengunjung[] = $pengunjungRaw[$i] ?? 0;
+            }
+            $pengunjungLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
         }
 
-        if ($category !== 'all' && preg_match('/(\d+)\s*(IPA|IPS|Bahasa)/', $category, $m)) {
-            $queryPengembalian->whereHas('peminjaman.anggota', function ($q) use ($m) {
-                $q->where('nama_kelas', 'like', "{$m[1]} {$m[2]}%");
-            });
-        }
-
-        $queryPengembalian->orderByRaw("CASE WHEN peminjaman_status = 'berhasil' THEN 0 ELSE 1 END")
-            ->orderByRaw("CASE WHEN tanggal_kembali < NOW() THEN 0 ELSE 1 END")
-            ->orderBy('tanggal_kembali', 'asc');
-
-        $pengembalian = $queryPengembalian->paginate(5)->appends([
-            'search' => $search,
-            'category' => $category,
-        ]);
-
-        // ========================
-        // Return to Dashboard View
-        // ========================
         return view('admin.dashboard', compact(
             'activeMenu',
             'totalAnggota',
             'totalPeminjamanMenunggu',
             'totalJudulBuku',
             'totalEksemplar',
-            'peminjaman',
-            'pengembalian',
-            'search',
-            'category'
+            'years',
+            'selectedYear',
+            'monthlyPeminjaman',
+            'monthlyPengunjung',
+            'peminjamanLabels',
+            'pengunjungLabels'
         ));
     }
 }
