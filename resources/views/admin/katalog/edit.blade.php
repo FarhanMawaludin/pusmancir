@@ -64,7 +64,7 @@
 
                         <!-- Tombol Generate ISBN -->
                         <button type="button" id="generate-isbn"
-                            class="mt-2 inline-flex items-center px-4 py-2 bg-blue-700 text-white rounded hover:bg-green-800 text-sm">
+                            class="mt-2 inline-flex items-center px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 text-sm">
                             Generate ISBN
                         </button>
 
@@ -192,7 +192,7 @@
 
                 <div class="sm:col-span-6 mt-4">
                     <button type="button" id="generate-ddc"
-                        class="inline-flex items-center px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition">
+                        class="mt-2 inline-flex items-center px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800">
                         Generate Kode DDC & Nomor Panggil
                     </button>
 
