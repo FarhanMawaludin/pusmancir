@@ -185,11 +185,11 @@ class KatalogController extends Controller
         $pengarang = $request->input('pengarang');
 
         $prompt = "Tentukan Kode DDC dan Nomor Panggil untuk buku berjudul \"$judul\" karya \"$pengarang\". 
-Nomor Panggil harus mengikuti standar penulisan perpustakaan: dimulai dengan kode DDC, diikuti garis miring (/), lalu tiga huruf pertama dari nama belakang pengarang, semua tanpa penjelasan tambahan. 
-Tampilkan hasil akhir hanya seperti ini:
+        Nomor Panggil harus mengikuti standar penulisan perpustakaan: dimulai dengan kode DDC, diikuti garis miring (/), lalu tiga huruf pertama dari nama belakang pengarang, semua tanpa penjelasan tambahan. 
+        Tampilkan hasil akhir hanya seperti ini:
 
-Kode DDC: [kode]
-Nomor Panggil: [kode_ddc]/[3huruf_nama_belakang_pengarang]";
+        Kode DDC: [kode]
+        Nomor Panggil: [kode_ddc]/[3huruf_nama_belakang_pengarang]";
 
         try {
             $response = Http::withHeaders([
@@ -226,6 +226,47 @@ Nomor Panggil: [kode_ddc]/[3huruf_nama_belakang_pengarang]";
             ]);
         } catch (\Exception $e) {
             logger()->error('OpenRouter Error DDC:', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Terjadi kesalahan saat memanggil API.'
+            ]);
+        }
+    }
+
+
+    public function generateISBN(Request $request)
+    {
+        $judul = $request->input('judul');
+        $pengarang = $request->input('pengarang');
+
+        $prompt = "Buatkan satu nomor ISBN yang valid dan sesuai format ISBN-13 untuk buku berjudul \"$judul\" karya \"$pengarang\". 
+                Jangan tambahkan penjelasan atau kata-kata lain. Tulis hanya nomornya saja.";
+
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . config('services.openrouter.api_key'),
+            ])->post('https://openrouter.ai/api/v1/chat/completions', [
+                'model' => 'google/gemma-3n-e2b-it:free',
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt]
+                ]
+            ]);
+
+            $data = $response->json();
+
+            // Log responsenya
+            logger()->info('OpenRouter ISBN Response:', is_array($data) ? $data : ['response' => $response->body()]);
+
+            $isbn = $data['choices'][0]['message']['content'] ?? 'ISBN tidak tersedia.';
+
+            return response()->json([
+                'success' => true,
+                'isbn' => trim($isbn)
+            ]);
+        } catch (\Exception $e) {
+            logger()->error('OpenRouter ISBN Error:', ['error' => $e->getMessage()]);
 
             return response()->json([
                 'success' => false,

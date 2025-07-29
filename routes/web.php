@@ -161,6 +161,7 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     Route::delete('/katalog/{id}', [KatalogController::class, 'destroy'])->name('katalog.destroy');
     Route::post('/generate-ringkasan', [KatalogController::class, 'generateRingkasan'])->name('katalog.generate-ringkasan');
     Route::post('/generate-ddc', [KatalogController::class, 'generateKodeDDC'])->name('katalog.generate-ddc');
+    Route::post('/generate-isbn', [KatalogController::class, 'generateISBN'])->name('katalog.generate-isbn');
     Route::get('/katalog/fetch-cover/{isbn}', [KatalogController::class, 'fetchCoverByIsbn'])->name('katalog.fetch-cover');
 
 

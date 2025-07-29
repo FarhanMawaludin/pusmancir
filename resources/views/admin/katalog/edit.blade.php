@@ -53,13 +53,32 @@
                         <div class="flex gap-2 items-stretch mt-2">
                             <input type="text" name="isbn" id="isbn" value="{{ old('isbn', $katalog->isbn) }}"
                                 class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
-                                        border border-gray-300 placeholder:text-gray-400
-                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                                       border border-gray-300 placeholder:text-gray-400
+                                       focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
 
                             <button type="button" id="btn-cek-cover"
                                 class="px-4 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
                                 Cek
                             </button>
+                        </div>
+
+                        <!-- Tombol Generate ISBN -->
+                        <button type="button" id="generate-isbn"
+                            class="mt-2 inline-flex items-center px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 text-sm">
+                            Generate ISBN
+                        </button>
+
+                        <!-- Spinner -->
+                        <div id="spinner-isbn" class="mt-3 hidden">
+                            <div class="flex items-center text-sm text-gray-700">
+                                <svg class="animate-spin h-5 w-5 mr-2 text-green-600" viewBox="0 0 24 24" fill="none">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4" />
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z" />
+                                </svg>
+                                Sedang menghasilkan ISBN...
+                            </div>
                         </div>
 
                         @error('isbn')
@@ -134,8 +153,8 @@
                         <div id="spinner-ringkasan" class="mt-3 hidden">
                             <div class="flex items-center text-sm text-gray-700">
                                 <svg class="animate-spin h-5 w-5 mr-2 text-blue-600" viewBox="0 0 24 24" fill="none">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4" />
+                                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                                        stroke="currentColor" stroke-width="4" />
                                     <path class="opacity-75" fill="currentColor"
                                         d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z" />
                                 </svg>
@@ -205,6 +224,47 @@
             </div>
         </div>
     </form>
+
+    <script>
+        document.getElementById('generate-isbn').addEventListener('click', async function() {
+            const judul = document.getElementById('judul_buku_display').value;
+            const pengarang = document.getElementById('pengarang_display').value;
+            const spinner = document.getElementById('spinner-isbn');
+            const button = this;
+
+            spinner.classList.remove('hidden');
+            button.disabled = true;
+            button.classList.add('opacity-50', 'cursor-not-allowed');
+
+            try {
+                const res = await fetch("{{ route('admin.katalog.generate-isbn') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        judul,
+                        pengarang
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('isbn').value = data.isbn;
+                } else {
+                    alert("Gagal generate ISBN.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Terjadi kesalahan saat menghubungi server.");
+            } finally {
+                spinner.classList.add('hidden');
+                button.disabled = false;
+                button.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        });
+    </script>
 
     <script>
         document.getElementById('generate-ddc').addEventListener('click', async function() {
