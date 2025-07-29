@@ -109,7 +109,7 @@
                                     <img src="{{ asset($katalogItem->cover_buku) }}" alt="Foto {{ $katalogItem->judul_buku }}"
                                         class="w-10 h-10 rounded-full object-cover shrink-0">
                                 @else
-                                    <img src="{{ asset('img/Profile.jpg') }}" alt="Foto Default"
+                                    <img src="{{ asset('img/putih.png') }}" alt="Foto Default"
                                         class="w-10 h-10 rounded-full border border-gray-200 object-cover shrink-0">
                                 @endif
                                 <div class="min-w-0">
