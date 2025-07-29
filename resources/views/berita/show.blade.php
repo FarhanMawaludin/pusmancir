@@ -3,6 +3,19 @@
 
 <head>
     <meta charset="UTF-8">
+    <!-- Meta untuk Sosial Media -->
+    <meta property="og:title" content="{{ $berita->judul }}">
+    <meta property="og:description" content="{{ Str::limit(strip_tags($berita->isi), 150) }}">
+    <meta property="og:image"
+        content="{{ $berita->thumbnail ? asset($berita->thumbnail) : 'https://source.unsplash.com/random/300x200?news' }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:type" content="article">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $berita->judul }}">
+    <meta name="twitter:description" content="{{ Str::limit(strip_tags($berita->isi), 150) }}">
+    <meta name="twitter:image"
+        content="{{ $berita->thumbnail ? asset($berita->thumbnail) : 'https://source.unsplash.com/random/300x200?news' }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Berita - PERPUSTAKAAN SMA NEGERI 1 CIRUAS</title>
     <!-- Scripts -->
@@ -210,7 +223,7 @@
         </div>
 
         <div class="text-center text-xs text-gray-600 mt-8 border-t pt-4">
-            Hanware &nbsp; · &nbsp; © 2025 · PUSMANCIR &nbsp; 
+            Hanware &nbsp; · &nbsp; © 2025 · PUSMANCIR &nbsp;
         </div>
     </footer>
 </body>
