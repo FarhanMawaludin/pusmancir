@@ -36,9 +36,8 @@ class InventoriController extends Controller
         $category = $request->input('category', 'all');
 
         $query = Inventori::with(['eksemplar' => function ($q) {
-            $q->orderBy('created_at'); // urutan eksemplar
-        }, 'penerbit'])
-            ->orderBy('created_at', 'asc');
+            $q->orderByRaw('CAST(no_induk AS UNSIGNED)');
+        }, 'penerbit']);
 
         if ($search) {
             if ($category === 'judul_buku' || $category === 'all') {
