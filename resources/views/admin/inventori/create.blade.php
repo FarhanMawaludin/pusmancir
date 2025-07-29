@@ -102,6 +102,8 @@
                             class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
                                         border border-gray-300 placeholder:text-gray-400
                                         focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                            <option value="" {{ old('id_kategori_buku') ? '' : 'selected' }}>-- Pilih Kategori Buku
+                                --</option>
                             @foreach ($kategoriBuku as $kategori)
                                 <option value="{{ $kategori->id }}"
                                     {{ old('id_kategori_buku') == $kategori->id ? 'selected' : '' }}>
