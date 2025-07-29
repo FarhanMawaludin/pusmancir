@@ -394,10 +394,43 @@
             Hanware &nbsp; · &nbsp; © 2025 · PUSMANCIR &nbsp;
         </div>
     </footer>
-    <script>
+    {{-- <script>
         document.getElementById('lihat-lebih')?.addEventListener('click', function() {
             document.getElementById('buku-more')?.classList.remove('hidden');
             this.classList.add('hidden');
+        });
+    </script> --}}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const lihatBtn = document.getElementById('lihat-lebih');
+
+            // Gabung semua buku jadi satu list
+            const bukuContainers = [
+                ...document.querySelectorAll('#buku-container > div'),
+                ...document.querySelectorAll('#buku-more > div')
+            ];
+
+            const perPage = 6;
+            let shown = 6;
+
+            if (lihatBtn) {
+                lihatBtn.addEventListener('click', () => {
+                    let next = shown + perPage;
+
+                    for (let i = shown; i < next && i < bukuContainers.length; i++) {
+                        bukuContainers[i].classList.remove('hidden');
+                        document.getElementById('buku-container').appendChild(bukuContainers[
+                        i]); // Pindahkan dari buku-more ke container
+                    }
+
+                    shown += perPage;
+
+                    if (shown >= bukuContainers.length) {
+                        lihatBtn.classList.add('hidden');
+                    }
+                });
+            }
         });
     </script>
 
