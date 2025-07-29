@@ -552,30 +552,33 @@ class InventoriController extends Controller
 
         try {
             foreach ($grouped as $key => $items) {
-                [$judul, $pengarang, $penerbitNama, $kategoriNama, $tanggal, $hargaStr, $jenisSumberNama, $noPanggil] = explode('|', $key);
+                [$judul, $pengarang, $penerbitNama, $kategoriNama, $tanggalInput, $hargaStr, $jenisSumberNama, $noPanggil] = explode('|', $key);
                 $harga = (int) str_replace(['Rp', '.', ',', ' '], '', $hargaStr);
 
-                // Relasi lookup (buat jika tidak ada)
+                // Konversi tanggal
+                $tanggal = $this->parseTanggal($tanggalInput);
+
+                // Relasi lookup (buat jika belum ada)
                 $penerbit = Penerbit::firstOrCreate(['nama_penerbit' => $penerbitNama]);
                 $kategori = KategoriBuku::firstOrCreate(['nama_kategori' => $kategoriNama]);
                 $jenisSumber = JenisSumber::firstOrCreate(['nama_sumber' => $jenisSumberNama]);
 
                 // Ganti sesuai sekolah login
-                $sekolah = Sekolah::first(); // sesuaikan
+                $sekolah = Sekolah::first();
 
                 $inventori = Inventori::create([
                     'judul_buku'        => $judul,
                     'pengarang'         => $pengarang,
                     'id_penerbit'       => $penerbit->id,
                     'id_kategori_buku'  => $kategori->id,
-                    'id_jenis_media'    => 1, // default/media buku
+                    'id_jenis_media'    => 1,
                     'id_sekolah'        => $sekolah->id,
                     'tanggal_pembelian' => $tanggal,
                     'harga_satuan'      => $harga,
                     'jumlah_eksemplar'  => count($items),
                     'total_harga'       => $harga * count($items),
                     'id_jenis_sumber'   => $jenisSumber->id,
-                    'id_sumber'         => 1, // atau tentukan sesuai login
+                    'id_sumber'         => 1,
                 ]);
 
                 // Simpan katalog
@@ -619,5 +622,21 @@ class InventoriController extends Controller
             DB::rollBack();
             return back()->with('error', 'Gagal import: ' . $e->getMessage());
         }
+    }
+
+    private function parseTanggal($value)
+    {
+        $formats = ['Y-m-d', 'd/m/Y', 'd-m-Y'];
+
+        foreach ($formats as $format) {
+            try {
+                return \Carbon\Carbon::createFromFormat($format, trim($value))->format('Y-m-d');
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+
+        // Jika tidak cocok, lempar error atau return null
+        throw new \Exception("Format tanggal tidak dikenali: $value");
     }
 }
