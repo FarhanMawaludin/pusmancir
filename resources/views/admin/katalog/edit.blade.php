@@ -71,7 +71,7 @@
                         <!-- Spinner -->
                         <div id="spinner-isbn" class="mt-3 hidden">
                             <div class="flex items-center text-sm text-gray-700">
-                                <svg class="animate-spin h-5 w-5 mr-2 text-green-600" viewBox="0 0 24 24" fill="none">
+                                <svg class="animate-spin h-5 w-5 mr-2 text-blue-600" viewBox="0 0 24 24" fill="none">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                         stroke-width="4" />
                                     <path class="opacity-75" fill="currentColor"
@@ -199,7 +199,7 @@
                     <!-- Spinner (diletakkan setelah tombol) -->
                     <div id="spinner-ddc" class="mt-3 hidden">
                         <div class="flex items-center text-sm text-gray-700">
-                            <svg class="animate-spin h-5 w-5 mr-2 text-indigo-600" viewBox="0 0 24 24" fill="none">
+                            <svg class="animate-spin h-5 w-5 mr-2 text-blue-600" viewBox="0 0 24 24" fill="none">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                     stroke-width="4" />
                                 <path class="opacity-75" fill="currentColor"
