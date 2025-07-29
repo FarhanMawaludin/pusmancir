@@ -240,9 +240,9 @@ class KatalogController extends Controller
         $judul = $request->input('judul');
         $pengarang = $request->input('pengarang');
 
-        $prompt = "Cari dan berikan satu nomor ISBN-13 yang benar-benar valid dan tersedia di database publik seperti Google Books 
-        untuk buku berjudul \"$judul\" karya \"$pengarang\". 
-        Tulis hanya nomor ISBN-nya saja tanpa penjelasan, teks tambahan, atau karakter selain angka dan tanda hubung.";
+        $prompt = "Cari dan berikan satu nomor ISBN-13 yang valid dan benar-benar terdaftar di database publik seperti Google Books untuk buku berjudul \"$judul\" karya \"$pengarang\". 
+Tulis hanya nomor ISBN-13 tersebut secara lengkap, tanpa tambahan penjelasan, teks lain, atau karakter selain angka dan tanda hubung. 
+Pastikan ISBN yang diberikan benar-benar ada dan dapat digunakan untuk mencari informasi buku tersebut di Google Books.";
 
         try {
             $response = Http::withHeaders([
