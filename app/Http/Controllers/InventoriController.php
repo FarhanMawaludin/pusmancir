@@ -528,6 +528,101 @@ class InventoriController extends Controller
         ]);
     }
 
+    // public function import(Request $request)
+    // {
+    //     $request->validate([
+    //         'file_inventori' => 'required|file|mimes:xlsx,xls',
+    //     ]);
+
+    //     $file = $request->file('file_inventori');
+    //     $spreadsheet = IOFactory::load($file->getPathname());
+    //     $sheet = $spreadsheet->getActiveSheet();
+    //     $rows = $sheet->toArray(null, true, true, true);
+
+    //     // Ambil baris isi (tanpa header)
+    //     $data = array_slice($rows, 1);
+
+    //     // Kelompokkan berdasarkan judul, pengarang, penerbit, dst.
+    //     $grouped = collect($data)->groupBy(function ($row) {
+    //         return $row['A'] . '|' . $row['B'] . '|' . $row['C'] . '|' . $row['D'] . '|' . $row['E'] . '|' . $row['F'] . '|' . $row['G'] . '|' . $row['H'];
+    //     });
+
+    //     DB::beginTransaction();
+
+    //     try {
+    //         foreach ($grouped as $key => $items) {
+    //             [$judul, $pengarang, $penerbitNama, $kategoriNama, $tanggalInput, $hargaStr, $jenisSumberNama, $noPanggil] = explode('|', $key);
+    //             $harga = (int) str_replace(['Rp', '.', ',', ' '], '', $hargaStr);
+
+    //             // Konversi tanggal
+    //             $tanggal = $this->parseTanggal($tanggalInput);
+
+    //             // Relasi lookup (buat jika belum ada)
+    //             $penerbit = Penerbit::firstOrCreate(['nama_penerbit' => $penerbitNama]);
+    //             $kategori = KategoriBuku::firstOrCreate(['nama_kategori' => $kategoriNama]);
+    //             $jenisSumber = JenisSumber::firstOrCreate(['nama_sumber' => $jenisSumberNama]);
+
+    //             // Ganti sesuai sekolah login
+    //             $sekolah = Sekolah::first();
+
+    //             $inventori = Inventori::create([
+    //                 'judul_buku'        => $judul,
+    //                 'pengarang'         => $pengarang,
+    //                 'id_penerbit'       => $penerbit->id,
+    //                 'id_kategori_buku'  => $kategori->id,
+    //                 'id_jenis_media'    => 1,
+    //                 'id_sekolah'        => $sekolah->id,
+    //                 'tanggal_pembelian' => $tanggal,
+    //                 'harga_satuan'      => $harga,
+    //                 'jumlah_eksemplar'  => count($items),
+    //                 'total_harga'       => $harga * count($items),
+    //                 'id_jenis_sumber'   => $jenisSumber->id,
+    //                 'id_sumber'         => 1,
+    //             ]);
+
+    //             // Simpan katalog
+    //             Katalog::create([
+    //                 'id_inventori'   => $inventori->id,
+    //                 'kategori_buku'  => $kategoriNama,
+    //                 'judul_buku'     => $judul,
+    //                 'pengarang'      => $pengarang,
+    //                 'penerbit'       => $penerbitNama,
+    //                 'no_panggil'     => $noPanggil,
+    //             ]);
+
+    //             // Generate eksemplar
+    //             $lastInduk = DB::table('eksemplar')
+    //                 ->selectRaw('MAX(CAST(no_induk AS UNSIGNED)) as max_no')
+    //                 ->value('max_no') ?? 0;
+
+    //             $tahun = date('Y', strtotime($tanggal));
+    //             $kodeSekolah = strtoupper($sekolah->kode_sekolah ?? 'XXX');
+    //             $jenis = strtoupper(substr($jenisSumberNama, 0, 1));
+    //             $next = $lastInduk + 1;
+    //             $pad = max(6, strlen((string)($next + count($items))));
+
+    //             foreach ($items as $i => $row) {
+    //                 $angka = $next + $i;
+    //                 $noInduk = str_pad($angka, $pad, '0', STR_PAD_LEFT);
+    //                 $noInventori = "{$noInduk}/{$kodeSekolah}/{$jenis}/{$tahun}";
+
+    //                 $inventori->eksemplar()->create([
+    //                     'no_induk'     => $noInduk,
+    //                     'no_inventori' => $noInventori,
+    //                     'no_rfid'      => 'CRS-' . strtoupper(Str::random(6)),
+    //                     'status'       => 'tersedia',
+    //                 ]);
+    //             }
+    //         }
+
+    //         DB::commit();
+    //         return back()->with('success', 'Import berhasil!');
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return back()->with('error', 'Gagal import: ' . $e->getMessage());
+    //     }
+    // }
+
     public function import(Request $request)
     {
         $request->validate([
@@ -552,7 +647,14 @@ class InventoriController extends Controller
         try {
             foreach ($grouped as $key => $items) {
                 [$judul, $pengarang, $penerbitNama, $kategoriNama, $tanggalInput, $hargaStr, $jenisSumberNama, $noPanggil] = explode('|', $key);
+
+                // Bersihkan harga dari string dan konversi ke integer
                 $harga = (int) str_replace(['Rp', '.', ',', ' '], '', $hargaStr);
+
+                // Jika harga terlalu kecil (misal kurang dari 1000), anggap satuan ribuan
+                if ($harga < 1000) {
+                    $harga *= 1000;
+                }
 
                 // Konversi tanggal
                 $tanggal = $this->parseTanggal($tanggalInput);
@@ -622,6 +724,7 @@ class InventoriController extends Controller
             return back()->with('error', 'Gagal import: ' . $e->getMessage());
         }
     }
+
 
     private function parseTanggal($value)
     {
