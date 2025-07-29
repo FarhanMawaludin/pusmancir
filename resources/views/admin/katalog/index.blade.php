@@ -104,9 +104,18 @@
                     <tr class="bg-white border-b border-gray-200">
                         <td class="px-6 py-4">{{ $katalog->firstItem() + $key }}</td>
                         <td class="px-6 py-4">
-                            <div class="min-w-0">
-                                <div class="font-medium md:text-base break-words truncate md:whitespace-normal">
-                                    {{ $katalogItem->judul_buku }}
+                            <div class="flex items-center gap-2">
+                                @if ($katalogItem->foto)
+                                    <img src="{{ asset($katalogItem->cover_buku) }}" alt="Foto {{ $katalogItem->judul_buku }}"
+                                        class="w-10 h-10 rounded-full object-cover shrink-0">
+                                @else
+                                    <img src="{{ asset('img/Profile.jpg') }}" alt="Foto Default"
+                                        class="w-10 h-10 rounded-full border border-gray-200 object-cover shrink-0">
+                                @endif
+                                <div class="min-w-0">
+                                    <div class="font-medium md:text-base break-words truncate md:whitespace-normal">
+                                        {{ $katalogItem->judul_buku }}
+                                    </div>
                                 </div>
                             </div>
                         </td>
