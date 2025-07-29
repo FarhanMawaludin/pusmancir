@@ -648,13 +648,8 @@ class InventoriController extends Controller
             foreach ($grouped as $key => $items) {
                 [$judul, $pengarang, $penerbitNama, $kategoriNama, $tanggalInput, $hargaStr, $jenisSumberNama, $noPanggil] = explode('|', $key);
 
-                // Bersihkan harga dari string dan konversi ke integer
-                $harga = (int) str_replace(['Rp', '.', ',', ' '], '', $hargaStr);
-
-                // Jika harga terlalu kecil (misal kurang dari 1000), anggap satuan ribuan
-                if ($harga < 1000) {
-                    $harga *= 1000;
-                }
+                // Perbaikan konversi harga
+                $harga = $this->parseHarga($hargaStr);
 
                 // Konversi tanggal
                 $tanggal = $this->parseTanggal($tanggalInput);
@@ -723,6 +718,23 @@ class InventoriController extends Controller
             DB::rollBack();
             return back()->with('error', 'Gagal import: ' . $e->getMessage());
         }
+    }
+
+    private function parseHarga($value)
+    {
+        // Hapus simbol dan spasi
+        $value = trim(str_replace(['Rp', ' '], '', $value));
+
+        // Jika pakai koma desimal → ubah menjadi float lalu ke int
+        if (strpos($value, ',') !== false) {
+            $value = str_replace('.', '', $value);       // hapus titik ribuan
+            $value = str_replace(',', '.', $value);      // ganti koma jadi titik desimal
+            return (int) round(floatval($value));
+        }
+
+        // Jika hanya angka atau titik ribuan
+        $value = str_replace('.', '', $value);           // hapus titik ribuan
+        return (int) $value;
     }
 
 

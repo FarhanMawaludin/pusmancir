@@ -189,10 +189,10 @@
                     <div class="sm:col-span-3">
                         <label for="harga_satuan" class="block text-sm font-medium text-text mb-2">Harga Satuan</label>
                         <input type="text" name="harga_satuan" id="harga_satuan"
-                            value="{{ old('harga_satuan', $inventori->harga_satuan) }}"
+                            value="{{ old('harga_satuan', number_format($inventori->harga_satuan ?? 0, 0, ',', '.')) }}"
                             class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text
-             border border-gray-300 placeholder:text-gray-400
-             focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
+                                border border-gray-300 placeholder:text-gray-400
+                                focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
                             required autocomplete="off">
                         @error('harga_satuan')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -204,9 +204,10 @@
                         <label for="total_harga" class="block text-sm font-medium text-text mb-2">Total Harga</label>
                         <input type="text" name="total_harga" id="total_harga"
                             class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text
-             border border-gray-300 placeholder:text-gray-400
-             focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm cursor-not-allowed"
-                            value="{{ old('total_harga', $inventori->total_harga) }}" readonly>
+                                border border-gray-300 placeholder:text-gray-400
+                                focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm cursor-not-allowed"
+                            value="{{ old('total_harga', number_format($inventori->total_harga ?? 0, 0, ',', '.')) }}"
+                            readonly>
                     </div>
                 </div>
 
@@ -232,48 +233,41 @@
             const harga = document.getElementById('harga_satuan');
             const total = document.getElementById('total_harga');
 
-            // Format angka ke format Rupiah ID (titik ribuan, koma desimal)
             function formatRupiah(value) {
                 if (isNaN(value) || value === 0) return '0';
-                let val = Number(value).toFixed(2);
-                let parts = val.split('.');
-                let intPart = parts[0];
-                let decPart = parts[1];
-                intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                if (decPart === '00') return intPart;
-                return intPart + ',' + decPart;
+                let val = Number(value).toFixed(0); // hanya angka bulat
+                return val.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
             }
 
-            // Parse string format rupiah ke angka float
             function parseRupiah(rupiahString) {
                 if (!rupiahString) return 0;
-                let numberString = rupiahString.replace(/\./g, '').replace(',', '.');
-                return parseFloat(numberString) || 0;
+
+                let value = rupiahString.replace(/\s+/g, '');
+
+                if (value.includes(',')) {
+                    value = value.replace(/\./g, '');
+                    value = value.replace(',', '.');
+                } else {
+                    value = value.replace(/\./g, '');
+                }
+
+                return parseFloat(value) || 0;
             }
 
-            // Format input harga_satuan saat ketik
             function formatInputRupiah(e) {
                 let cursorPos = e.target.selectionStart;
                 let originalLength = e.target.value.length;
 
-                let value = e.target.value.replace(/[^0-9,]/g, '');
-                let parts = value.split(',');
-                if (parts.length > 2) {
-                    value = parts[0] + ',' + parts[1];
-                }
-                let intPart = parts[0];
-                let decPart = parts[1] || '';
-                if (decPart.length > 2) decPart = decPart.slice(0, 2);
-                intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                let value = e.target.value.replace(/[^0-9]/g, '');
+                let formatted = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-                e.target.value = decPart ? intPart + ',' + decPart : intPart;
+                e.target.value = formatted;
 
                 let newLength = e.target.value.length;
                 cursorPos = cursorPos + (newLength - originalLength);
                 e.target.setSelectionRange(cursorPos, cursorPos);
             }
 
-            // Hitung total harga
             function hitungTotal() {
                 let jml = parseFloat(jumlah.value) || 0;
                 let hrg = parseRupiah(harga.value);
@@ -288,8 +282,7 @@
 
             jumlah.addEventListener('input', hitungTotal);
 
-            // Hitung total di awal
-            hitungTotal();
+            hitungTotal(); // inisialisasi awal
         });
     </script>
 @endsection
