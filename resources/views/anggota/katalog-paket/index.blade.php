@@ -25,14 +25,9 @@
 
                 <div class="bg-white p-3 text-left w-full">
                     {{-- Sampul --}}
-                    <div
-                        class="h-44 flex items-center justify-center mb-2 relative border border-gray-300 rounded-lg bg-white shadow-inner overflow-hidden">
-                        <div
-                            class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                            <span class="text-center px-2 text-sm font-semibold text-gray-700">
-                                {{ $buku->nama_paket ?? 'Tanpa Nama Paket' }}
-                            </span>
-                        </div>
+                    <div class="h-44 flex items-center justify-center mb-2">
+                        <img src="{{asset('img/putih.jpg')}}"
+                            alt="{{ $buku->nama_paket }}" class="max-h-full max-w-full object-contain" />
                     </div>
 
                     {{-- Info --}}
