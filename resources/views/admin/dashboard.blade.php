@@ -116,120 +116,170 @@
 
     {{-- Grafik Peminjaman --}}
     <div class="bg-white p-4 rounded border border-gray-200 mb-6">
-        <h2 class="text-lg font-semibold text-gray-700 mb-2">
-            Grafik Peminjaman
-            @if ($selectedYear === 'all')
-                (Semua Tahun)
-            @elseif($selectedMonth === 'all')
-                Tahun {{ $selectedYear }}
-            @elseif($selectedDay === 'all')
-                Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}
-            @else
-                Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}, Hari
-                {{ $selectedDay }}
-            @endif
-        </h2>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-700">
+                Grafik Peminjaman
+                @if ($selectedYear === 'all')
+                    (Semua Tahun)
+                @elseif($selectedMonth === 'all')
+                    Tahun {{ $selectedYear }}
+                @elseif($selectedDay === 'all')
+                    Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}
+                @else
+                    Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}, Hari
+                    {{ $selectedDay }}
+                @endif
+            </h2>
+            <button onclick="exportChartToPDF('chartPeminjaman', 'Laporan_Peminjaman')"
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                Export Peminjaman ke PDF
+            </button>
+        </div>
         <canvas id="chartPeminjaman" height="100"></canvas>
     </div>
+    
 
     {{-- Grafik Pengunjung --}}
     <div class="bg-white p-4 rounded border border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-700 mb-2">
-            Grafik Pengunjung
-            @if ($selectedYear === 'all')
-                (Semua Tahun)
-            @elseif($selectedMonth === 'all')
-                Tahun {{ $selectedYear }}
-            @elseif($selectedDay === 'all')
-                Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}
-            @else
-                Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}, Hari
-                {{ $selectedDay }}
-            @endif
-        </h2>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-700">
+                Grafik Pengunjung
+                @if ($selectedYear === 'all')
+                    (Semua Tahun)
+                @elseif($selectedMonth === 'all')
+                    Tahun {{ $selectedYear }}
+                @elseif($selectedDay === 'all')
+                    Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}
+                @else
+                    Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}, Hari
+                    {{ $selectedDay }}
+                @endif
+            </h2>
+            <button onclick="exportChartToPDF('chartPengunjung', 'Laporan_Pengunjung')"
+                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                Export Pengunjung ke PDF
+            </button>
+        </div>
         <canvas id="chartPengunjung" height="100"></canvas>
     </div>
+    
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Labels dan data grafik
-    const peminjamanLabels = @json($peminjamanLabels);
-    const peminjamanData = @json($monthlyPeminjaman);
-    const pengunjungLabels = @json($pengunjungLabels);
-    const pengunjungData = @json($monthlyPengunjung);
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Labels dan data grafik
+        const peminjamanLabels = @json($peminjamanLabels);
+        const peminjamanData = @json($monthlyPeminjaman);
+        const pengunjungLabels = @json($pengunjungLabels);
+        const pengunjungData = @json($monthlyPengunjung);
 
-    // Grafik Peminjaman
-    const ctxPeminjaman = document.getElementById('chartPeminjaman').getContext('2d');
-    new Chart(ctxPeminjaman, {
-        type: 'line',
-        data: {
-            labels: peminjamanLabels,
-            datasets: [{
-                label: 'Peminjaman',
-                data: peminjamanData,
-                borderColor: '#2563eb',
-                backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                fill: true,
-                tension: 0.3,
-                pointRadius: 5,
-                pointHoverRadius: 7,
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: ctx => `${ctx.parsed.y} peminjaman`
+        // Grafik Peminjaman
+        const ctxPeminjaman = document.getElementById('chartPeminjaman').getContext('2d');
+        new Chart(ctxPeminjaman, {
+            type: 'line',
+            data: {
+                labels: peminjamanLabels,
+                datasets: [{
+                    label: 'Peminjaman',
+                    data: peminjamanData,
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `${ctx.parsed.y} peminjaman`
+                        }
+                    },
+                    legend: {
+                        display: true
                     }
                 },
-                legend: { display: true }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { precision: 0 }
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
                 }
             }
-        }
-    });
+        });
 
-    // Grafik Pengunjung
-    const ctxPengunjung = document.getElementById('chartPengunjung').getContext('2d');
-    new Chart(ctxPengunjung, {
-        type: 'line',
-        data: {
-            labels: pengunjungLabels,
-            datasets: [{
-                label: 'Pengunjung',
-                data: pengunjungData,
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                fill: true,
-                tension: 0.3,
-                pointRadius: 5,
-                pointHoverRadius: 7,
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: ctx => `${ctx.parsed.y} pengunjung`
+        // Grafik Pengunjung
+        const ctxPengunjung = document.getElementById('chartPengunjung').getContext('2d');
+        new Chart(ctxPengunjung, {
+            type: 'line',
+            data: {
+                labels: pengunjungLabels,
+                datasets: [{
+                    label: 'Pengunjung',
+                    data: pengunjungData,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `${ctx.parsed.y} pengunjung`
+                        }
+                    },
+                    legend: {
+                        display: true
                     }
                 },
-                legend: { display: true }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { precision: 0 }
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
                 }
             }
+        });
+    </script>
+
+    <script>
+        async function exportChartToPDF(chartId, fileName) {
+            const {
+                jsPDF
+            } = window.jspdf;
+            const canvasElement = document.getElementById(chartId);
+
+            // Konversi canvas ke gambar
+            const canvasImage = await html2canvas(canvasElement, {
+                scale: 2
+            });
+
+            const imgData = canvasImage.toDataURL('image/png');
+
+            // Buat PDF dan tambahkan gambar chart
+            const pdf = new jsPDF({
+                orientation: 'landscape',
+                unit: 'px',
+                format: [canvasImage.width, canvasImage.height]
+            });
+
+            pdf.addImage(imgData, 'PNG', 0, 0, canvasImage.width, canvasImage.height);
+            pdf.save(`${fileName}.pdf`);
         }
-    });
-</script>
+    </script>
 @endpush
