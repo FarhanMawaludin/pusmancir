@@ -170,9 +170,10 @@
                             class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
                                         border border-gray-300 placeholder:text-gray-400
                                         focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                            <option value="" {{ old('id_penerbit') ? '' : 'selected' }}>-- Pilih Penerbit --</option>
                             @foreach ($penerbit as $pnb)
                                 <option value="{{ $pnb->id }}"
-                                    {{ old('id_penerbit', $inventori->id_penerbit) == $pnb->id ? 'selected' : '' }}>
+                                    {{ old('id_penerbit') == $pnb->id ? 'selected' : '' }}>
                                     {{ $pnb->nama_penerbit }}
                                 </option>
                             @endforeach
@@ -185,7 +186,8 @@
                     {{-- Harga Satuan --}}
                     <div class="sm:col-span-3">
                         <label for="harga_satuan" class="block text-sm font-medium text-text mb-2">Harga Satuan</label>
-                        <input type="text" name="harga_satuan" id="harga_satuan" value="{{ old('harga_satuan', $inventori->harga_satuan) }}"
+                        <input type="text" name="harga_satuan" id="harga_satuan"
+                            value="{{ old('harga_satuan', $inventori->harga_satuan) }}"
                             class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text
              border border-gray-300 placeholder:text-gray-400
              focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
@@ -202,7 +204,7 @@
                             class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text
              border border-gray-300 placeholder:text-gray-400
              focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm cursor-not-allowed"
-                           value="{{ old('total_harga', $inventori->total_harga) }}" readonly>
+                            value="{{ old('total_harga', $inventori->total_harga) }}" readonly>
                     </div>
                 </div>
 

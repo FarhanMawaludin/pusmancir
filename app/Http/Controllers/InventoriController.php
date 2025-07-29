@@ -95,7 +95,7 @@ class InventoriController extends Controller
             'judul_buku'         => 'required|string|max:255',
             'pengarang'          => 'required|string|max:255',
             'id_sekolah'         => 'required|exists:sekolah,id',
-            'id_penerbit'        => 'required|exists:penerbit,id',
+            'id_penerbit'        => 'nullable|exists:penerbit,id',
             'harga_satuan'       => 'required|numeric|min:0',
         ]);
 
@@ -190,7 +190,7 @@ class InventoriController extends Controller
             'judul_buku'         => 'required|string|max:255',
             'pengarang'          => 'required|string|max:255',
             'id_sekolah'         => 'required|exists:sekolah,id',
-            'id_penerbit'        => 'required|exists:penerbit,id',
+            'id_penerbit'        => 'nullable|exists:penerbit,id',
             'harga_satuan'       => 'required|numeric|min:0',
         ]);
 
