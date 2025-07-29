@@ -151,6 +151,43 @@
 
     <!-- Kategori Populer -->
     <section class="px-4 md:px-10 mt-16 md:mt-20">
+
+        {{-- Container tombol kategori --}}
+        <div id="kategori-container"
+            class="flex flex-row gap-4 overflow-x-auto px-4 scrollbar-hide whitespace-nowrap md:flex-wrap md:justify-center md:px-10">
+
+            {{-- Tombol Semua --}}
+            <a
+                href="{{ route('welcome', array_filter(['search' => request('search'), 'search_by' => request('search_by')])) }}">
+                <button
+                    class="px-4 py-2 border rounded-full {{ empty(request('kategori')) && !request('ebook') ? 'bg-blue-700 text-white' : '' }} min-w-max whitespace-nowrap">
+                    Semua Buku
+                </button>
+            </a>
+
+            {{-- Tombol E-Book --}}
+            <a
+                href="{{ route('welcome', array_filter(['ebook' => 1, 'search' => request('search'), 'search_by' => request('search_by')])) }}">
+                <button
+                    class="px-4 py-2 border rounded-full {{ request('ebook') ? 'bg-blue-700 text-white' : '' }} min-w-max whitespace-nowrap">
+                    E-Book
+                </button>
+            </a>
+
+            {{-- Tombol kategori (hanya jika bukan E-Book) --}}
+            @unless (request('ebook'))
+                @foreach ($kategoriList as $kat)
+                    <a
+                        href="{{ route('welcome', array_filter(['kategori' => $kat, 'search' => request('search'), 'search_by' => request('search_by')])) }}">
+                        <button
+                            class="px-4 py-2 border rounded-full {{ request('kategori') === $kat ? 'bg-blue-700 text-white' : '' }} min-w-max whitespace-nowrap">
+                            {{ $kat }}
+                        </button>
+                    </a>
+                @endforeach
+            @endunless
+        </div>
+
         {{-- Grid buku --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 max-w-6xl mx-auto" id="buku-container">
             @php
@@ -182,6 +219,7 @@
             </div>
         @endif
     </section>
+
 
 
     <section class="container mx-auto px-4 mt-16 md:mt-24" x-data="{ show: 4 }">
