@@ -15,7 +15,7 @@
                 <!-- Gambar -->
                 <div class="w-full h-48 flex items-center justify-center bg-white mb-1">
                     <img src="{{ asset($buku->cover_buku ?? 'img/putih.jpg') }}"
-                        alt="{{ $buku->judul_buku }}" class="max-h-full max-w-full object-contain shadow-lg" />
+                        alt="{{ $buku->judul_buku }}" class="max-h-full max-w-full object-contain" />
                 </div>
 
                 <!-- Info -->
