@@ -71,10 +71,12 @@
     {{-- Filter Tahun --}}
     <form method="GET" action="{{ route('admin.dashboard.index') }}" class="mb-6">
         <label for="year" class="text-sm font-medium text-gray-700">Filter Tahun:</label>
-        <select name="year" id="year" onchange="this.form.submit()" class="ml-2 border border-gray-300 rounded px-2 py-1">
+        <select name="year" id="year" onchange="this.form.submit()"
+            class="ml-2 border border-gray-300 rounded px-2 py-1">
             <option value="all" {{ $selectedYear === 'all' ? 'selected' : '' }}>Semua Tahun</option>
-            @foreach($years as $year)
-                <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option>
+            @foreach ($years as $year)
+                <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}
+                </option>
             @endforeach
         </select>
     </form>
@@ -99,7 +101,18 @@
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const labels = @json($peminjamanLabels); // Digunakan di kedua grafik
+        // Jika tahun "all", gunakan label tahun, kalau tahun tertentu gunakan label bulan
+        const selectedYear = @json($selectedYear);
+
+        // Label untuk tahun semua dan bulan
+        const labelsTahun = @json($peminjamanLabels); // misal ['2021', '2022', '2023'] ketika all
+        const labelsBulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        // Label yang akan dipakai tergantung selectedYear
+        const labels = selectedYear === 'all' ? labelsTahun : labelsBulan;
+
+        // Data peminjaman
+        const dataPeminjaman = @json($monthlyPeminjaman);
 
         // Grafik Peminjaman
         const ctxPeminjaman = document.getElementById('chartPeminjaman').getContext('2d');
@@ -109,7 +122,7 @@
                 labels: labels,
                 datasets: [{
                     label: 'Peminjaman',
-                    data: @json($monthlyPeminjaman),
+                    data: dataPeminjaman,
                     borderColor: '#2563eb',
                     backgroundColor: 'rgba(37, 99, 235, 0.2)',
                     fill: true,
@@ -123,7 +136,7 @@
                 plugins: {
                     tooltip: {
                         callbacks: {
-                            label: (context) => `${context.parsed.y} peminjaman`
+                            label: ctx => `${ctx.parsed.y} peminjaman`
                         }
                     },
                     legend: {
@@ -141,6 +154,9 @@
             }
         });
 
+        // Data pengunjung
+        const dataPengunjung = @json($monthlyPengunjung);
+
         // Grafik Pengunjung
         const ctxPengunjung = document.getElementById('chartPengunjung').getContext('2d');
         new Chart(ctxPengunjung, {
@@ -149,7 +165,7 @@
                 labels: labels,
                 datasets: [{
                     label: 'Pengunjung',
-                    data: @json($monthlyPengunjung),
+                    data: dataPengunjung,
                     borderColor: '#10b981',
                     backgroundColor: 'rgba(16, 185, 129, 0.2)',
                     fill: true,
@@ -163,7 +179,7 @@
                 plugins: {
                     tooltip: {
                         callbacks: {
-                            label: (context) => `${context.parsed.y} pengunjung`
+                            label: ctx => `${ctx.parsed.y} pengunjung`
                         }
                     },
                     legend: {

@@ -20,12 +20,21 @@ class DashboardAdminController extends Controller
         $totalJudulBuku = Inventori::count();
         $totalEksemplar = Eksemplar::count();
 
+        // Ambil daftar tahun unik dari Peminjaman dan BukuTamu, urutkan descending
         $years = collect(array_unique(array_merge(
             Peminjaman::selectRaw('YEAR(created_at) as year')->distinct()->pluck('year')->toArray(),
             BukuTamu::selectRaw('YEAR(created_at) as year')->distinct()->pluck('year')->toArray()
         )))->sortDesc()->values();
 
+        // Tangkap input filter tahun, default all
         $selectedYear = $request->input('year', 'all');
+        if ($selectedYear !== 'all' && !in_array((int)$selectedYear, $years->toArray())) {
+            // Kalau tahun tidak valid, default ke 'all'
+            $selectedYear = 'all';
+        }
+
+        // Labels bulan tetap (Jan - Des)
+        $monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
         // === Grafik Peminjaman ===
         if ($selectedYear === 'all') {
@@ -36,8 +45,11 @@ class DashboardAdminController extends Controller
                 ->pluck('total', 'year')
                 ->toArray();
 
-            $monthlyPeminjaman = array_values($peminjamanData);
+            // Supaya label tahun urut naik
+            ksort($peminjamanData);
+
             $peminjamanLabels = array_keys($peminjamanData);
+            $monthlyPeminjaman = array_values($peminjamanData);
         } else {
             $peminjamanRaw = Peminjaman::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
                 ->whereYear('created_at', $selectedYear)
@@ -51,7 +63,7 @@ class DashboardAdminController extends Controller
             for ($i = 1; $i <= 12; $i++) {
                 $monthlyPeminjaman[] = $peminjamanRaw[$i] ?? 0;
             }
-            $peminjamanLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            $peminjamanLabels = $monthLabels;
         }
 
         // === Grafik Pengunjung ===
@@ -62,8 +74,10 @@ class DashboardAdminController extends Controller
                 ->pluck('total', 'year')
                 ->toArray();
 
-            $monthlyPengunjung = array_values($pengunjungData);
+            ksort($pengunjungData);
+
             $pengunjungLabels = array_keys($pengunjungData);
+            $monthlyPengunjung = array_values($pengunjungData);
         } else {
             $pengunjungRaw = BukuTamu::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
                 ->whereYear('created_at', $selectedYear)
@@ -76,7 +90,7 @@ class DashboardAdminController extends Controller
             for ($i = 1; $i <= 12; $i++) {
                 $monthlyPengunjung[] = $pengunjungRaw[$i] ?? 0;
             }
-            $pengunjungLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            $pengunjungLabels = $monthLabels;
         }
 
         return view('admin.dashboard', compact(
