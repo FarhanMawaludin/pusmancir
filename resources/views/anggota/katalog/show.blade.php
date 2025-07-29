@@ -25,23 +25,30 @@
                 <p class="text-md text-center text-gray-500 mb-6">Penulis: {{ $buku->pengarang }}</p>
 
                 <!-- Info Bar -->
-                <div
-                    class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-sm text-gray-600 font-medium border-t border-b py-4">
+                <div class="grid grid-cols-3 gap-4 text-center text-sm text-gray-600 font-medium border-t border-b py-4">
                     <div>
                         <p class="text-gray-400">Kategori</p>
-                        <p class="text-text font-semibold">{{ $buku->kategori_buku }}</p>
+                        <p class="text-text font-semibold break-words">{{ $buku->kategori_buku }}</p>
                     </div>
                     <div>
                         <p class="text-gray-400">Penerbit</p>
-                        <p class="text-text font-semibold">{{ $buku->penerbit }}</p>
+                        <p class="text-text font-semibold break-words">{{ $buku->penerbit }}</p>
                     </div>
                     <div>
                         <p class="text-gray-400">Status</p>
                         <p class="font-semibold {{ $style }}">{{ $status }}</p>
                     </div>
+                </div>
+
+                <!-- Baris 2: ISBN, No. Panggil (2 kolom) -->
+                <div class="grid grid-cols-2 gap-4 text-center text-sm text-gray-600 font-medium py-4">
                     <div>
                         <p class="text-gray-400">ISBN</p>
                         <p class="text-text font-semibold break-words">{{ $buku->isbn }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400">No. Panggil</p>
+                        <p class="text-text font-semibold break-words">{{ $buku->no_panggil }}</p>
                     </div>
                 </div>
             </div>

@@ -328,11 +328,16 @@
     </script>
 
     <script>
-        document.getElementById('generate-ringkasan').addEventListener('click', async function() {
-            const judul = document.getElementById('judul_buku_display').value;
-            const pengarang = document.getElementById('pengarang_display').value;
-            const spinner = document.getElementById('spinner-ringkasan');
+        document.getElementById('generate-ddc').addEventListener('click', async function() {
+            const judul = document.getElementById('judul_buku_display').value.trim();
+            const pengarang = document.getElementById('pengarang_display').value.trim();
+            const spinner = document.getElementById('spinner-ddc');
             const button = this;
+
+            if (!judul || !pengarang) {
+                alert("Judul dan pengarang harus diisi.");
+                return;
+            }
 
             // Tampilkan spinner & disable tombol
             spinner.classList.remove('hidden');
@@ -340,7 +345,7 @@
             button.classList.add('opacity-50', 'cursor-not-allowed');
 
             try {
-                const res = await fetch("{{ route('admin.katalog.generate-ringkasan') }}", {
+                const res = await fetch("{{ route('admin.katalog.generate-ddc') }}", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -354,21 +359,22 @@
 
                 const data = await res.json();
                 if (data.success) {
-                    document.getElementById('ringkasan_buku').value = data.ringkasan;
+                    document.getElementById('kode_ddc').value = data.kode_ddc;
+                    document.getElementById('no_panggil').value = data.no_panggil;
                 } else {
-                    alert("Gagal generate ringkasan.");
+                    alert("Gagal generate kode DDC: " + (data.error || "Unknown error."));
                 }
             } catch (error) {
                 console.error(error);
                 alert("Terjadi kesalahan saat menghubungi server.");
             } finally {
-                // Sembunyikan spinner & aktifkan tombol kembali
                 spinner.classList.add('hidden');
                 button.disabled = false;
                 button.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         });
     </script>
+
 
     <script>
         document.getElementById('btn-cek-cover').addEventListener('click', async function() {

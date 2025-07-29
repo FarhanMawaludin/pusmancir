@@ -124,7 +124,8 @@
             <div>
                 <!-- Gambar -->
                 <div class="flex justify-center mb-2">
-                    <img src="{{ asset($buku->cover_buku ?? 'img/putih.jpg')}}" alt="Book Cover" class="w-60 h-auto" />
+                    <img src="{{ asset($buku->cover_buku ?? 'img/putih.jpg') }}" alt="Book Cover"
+                        class="w-60 h-auto" />
                 </div>
 
                 <!-- Judul dan Penulis -->
@@ -135,22 +136,30 @@
 
                 <!-- Info Bar -->
                 <div
-                    class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-sm text-gray-600 font-medium border-t border-b py-4">
+                    class="grid grid-cols-3 gap-4 text-center text-sm text-gray-600 font-medium border-t border-b py-4">
                     <div>
                         <p class="text-gray-400">Kategori</p>
-                        <p class="text-text font-semibold">{{ $buku->kategori_buku }}</p>
+                        <p class="text-text font-semibold break-words">{{ $buku->kategori_buku }}</p>
                     </div>
                     <div>
                         <p class="text-gray-400">Penerbit</p>
-                        <p class="text-text font-semibold">{{ $buku->penerbit }}</p>
+                        <p class="text-text font-semibold break-words">{{ $buku->penerbit }}</p>
                     </div>
                     <div>
                         <p class="text-gray-400">Status</p>
                         <p class="font-semibold {{ $style }}">{{ $status }}</p>
                     </div>
+                </div>
+
+                <!-- Baris 2: ISBN, No. Panggil (2 kolom) -->
+                <div class="grid grid-cols-2 gap-4 text-center text-sm text-gray-600 font-medium py-4">
                     <div>
                         <p class="text-gray-400">ISBN</p>
                         <p class="text-text font-semibold break-words">{{ $buku->isbn }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400">No. Panggil</p>
+                        <p class="text-text font-semibold break-words">{{ $buku->no_panggil }}</p>
                     </div>
                 </div>
             </div>
@@ -220,7 +229,7 @@
         </div>
 
         <div class="text-center text-xs text-gray-600 mt-8 border-t pt-4">
-            Hanware &nbsp; · &nbsp; © 2025 · PUSMANCIR &nbsp; 
+            Hanware &nbsp; · &nbsp; © 2025 · PUSMANCIR &nbsp;
         </div>
     </footer>
 
