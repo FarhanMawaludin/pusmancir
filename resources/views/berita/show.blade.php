@@ -15,7 +15,7 @@
     <meta name="twitter:title" content="{{ $berita->judul }}">
     <meta name="twitter:description" content="{{ Str::limit(strip_tags($berita->isi), 150) }}">
     <meta name="twitter:image"
-        content="{{ $berita->thumbnail ? asset($berita->thumbnail) : 'https://source.unsplash.com/random/300x200?news' }}">
+        content="{{ asset($berita->thumbnail) }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Berita - PERPUSTAKAAN SMA NEGERI 1 CIRUAS</title>
     <!-- Scripts -->
