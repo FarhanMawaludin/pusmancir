@@ -105,7 +105,7 @@
                         <td class="px-6 py-4">{{ $katalog->firstItem() + $key }}</td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-2">
-                                @if ($katalogItem->foto)
+                                @if ($katalogItem->cover_buku)
                                     <img src="{{ asset($katalogItem->cover_buku) }}" alt="Foto {{ $katalogItem->judul_buku }}"
                                         class="w-10 h-10 rounded-full object-cover shrink-0">
                                 @else
