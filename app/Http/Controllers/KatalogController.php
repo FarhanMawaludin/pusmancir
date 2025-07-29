@@ -19,7 +19,7 @@ class KatalogController extends Controller
         $search = $request->input('search');
         $category = $request->input('category', 'judul_buku'); // default 'judul_buku'
 
-        $query = Katalog::with('inventori')->orderBy('created_at', 'desc');
+        $query = Katalog::with('inventori')->orderBy('created_at', 'asc');
 
         if ($search && $category !== 'all') {
             $query->where(function ($q) use ($search, $category) {
