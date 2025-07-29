@@ -69,22 +69,65 @@
     </div>
 
     {{-- Filter Tahun --}}
-    <form method="GET" action="{{ route('admin.dashboard.index') }}" class="mb-6">
-        <label for="year" class="text-sm font-medium text-gray-700">Filter Tahun:</label>
-        <select name="year" id="year" onchange="this.form.submit()"
-            class="ml-2 border border-gray-300 rounded px-2 py-1">
-            <option value="all" {{ $selectedYear === 'all' ? 'selected' : '' }}>Semua Tahun</option>
-            @foreach ($years as $year)
-                <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}
-                </option>
-            @endforeach
-        </select>
+    <form method="GET" action="{{ route('admin.dashboard.index') }}" class="mb-6 flex flex-wrap gap-4 items-center">
+        {{-- Tahun --}}
+        <div>
+            <label for="year" class="text-sm font-medium text-gray-700">Filter Tahun:</label>
+            <select name="year" id="year" onchange="this.form.submit()"
+                class="ml-2 border border-gray-300 rounded px-2 py-1">
+                <option value="all" {{ $selectedYear === 'all' ? 'selected' : '' }}>Semua Tahun</option>
+                @foreach ($years as $year)
+                    <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        {{-- Bulan --}}
+        @if ($selectedYear !== 'all')
+            <div>
+                <label for="month" class="text-sm font-medium text-gray-700">Filter Bulan:</label>
+                <select name="month" id="month" onchange="this.form.submit()"
+                    class="ml-2 border border-gray-300 rounded px-2 py-1">
+                    <option value="all" {{ $selectedMonth === 'all' ? 'selected' : '' }}>Semua Bulan</option>
+                    @foreach ($months as $num => $name)
+                        <option value="{{ $num }}" {{ $selectedMonth == $num ? 'selected' : '' }}>
+                            {{ $name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
+
+        {{-- Hari --}}
+        @if ($selectedYear !== 'all' && $selectedMonth !== 'all')
+            <div>
+                <label for="day" class="text-sm font-medium text-gray-700">Filter Hari:</label>
+                <select name="day" id="day" onchange="this.form.submit()"
+                    class="ml-2 border border-gray-300 rounded px-2 py-1">
+                    <option value="all" {{ $selectedDay === 'all' ? 'selected' : '' }}>Semua Hari</option>
+                    @foreach ($days as $day)
+                        <option value="{{ $day }}" {{ $selectedDay == $day ? 'selected' : '' }}>
+                            {{ $day }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
     </form>
 
     {{-- Grafik Peminjaman --}}
     <div class="bg-white p-4 rounded border border-gray-200 mb-6">
         <h2 class="text-lg font-semibold text-gray-700 mb-2">
-            Grafik Peminjaman {{ $selectedYear === 'all' ? '(Semua Tahun)' : 'Tahun ' . $selectedYear }}
+            Grafik Peminjaman
+            @if ($selectedYear === 'all')
+                (Semua Tahun)
+            @elseif($selectedMonth === 'all')
+                Tahun {{ $selectedYear }}
+            @elseif($selectedDay === 'all')
+                Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}
+            @else
+                Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}, Hari
+                {{ $selectedDay }}
+            @endif
         </h2>
         <canvas id="chartPeminjaman" height="100"></canvas>
     </div>
@@ -92,109 +135,101 @@
     {{-- Grafik Pengunjung --}}
     <div class="bg-white p-4 rounded border border-gray-200">
         <h2 class="text-lg font-semibold text-gray-700 mb-2">
-            Grafik Pengunjung {{ $selectedYear === 'all' ? '(Semua Tahun)' : 'Tahun ' . $selectedYear }}
+            Grafik Pengunjung
+            @if ($selectedYear === 'all')
+                (Semua Tahun)
+            @elseif($selectedMonth === 'all')
+                Tahun {{ $selectedYear }}
+            @elseif($selectedDay === 'all')
+                Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}
+            @else
+                Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}, Hari
+                {{ $selectedDay }}
+            @endif
         </h2>
         <canvas id="chartPengunjung" height="100"></canvas>
     </div>
 @endsection
 
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // Jika tahun "all", gunakan label tahun, kalau tahun tertentu gunakan label bulan
-        const selectedYear = @json($selectedYear);
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Labels dan data grafik
+    const peminjamanLabels = @json($peminjamanLabels);
+    const peminjamanData = @json($monthlyPeminjaman);
+    const pengunjungLabels = @json($pengunjungLabels);
+    const pengunjungData = @json($monthlyPengunjung);
 
-        // Label untuk tahun semua dan bulan
-        const labelsTahun = @json($peminjamanLabels); // misal ['2021', '2022', '2023'] ketika all
-        const labelsBulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-
-        // Label yang akan dipakai tergantung selectedYear
-        const labels = selectedYear === 'all' ? labelsTahun : labelsBulan;
-
-        // Data peminjaman
-        const dataPeminjaman = @json($monthlyPeminjaman);
-
-        // Grafik Peminjaman
-        const ctxPeminjaman = document.getElementById('chartPeminjaman').getContext('2d');
-        new Chart(ctxPeminjaman, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Peminjaman',
-                    data: dataPeminjaman,
-                    borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => `${ctx.parsed.y} peminjaman`
-                        }
-                    },
-                    legend: {
-                        display: true
+    // Grafik Peminjaman
+    const ctxPeminjaman = document.getElementById('chartPeminjaman').getContext('2d');
+    new Chart(ctxPeminjaman, {
+        type: 'line',
+        data: {
+            labels: peminjamanLabels,
+            datasets: [{
+                label: 'Peminjaman',
+                data: peminjamanData,
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `${ctx.parsed.y} peminjaman`
                     }
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0
-                        }
-                    }
+                legend: { display: true }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
                 }
             }
-        });
+        }
+    });
 
-        // Data pengunjung
-        const dataPengunjung = @json($monthlyPengunjung);
-
-        // Grafik Pengunjung
-        const ctxPengunjung = document.getElementById('chartPengunjung').getContext('2d');
-        new Chart(ctxPengunjung, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Pengunjung',
-                    data: dataPengunjung,
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => `${ctx.parsed.y} pengunjung`
-                        }
-                    },
-                    legend: {
-                        display: true
+    // Grafik Pengunjung
+    const ctxPengunjung = document.getElementById('chartPengunjung').getContext('2d');
+    new Chart(ctxPengunjung, {
+        type: 'line',
+        data: {
+            labels: pengunjungLabels,
+            datasets: [{
+                label: 'Pengunjung',
+                data: pengunjungData,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `${ctx.parsed.y} pengunjung`
                     }
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0
-                        }
-                    }
+                legend: { display: true }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
                 }
             }
-        });
-    </script>
+        }
+    });
+</script>
 @endpush
