@@ -64,7 +64,7 @@
 
                         <!-- Tombol Generate ISBN -->
                         <button type="button" id="generate-isbn"
-                            class="mt-2 inline-flex items-center px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 text-sm">
+                            class="mt-2 inline-flex items-center px-4 py-2 bg-blue-700 text-white rounded hover:bg-green-800 text-sm">
                             Generate ISBN
                         </button>
 
