@@ -27,7 +27,7 @@ class PeminjamanPaketController extends Controller
 
         $query = DetailPeminjamanPaket::with(['paketBuku', 'peminjamanPaket.anggota.user'])
             ->whereHas('peminjamanPaket', function ($q) use ($search) {
-                $q->where('status', ['selesai', 'berhasil']);
+                $q->where('status', ['menunggu']);
 
                 // Filter berdasarkan NISN jika ada pencarian
                 if (!empty($search)) {
