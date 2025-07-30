@@ -3,26 +3,32 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- Meta untuk Sosial Media -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Meta untuk Sosial Media (Open Graph untuk WhatsApp, Facebook, dll) -->
     <meta property="og:title" content="{{ $berita->judul }}">
     <meta property="og:description" content="{{ Str::limit(strip_tags($berita->isi), 150) }}">
     <meta property="og:image"
-        content="{{ $berita->thumbnail ? asset($berita->thumbnail) : 'https://source.unsplash.com/random/300x200?news' }}">
+        content="{{ $berita->thumbnail ? asset($berita->thumbnail) : 'https://source.unsplash.com/random/1200x630?news' }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="article">
 
+    <!-- Twitter Card (untuk Twitter/X) -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $berita->judul }}">
     <meta name="twitter:description" content="{{ Str::limit(strip_tags($berita->isi), 150) }}">
-    <meta name="twitter:image" content="{{ asset($berita->thumbnail) }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Berita - PERPUSTAKAAN SMA NEGERI 1 CIRUAS</title>
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <meta name="twitter:image"
+        content="{{ $berita->thumbnail ? asset($berita->thumbnail) : 'https://source.unsplash.com/random/1200x630?news' }}">
 
+    <title>{{ $berita->judul }} - PERPUSTAKAAN SMA NEGERI 1 CIRUAS</title>
+
+    <!-- Favicon -->
     <link rel="icon" href="{{ asset('logo-smancir.png') }}" type="image/png">
-    {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
+
+    <!-- CSS & JS -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 
 <body class="bg-white text-text">
     <!-- Navbar -->
