@@ -166,6 +166,84 @@
         </div>
     </div>
 
+    <div class="flex flex-col md:flex-row gap-6 mt-8">
+
+        {{-- Tabel Top 10 Kunjungan --}}
+        <div class="bg-white p-4 rounded border border-gray-200 w-full md:w-1/3 overflow-x-auto">
+            <h3 class="font-bold mb-4 text-lg">Top 10 Kunjungan</h3>
+            <table class="min-w-full text-sm text-left text-text">
+                <thead class="text-xs uppercase bg-gray-100 text-text">
+                    <tr>
+                        <th class="px-4 py-3">No</th>
+                        <th class="px-4 py-3">Nama</th>
+                        <th class="px-4 py-3 text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($top10_kunjungan as $index => $item)
+                        <tr class="bg-white border-b border-gray-200">
+                            <td class="px-4 py-2">{{ $index + 1 }}</td>
+                            <td class="px-4 py-2">{{ $item->nama }}</td>
+                            <td class="px-4 py-2 text-right">{{ $item->total_kunjungan }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    
+        {{-- Tabel Top 10 Peminjam --}}
+        <div class="bg-white p-4 rounded border border-gray-200 w-full md:w-1/3 overflow-x-auto">
+            <h3 class="font-bold mb-4 text-lg">Top 10 Peminjam</h3>
+            <table class="min-w-full text-sm text-left text-text">
+                <thead class="text-xs uppercase bg-gray-100 text-text">
+                    <tr>
+                        <th class="px-4 py-3">No</th>
+                        <th class="px-4 py-3">Nama</th>
+                        <th class="px-4 py-3">Kelas</th>
+                        <th class="px-4 py-3 text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($top10_peminjaman as $index => $item)
+                        <tr class="bg-white border-b border-gray-200">
+                            <td class="px-4 py-2">{{ $index + 1 }}</td>
+                            <td class="px-4 py-2">{{ $item->anggota->user->name ?? '-' }}</td>
+                            <td class="px-4 py-2">{{ $item->anggota->kelas->nama_kelas ?? '-' }}</td>
+                            <td class="px-4 py-2 text-right">{{ $item->total_peminjaman }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    
+        {{-- Tabel Top 10 Buku Peminjaman --}}
+        <div class="bg-white p-4 rounded border border-gray-200 w-full md:w-1/3 overflow-x-auto">
+            <h3 class="font-bold mb-4 text-lg">Top 10 Buku Peminjaman</h3>
+            <table class="min-w-full text-sm text-left text-text">
+                <thead class="text-xs uppercase bg-gray-100 text-text">
+                    <tr>
+                        <th class="px-4 py-3">No</th>
+                        <th class="px-4 py-3">Judul Buku</th>
+                        <th class="px-4 py-3 text-right">Total Dipinjam</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($top10_buku as $index => $item)
+                        <tr class="bg-white border-b border-gray-200">
+                            <td class="px-4 py-2">{{ $index + 1 }}</td>
+                            <td class="px-4 py-2">{{ $item->judul_buku }}</td>
+                            <td class="px-4 py-2 text-right">{{ $item->total_dipinjam }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    
+    </div>
+    
+
+
+
 
 @endsection
 

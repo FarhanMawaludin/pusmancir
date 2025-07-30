@@ -8,6 +8,9 @@ use App\Models\Peminjaman;
 use App\Models\Eksemplar;
 use App\Models\Inventori;
 use App\Models\BukuTamu;
+use App\Models\DetailPeminjaman;
+use Illuminate\Support\Facades\DB;
+
 
 class DashboardAdminController extends Controller
 {
@@ -136,6 +139,34 @@ class DashboardAdminController extends Controller
             $pengunjungLabels = $days;
         }
 
+        // Tambahan top 10 data (jangan ubah kode yang sudah ada)
+        // Top 10 kunjungan tanpa kelas, karena kolom tidak ada
+        $top10_kunjungan = DB::table('buku_tamu')
+            ->select('nama', DB::raw('COUNT(*) as total_kunjungan'))
+            ->whereNotNull('nama')
+            ->groupBy('nama')
+            ->orderByDesc('total_kunjungan')
+            ->limit(10)
+            ->get();
+
+        // Top 10 peminjam
+        $top10_peminjaman = Peminjaman::select('anggota_id', DB::raw('COUNT(*) as total_peminjaman'))
+            ->with(['anggota.user'])
+            ->groupBy('anggota_id')
+            ->orderByDesc('total_peminjaman')
+            ->limit(10)
+            ->get();
+
+        // Top 10 buku paling sering dipinjam
+        $top10_buku = DetailPeminjaman::selectRaw('inventori.judul_buku, COUNT(*) as total_dipinjam')
+            ->join('eksemplar', 'detail_peminjaman.eksemplar_id', '=', 'eksemplar.id')
+            ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
+            ->groupBy('inventori.judul_buku')
+            ->orderByDesc('total_dipinjam')
+            ->limit(10)
+            ->get();
+
+
         return view('admin.dashboard', compact(
             'activeMenu',
             'totalAnggota',
@@ -151,7 +182,10 @@ class DashboardAdminController extends Controller
             'monthlyPeminjaman',
             'monthlyPengunjung',
             'peminjamanLabels',
-            'pengunjungLabels'
+            'pengunjungLabels',
+            'top10_kunjungan',
+            'top10_peminjaman',
+            'top10_buku'
         ));
     }
 }
