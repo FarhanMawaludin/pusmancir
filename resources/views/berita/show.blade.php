@@ -12,7 +12,8 @@
         content="{{ $berita->thumbnail ? asset($berita->thumbnail) : 'https://source.unsplash.com/random/1200x630?news' }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="article">
-
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <!-- Twitter Card (untuk Twitter/X) -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $berita->judul }}">
