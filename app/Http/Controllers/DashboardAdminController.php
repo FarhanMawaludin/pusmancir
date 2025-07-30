@@ -174,7 +174,7 @@ class DashboardAdminController extends Controller
             ->limit(10)
             ->get();
 
-        return view('admin.dashboard', compact(
+        return view('admin.dashboard.index', compact(
             'activeMenu',
             'totalAnggota',
             'totalPeminjamanMenunggu',
