@@ -147,8 +147,8 @@
                     </span>
 
                     {{-- Share Buttons --}}
-                    <a href="https://wa.me/?text={{ urlencode(route('berita.show', $berita->id)) }}" target="_blank"
-                        class="text-green-500 hover:text-green-600" title="Bagikan ke WhatsApp">
+                    <a href="https://api.whatsapp.com/send?text={{ urlencode(route('berita.show', $berita->id)) }}"
+                        target="_blank" class="text-green-500 hover:text-green-600" title="Bagikan ke WhatsApp">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"
                             fill="currentColor">
                             <path
