@@ -115,54 +115,58 @@
     </form>
 
     {{-- Grafik Peminjaman --}}
-    <div class="bg-white p-4 rounded border border-gray-200 mb-6">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold text-gray-700">
-                Grafik Peminjaman
-                @if ($selectedYear === 'all')
-                    (Semua Tahun)
-                @elseif($selectedMonth === 'all')
-                    Tahun {{ $selectedYear }}
-                @elseif($selectedDay === 'all')
-                    Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}
-                @else
-                    Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}, Hari
-                    {{ $selectedDay }}
-                @endif
-            </h2>
-            <button onclick="exportChartToPDF('chartPeminjaman', 'Laporan_Peminjaman')"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                Export Peminjaman ke PDF
-            </button>
-        </div>
-        <canvas id="chartPeminjaman" height="100"></canvas>
-    </div>
-    
+    <div class="flex flex-col md:flex-row gap-6 mt-4">
 
-    {{-- Grafik Pengunjung --}}
-    <div class="bg-white p-4 rounded border border-gray-200">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold text-gray-700">
-                Grafik Pengunjung
-                @if ($selectedYear === 'all')
-                    (Semua Tahun)
-                @elseif($selectedMonth === 'all')
-                    Tahun {{ $selectedYear }}
-                @elseif($selectedDay === 'all')
-                    Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}
-                @else
-                    Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}, Hari
-                    {{ $selectedDay }}
-                @endif
-            </h2>
-            <button onclick="exportChartToPDF('chartPengunjung', 'Laporan_Pengunjung')"
-                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                Export Pengunjung ke PDF
-            </button>
+        {{-- Grafik Peminjaman --}}
+        <div class="bg-white p-4 rounded border border-gray-200 w-full md:w-1/2">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-700">
+                    Grafik Peminjaman
+                    @if ($selectedYear === 'all')
+                        (Semua Tahun)
+                    @elseif($selectedMonth === 'all')
+                        Tahun {{ $selectedYear }}
+                    @elseif($selectedDay === 'all')
+                        Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}
+                    @else
+                        Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}, Hari
+                        {{ $selectedDay }}
+                    @endif
+                </h2>
+                <button onclick="exportChartToPDF('chartPeminjaman', 'Laporan_Peminjaman')"
+                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    Export PDF
+                </button>
+            </div>
+            <canvas id="chartPeminjaman" height="100"></canvas>
         </div>
-        <canvas id="chartPengunjung" height="100"></canvas>
+
+        {{-- Grafik Pengunjung --}}
+        <div class="bg-white p-4 rounded border border-gray-200 w-full md:w-1/2">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-700">
+                    Grafik Pengunjung
+                    @if ($selectedYear === 'all')
+                        (Semua Tahun)
+                    @elseif($selectedMonth === 'all')
+                        Tahun {{ $selectedYear }}
+                    @elseif($selectedDay === 'all')
+                        Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}
+                    @else
+                        Tahun {{ $selectedYear }}, Bulan {{ $months[$selectedMonth] ?? $selectedMonth }}, Hari
+                        {{ $selectedDay }}
+                    @endif
+                </h2>
+                <button onclick="exportChartToPDF('chartPengunjung', 'Laporan_Pengunjung')"
+                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                    Export PDF
+                </button>
+            </div>
+            <canvas id="chartPengunjung" height="100"></canvas>
+        </div>
     </div>
-    
+
+
 @endsection
 
 @push('scripts')

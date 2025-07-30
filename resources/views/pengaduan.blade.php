@@ -10,6 +10,7 @@
 
     <link rel="icon" href="{{ asset('logo-smancir.png') }}" type="image/png">
     {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-white text-text">
@@ -92,7 +93,7 @@
                         </li>
                         <li>
                             <a href="{{ route('berita.index') }}"
-                                class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0">Berita</a>
+                                class="block py-2 px-3 text-gray-400 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0">Berita</a>
                         </li>
                         <li>
                             <a href="{{ route('peringkat.index') }}"
@@ -100,7 +101,7 @@
                         </li>
                         <li>
                             <a href="{{ route('pengaduan') }}"
-                                class="block py-2 px-3 text-gray-400 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0">Pengaduan</a>
+                                class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0">Pengaduan</a>
                         </li>
                     </ul>
                 </div>
@@ -108,86 +109,67 @@
         </div>
     </nav>
 
-    <!-- Hero slider -->
-    <section class="container mx-auto px-6 mt-40">
-        <a href="{{ route('berita.show', $hero->id) }}">
-            <div class="relative rounded-lg overflow-hidden shadow-lg">
-                @if ($hero && $hero->thumbnail)
-                    <img src="{{ asset($hero->thumbnail) }}" alt="{{ $hero->judul }}"
-                        class="w-full h-64 object-cover">
-                @else
-                    <img src="https://source.unsplash.com/random/1024x480?technology" alt="Hero"
-                        class="w-full h-64 object-cover">
-                @endif
-                <div class="absolute inset-0 bg-black/40 flex flex-col justify-end p-6">
-                    <h2 class="text-white text-lg md:text-2xl font-semibold">
-                        {{ $hero->judul ?? 'Tidak ada berita terbaru' }}</h2>
-                    <p class="text-white text-xs mt-1">{{ Str::limit(strip_tags($hero->isi ?? '...'), 100) }}</p>
-                </div>
+    <div class="max-w-5xl mx-auto mt-40 bg-white border border-gray-300 rounded overflow-hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2">
+
+            <!-- Kolom Kiri: Gambar -->
+            <div class="hidden md:flex items-center justify-center p-6">
+                <img src="{{ asset('img/pengaduan.jpg') }}" alt="Pengaduan" class="w-full max-w-md">
+
             </div>
-        </a>
-    </section>
 
-    <!-- Popular Posts -->
-    <section class="container mx-auto px-6 mt-10" x-data="{ show: 4 }">
-        <h3 class="text-lg font-semibold mb-4 text-red-600">Postingan</h3>
+            <!-- Kolom Kanan: Formulir -->
+            <div class="p-6">
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            @foreach ($popular as $index => $item)
-                <div class="block bg-white rounded border border-gray-200 p-3 hover:shadow-lg transition"
-                    x-show="{{ $index }} < show">
-                    <a href="{{ route('berita.show', $item->id) }}">
-                        @if ($item->thumbnail)
-                            <img src="{{ asset($item->thumbnail) }}" class="rounded mb-2 w-full h-40 object-cover"
-                                alt="{{ $item->judul }}">
-                        @else
-                            <img src="https://source.unsplash.com/random/300x200?news"
-                                class="rounded mb-2 w-full h-40 object-cover" alt="Default">
-                        @endif
-        
-                        <h4 class="font-semibold text-sm">{{ $item->judul }}</h4>
-                    </a>
-        
-                    {{-- Penulis dan Tanggal --}}
-                    <p class="text-xs text-gray-500 mt-1">
-                        {{ $item->penulis }} - {{ $item->created_at->format('M d, Y') }}
-                    </p>
-        
-                    {{-- Tombol Share --}}
-                    <div class="flex gap-2 mt-2">
-                        {{-- WhatsApp --}}
-                        <a href="https://wa.me/?text={{ urlencode(route('berita.show', $item->id)) }}"
-                            target="_blank" class="text-green-500 hover:text-green-600" title="Bagikan ke WhatsApp">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"
-                                fill="currentColor">
-                                <path
-                                    d="M20.5 3.5A11.5 11.5 0 0012 1C6.2 1 1.5 5.8 1.5 11.5c0 2 .6 3.9 1.7 5.6L1 23l6.2-2c1.6 1 3.5 1.6 5.4 1.6h.1c6.1 0 11.1-5 11.1-11.1 0-3-1.2-5.8-3.3-7.9zM12 21c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.7 1.2 1.2-3.6-.2-.3c-1-1.3-1.6-2.9-1.6-4.5C3 6.5 7.5 2 12.9 2 17.4 2 21 5.6 21 10.1S17.4 21 12 21zm5.3-6.6c-.3-.2-1.5-.7-1.7-.8-.2-.1-.3-.1-.5.1s-.6.8-.7 1c-.1.2-.3.2-.6.1-1.7-.8-2.9-1.6-4.1-3.7-.3-.6.3-.5.8-1.6.1-.2.1-.4 0-.6s-.5-1.1-.7-1.5c-.2-.5-.4-.4-.6-.4s-.3 0-.5 0c-.2 0-.5.1-.7.4-.2.2-.8.8-.8 2 0 1.1.8 2.2.9 2.4 1.1 1.8 2.6 3.1 4.5 3.9.6.2 1.1.4 1.5.5.6.2 1.1.1 1.5.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2z" />
-                            </svg>
-                        </a>
-        
-                        {{-- Copy Link --}}
-                        <button onclick="copyToClipboard('{{ route('berita.show', $item->id) }}')"
-                            class="text-blue-500 hover:text-blue-600" title="Salin link untuk IG Story">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M16 8h2a2 2 0 012 2v8a2 2 0 01-2 2h-8a2 2 0 01-2-2v-2" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            @endforeach
+                {{-- <h2 class="text-xl font-bold mb-6">Form Pengaduan</h2> --}}
+
+                <form action="{{ route('pengaduan.store') }}" method="POST">
+                    @csrf
+
+                    <label for="nama" class="block font-semibold mb-">Nama</label>
+                    <input type="text" name="nama" id="nama" value="{{ old('nama') }}"
+                        class="mb-4 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                border border-gray-300 placeholder:text-gray-400
+                                focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                    @error('nama')
+                        <p class="text-red-500 text-sm mb-3">{{ $message }}</p>
+                    @enderror
+
+                    <label for="no_telp" class="block font-semibold mb-1">No. Telepon</label>
+                    <input type="text" name="no_telp" id="no_telp" value="{{ old('no_telp') }}"
+                        class="mb-4 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                border border-gray-300 placeholder:text-gray-400
+                                focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                    @error('no_telp')
+                        <p class="text-red-500 text-sm mb-3">{{ $message }}</p>
+                    @enderror
+
+                    <label for="email" class="block font-semibold mb-1">Email</label>
+                    <input type="email" name="email" id="email" value="{{ old('email') }}"
+                        class="mb-4 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                border border-gray-300 placeholder:text-gray-400
+                                focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                    @error('email')
+                        <p class="text-red-500 text-sm mb-3">{{ $message }}</p>
+                    @enderror
+
+                    <label for="isi" class="block font-semibold mb-1">Isi Pengaduan</label>
+                    <textarea name="isi" id="isi" rows="5"
+                        class="mb-4 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                border border-gray-300 placeholder:text-gray-400
+                                focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">{{ old('isi') }}</textarea>
+                    @error('isi')
+                        <p class="text-red-500 text-sm mb-3">{{ $message }}</p>
+                    @enderror
+
+                    <button type="submit" class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">
+                        Kirim Pengaduan
+                    </button>
+                </form>
+            </div>
         </div>
+    </div>
 
-        @if (count($popular) > 4)
-            <div class="flex justify-center mt-6">
-                <button @click="show += 4" x-show="show < {{ count($popular) }}"
-                    class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
-                    Lihat Lebih Banyak
-                </button>
-            </div>
-        @endif
-    </section>
 
     <!-- Footer -->
     <footer class="bg-gray-100 px-4 py-10 mt-16">
@@ -235,6 +217,7 @@
             });
         }
     </script>
+    <x-alert />
 </body>
 
 </html>

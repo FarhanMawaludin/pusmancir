@@ -110,6 +110,10 @@
                             <a href="{{ route('peringkat.index') }}"
                                 class="block py-2 px-3 text-gray-400 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0">Peringkat</a>
                         </li>
+                        <li>
+                            <a href="{{ route('pengaduan') }}"
+                                class="block py-2 px-3 text-gray-400 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0">Pengaduan</a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -253,7 +257,7 @@
     <script>
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                alert('Link berhasil disalin. Tempelkan di IG Story.');
+                alert('Link berhasil disalin');
             }).catch(err => {
                 alert('Gagal menyalin: ' + err);
             });

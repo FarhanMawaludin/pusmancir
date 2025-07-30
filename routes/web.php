@@ -37,6 +37,7 @@ use App\Http\Controllers\InstansiController;
 use App\Http\Controllers\SuratKeluarController;
 use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\BukuElektronikController;
+use App\Http\Controllers\PengaduanController;
 
 use Illuminate\Support\Facades\Http;
 
@@ -54,6 +55,10 @@ Route::get('/peringkat', [PeringkatController::class, 'index'])->name('peringkat
 // Buku Tamu - Bisa diakses publik tanpa login
 Route::get('/buku-tamu', [BukuTamuController::class, 'create'])->name('form');
 Route::post('/buku-tamu', [BukuTamuController::class, 'store'])->name('store');
+
+
+Route::get('/pengaduan', [PengaduanController::class, 'create'])->name('pengaduan');
+Route::post('/pengaduan', [PengaduanController::class, 'store'])->name('pengaduan.store');
 
 
 
