@@ -4,6 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
 
     <title>PERPUSTAKAAN SMA NEGERI 1 CIRUAS</title>
     <!-- Scripts -->
@@ -319,6 +321,28 @@
             this.classList.add('hidden');
         });
     </script> --}}
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('/track-visit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Visit tracked:', data);
+                })
+                .catch(error => {
+                    console.error('Error tracking visit:', error);
+                });
+        });
+    </script>
+
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {

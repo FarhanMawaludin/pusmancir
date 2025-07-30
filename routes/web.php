@@ -66,6 +66,8 @@ Route::get('/informasi', function () {
     return view('informasi');
 })->name('informasi');
 
+Route::post('/track-visit', [DashboardAdminController::class, 'trackVisit']);
+
 // Admin
 Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardAdminController::class, 'index'])->name('dashboard.index');
