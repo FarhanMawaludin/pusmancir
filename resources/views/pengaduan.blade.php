@@ -109,7 +109,7 @@
         </div>
     </nav>
 
-    <div class="max-w-5xl mx-auto mt-40 bg-white border border-gray-300 rounded overflow-hidden">
+    <div class="max-w-5xl mx-auto mt-40 bg-white overflow-hidden">
         <div class="grid grid-cols-1 md:grid-cols-2">
 
             <!-- Kolom Kiri: Gambar -->
