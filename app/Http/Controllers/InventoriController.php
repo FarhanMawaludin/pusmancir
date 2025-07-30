@@ -731,7 +731,6 @@ class InventoriController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
         $rows = $sheet->toArray(null, true, true, true);
 
-        // Ambil isi baris kecuali header
         $data = array_slice($rows, 1);
 
         $sekolah = Sekolah::first();
@@ -747,9 +746,7 @@ class InventoriController extends Controller
         DB::beginTransaction();
 
         try {
-            $previousKey = null;
-            $currentInventori = null;
-            $jumlahEksemplarMap = [];
+            $inventoriMap = []; // key => ['inventori' => ..., 'count' => 0]
 
             foreach ($data as $index => $row) {
                 [$judul, $pengarang, $penerbitNama, $kategoriNama, $tanggalInput, $hargaStr, $jenisSumberNama, $noPanggil] = [
@@ -768,17 +765,17 @@ class InventoriController extends Controller
                 $tahun = date('Y', strtotime($tanggal));
                 $jenis = strtoupper(substr($jenisSumberNama, 0, 1));
 
-                // Relasi
-                $penerbit = Penerbit::firstOrCreate(['nama_penerbit' => $penerbitNama]);
-                $kategori = KategoriBuku::firstOrCreate(['nama_kategori' => $kategoriNama]);
-                $jenisSumber = JenisSumber::firstOrCreate(['nama_sumber' => $jenisSumberNama]);
+                // Normalisasi key
+                $key = strtolower($judul . '|' . $pengarang . '|' . $penerbitNama . '|' . $kategoriNama . '|' . $tanggal . '|' . $harga . '|' . $jenisSumberNama . '|' . $noPanggil);
 
-                // Normalisasi key (lowercase) untuk perbandingan
-                $normalizedKey = strtolower($judul . '|' . $pengarang . '|' . $penerbitNama . '|' . $kategoriNama . '|' . $tanggal . '|' . $harga . '|' . $jenisSumberNama . '|' . $noPanggil);
+                if (!isset($inventoriMap[$key])) {
+                    // Buat relasi
+                    $penerbit = Penerbit::firstOrCreate(['nama_penerbit' => $penerbitNama]);
+                    $kategori = KategoriBuku::firstOrCreate(['nama_kategori' => $kategoriNama]);
+                    $jenisSumber = JenisSumber::firstOrCreate(['nama_sumber' => $jenisSumberNama]);
 
-                // Jika berbeda dari sebelumnya (meskipun hanya beda kapital), buat inventori baru
-                if ($normalizedKey !== $previousKey) {
-                    $currentInventori = Inventori::create([
+                    // Buat inventori baru
+                    $inventori = Inventori::create([
                         'judul_buku'        => $judul,
                         'pengarang'         => $pengarang,
                         'id_penerbit'       => $penerbit->id,
@@ -787,14 +784,15 @@ class InventoriController extends Controller
                         'id_sekolah'        => $sekolah->id,
                         'tanggal_pembelian' => $tanggal,
                         'harga_satuan'      => $harga,
-                        'jumlah_eksemplar'  => 0, // Diupdate nanti
+                        'jumlah_eksemplar'  => 0,
                         'total_harga'       => 0,
                         'id_jenis_sumber'   => $jenisSumber->id,
                         'id_sumber'         => 1,
                     ]);
 
+                    // Buat katalog
                     Katalog::create([
-                        'id_inventori'   => $currentInventori->id,
+                        'id_inventori'   => $inventori->id,
                         'kategori_buku'  => $kategoriNama,
                         'judul_buku'     => $judul,
                         'pengarang'      => $pengarang,
@@ -802,19 +800,21 @@ class InventoriController extends Controller
                         'no_panggil'     => $noPanggil,
                     ]);
 
-                    $jumlahEksemplarMap[$normalizedKey] = [
-                        'inventori' => $currentInventori,
-                        'count' => 0,
+                    $inventoriMap[$key] = [
+                        'inventori' => $inventori,
+                        'count'     => 0,
                     ];
-
-                    $previousKey = $normalizedKey;
                 }
+
+                // Ambil inventori dari map
+                $inventoriData = &$inventoriMap[$key];
+                $inventori = $inventoriData['inventori'];
 
                 // Buat eksemplar
                 $noInduk = str_pad($noIndukCounter++, $pad, '0', STR_PAD_LEFT);
                 $noInventori = "{$noInduk}/{$kodeSekolah}/{$jenis}/{$tahun}";
 
-                $currentInventori->eksemplar()->create([
+                $inventori->eksemplar()->create([
                     'no_induk'     => $noInduk,
                     'no_inventori' => $noInventori,
                     'no_rfid'      => 'CRS-' . strtoupper(Str::random(6)),
@@ -822,14 +822,14 @@ class InventoriController extends Controller
                 ]);
 
                 // Tambahkan jumlah
-                $jumlahEksemplarMap[$normalizedKey]['count']++;
+                $inventoriData['count']++;
             }
 
-            // Update jumlah_eksemplar & total_harga
-            foreach ($jumlahEksemplarMap as $group) {
-                $group['inventori']->update([
-                    'jumlah_eksemplar' => $group['count'],
-                    'total_harga' => $group['count'] * $group['inventori']->harga_satuan,
+            // Update jumlah & total harga inventori
+            foreach ($inventoriMap as $entry) {
+                $entry['inventori']->update([
+                    'jumlah_eksemplar' => $entry['count'],
+                    'total_harga' => $entry['count'] * $entry['inventori']->harga_satuan,
                 ]);
             }
 
@@ -840,6 +840,7 @@ class InventoriController extends Controller
             return back()->with('error', 'Gagal import: ' . $e->getMessage());
         }
     }
+
 
 
     private function parseHarga($value)
