@@ -731,7 +731,7 @@ class InventoriController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
         $rows = $sheet->toArray(null, true, true, true);
 
-        // Ambil baris isi (tanpa header)
+        // Ambil isi baris kecuali header
         $data = array_slice($rows, 1);
 
         $sekolah = Sekolah::first();
@@ -773,11 +773,11 @@ class InventoriController extends Controller
                 $kategori = KategoriBuku::firstOrCreate(['nama_kategori' => $kategoriNama]);
                 $jenisSumber = JenisSumber::firstOrCreate(['nama_sumber' => $jenisSumberNama]);
 
-                // Buat key untuk cek apakah baris ini sama dengan sebelumnya
-                $currentKey = $judul . '|' . $pengarang . '|' . $penerbitNama . '|' . $kategoriNama . '|' . $tanggal . '|' . $harga . '|' . $jenisSumberNama . '|' . $noPanggil;
+                // Normalisasi key (lowercase) untuk perbandingan
+                $normalizedKey = strtolower($judul . '|' . $pengarang . '|' . $penerbitNama . '|' . $kategoriNama . '|' . $tanggal . '|' . $harga . '|' . $jenisSumberNama . '|' . $noPanggil);
 
-                // Jika beda dengan sebelumnya, buat inventori baru
-                if ($currentKey !== $previousKey) {
+                // Jika berbeda dari sebelumnya (meskipun hanya beda kapital), buat inventori baru
+                if ($normalizedKey !== $previousKey) {
                     $currentInventori = Inventori::create([
                         'judul_buku'        => $judul,
                         'pengarang'         => $pengarang,
@@ -787,13 +787,12 @@ class InventoriController extends Controller
                         'id_sekolah'        => $sekolah->id,
                         'tanggal_pembelian' => $tanggal,
                         'harga_satuan'      => $harga,
-                        'jumlah_eksemplar'  => 0,
+                        'jumlah_eksemplar'  => 0, // Diupdate nanti
                         'total_harga'       => 0,
                         'id_jenis_sumber'   => $jenisSumber->id,
                         'id_sumber'         => 1,
                     ]);
 
-                    // Katalog
                     Katalog::create([
                         'id_inventori'   => $currentInventori->id,
                         'kategori_buku'  => $kategoriNama,
@@ -803,9 +802,12 @@ class InventoriController extends Controller
                         'no_panggil'     => $noPanggil,
                     ]);
 
-                    // Simpan jumlah sementara
-                    $jumlahEksemplarMap[$currentKey] = 0;
-                    $previousKey = $currentKey;
+                    $jumlahEksemplarMap[$normalizedKey] = [
+                        'inventori' => $currentInventori,
+                        'count' => 0,
+                    ];
+
+                    $previousKey = $normalizedKey;
                 }
 
                 // Buat eksemplar
@@ -819,19 +821,16 @@ class InventoriController extends Controller
                     'status'       => 'tersedia',
                 ]);
 
-                // Tambahkan jumlah eksemplar untuk inventori ini
-                $jumlahEksemplarMap[$currentKey]++;
+                // Tambahkan jumlah
+                $jumlahEksemplarMap[$normalizedKey]['count']++;
             }
 
-            // Update jumlah dan total harga
-            foreach ($jumlahEksemplarMap as $key => $count) {
-                $inventori = Inventori::where('judul_buku', explode('|', $key)[0])->latest()->first();
-                if ($inventori) {
-                    $inventori->update([
-                        'jumlah_eksemplar' => $count,
-                        'total_harga' => $count * $inventori->harga_satuan,
-                    ]);
-                }
+            // Update jumlah_eksemplar & total_harga
+            foreach ($jumlahEksemplarMap as $group) {
+                $group['inventori']->update([
+                    'jumlah_eksemplar' => $group['count'],
+                    'total_harga' => $group['count'] * $group['inventori']->harga_satuan,
+                ]);
             }
 
             DB::commit();
@@ -841,7 +840,6 @@ class InventoriController extends Controller
             return back()->with('error', 'Gagal import: ' . $e->getMessage());
         }
     }
-
 
 
     private function parseHarga($value)
