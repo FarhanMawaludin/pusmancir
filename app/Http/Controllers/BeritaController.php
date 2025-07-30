@@ -202,7 +202,11 @@ class BeritaController extends Controller
 
     public function show($id)
     {
+        // Cari berita yang statusnya 'publish' dan id sesuai
         $berita = Berita::where('status', 'publish')->findOrFail($id);
+
+        // Increment jumlah views secara otomatis
+        $berita->increment('views');
 
         // Ambil 4 berita populer lainnya untuk ditampilkan di bawah
         $related = Berita::where('status', 'publish')

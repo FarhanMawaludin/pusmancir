@@ -14,8 +14,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $berita->judul }}">
     <meta name="twitter:description" content="{{ Str::limit(strip_tags($berita->isi), 150) }}">
-    <meta name="twitter:image"
-        content="{{ asset($berita->thumbnail) }}">
+    <meta name="twitter:image" content="{{ asset($berita->thumbnail) }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Berita - PERPUSTAKAAN SMA NEGERI 1 CIRUAS</title>
     <!-- Scripts -->
@@ -132,7 +131,28 @@
                 <div class="text-sm text-gray-500 flex items-center gap-4 mb-4">
                     <span><i class="far fa-calendar-alt"></i> {{ $berita->created_at->format('d M Y') }}</span>
                     <span><i class="far fa-user"></i> {{ $berita->penulis ?? 'Admin' }}</span>
+                    <span><i class="far fa-eye"></i> {{ $berita->views ?? 0 }} kali dilihat</span>
+
+                    {{-- Share Buttons --}}
+                    <a href="https://wa.me/?text={{ urlencode(route('berita.show', $berita->id)) }}" target="_blank"
+                        class="text-green-500 hover:text-green-600" title="Bagikan ke WhatsApp">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <path
+                                d="M20.5 3.5A11.5 11.5 0 0012 1C6.2 1 1.5 5.8 1.5 11.5c0 2 .6 3.9 1.7 5.6L1 23l6.2-2c1.6 1 3.5 1.6 5.4 1.6h.1c6.1 0 11.1-5 11.1-11.1 0-3-1.2-5.8-3.3-7.9zM12 21c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.7 1.2 1.2-3.6-.2-.3c-1-1.3-1.6-2.9-1.6-4.5C3 6.5 7.5 2 12.9 2 17.4 2 21 5.6 21 10.1S17.4 21 12 21zm5.3-6.6c-.3-.2-1.5-.7-1.7-.8-.2-.1-.3-.1-.5.1s-.6.8-.7 1c-.1.2-.3.2-.6.1-1.7-.8-2.9-1.6-4.1-3.7-.3-.6.3-.5.8-1.6.1-.2.1-.4 0-.6s-.5-1.1-.7-1.5c-.2-.5-.4-.4-.6-.4s-.3 0-.5 0c-.2 0-.5.1-.7.4-.2.2-.8.8-.8 2 0 1.1.8 2.2.9 2.4 1.1 1.8 2.6 3.1 4.5 3.9.6.2 1.1.4 1.5.5.6.2 1.1.1 1.5.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2z" />
+                        </svg>
+                    </a>
+
+                    <button onclick="copyToClipboard('{{ route('berita.show', $berita->id) }}')"
+                        class="text-blue-500 hover:text-blue-600" title="Salin link">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M16 8h2a2 2 0 012 2v8a2 2 0 01-2 2h-8a2 2 0 01-2-2v-2" />
+                        </svg>
+                    </button>
                 </div>
+
 
                 {{-- Isi Berita --}}
                 <div class="prose prose-lg max-w-none mb-12">
@@ -226,6 +246,16 @@
             Hanware &nbsp; · &nbsp; © 2025 · PUSMANCIR &nbsp;
         </div>
     </footer>
+
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Link berhasil disalin. Tempelkan di IG Story.');
+            }).catch(err => {
+                alert('Gagal menyalin: ' + err);
+            });
+        }
+    </script>
 </body>
 
 </html>

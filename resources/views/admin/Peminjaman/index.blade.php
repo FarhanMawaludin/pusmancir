@@ -141,6 +141,7 @@
                 <tr>
                     <th scope="col" class="px-6 py-3 w-43 md:w-12">No</th>
                     <th scope="col" class="px-6 py-3">Nama Peminjam</th>
+                    <th scope="col" class="px-6 py-3">Kelas</th>
                     <th scope="col" class="px-6 py-3">Judul Buku</th>
                     <th scope="col" class="px-6 py-3">Tanggal Pinjam</th>
                     <th scope="col" class="px-6 py-3">Tanggal Kembali</th>
@@ -163,6 +164,10 @@
                             <div class="font-medium md:text-base truncate md:whitespace-normal">
                                 {{ $pinjam->anggota->user->name ?? '-' }}
                             </div>
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {{ $peminjamanItem->anggota-> '-' }}
                         </td>
 
                         <td class="px-6 py-4">
