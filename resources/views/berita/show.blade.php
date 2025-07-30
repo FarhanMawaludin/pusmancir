@@ -131,7 +131,10 @@
                 <div class="text-sm text-gray-500 flex items-center gap-4 mb-4">
                     <span><i class="far fa-calendar-alt"></i> {{ $berita->created_at->format('d M Y') }}</span>
                     <span><i class="far fa-user"></i> {{ $berita->penulis ?? 'Admin' }}</span>
-                    <span><i class="far fa-eye"></i> {{ $berita->views ?? 0 }} kali dilihat</span>
+                    <span
+                        class="flex items-center gap-1 border border-gray-300 rounded-full px-2 py-1 bg-blue-700 text-white">
+                        <i class="far fa-eye"></i> {{ $berita->views ?? 0 }} kali dilihat
+                    </span>
 
                     {{-- Share Buttons --}}
                     <a href="https://wa.me/?text={{ urlencode(route('berita.show', $berita->id)) }}" target="_blank"
