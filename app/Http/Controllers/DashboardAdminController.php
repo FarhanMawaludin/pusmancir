@@ -204,8 +204,8 @@ class DashboardAdminController extends Controller
             'top10_kunjungan',
             'top10_peminjaman',
             'top10_buku',
-            // 'totalPengunjungHariIni',        // data pengunjung hari ini
-            // 'totalPengunjungKeseluruhan'     // data total pengunjung
+            'totalPengunjungHariIni',        // data pengunjung hari ini
+            'totalPengunjungKeseluruhan'     // data total pengunjung
         ));
     }
 }
