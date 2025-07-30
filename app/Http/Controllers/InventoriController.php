@@ -746,9 +746,9 @@ class InventoriController extends Controller
         DB::beginTransaction();
 
         try {
-            $inventoriMap = []; // key: judul lowercase => inventori
+            $inventoriMap = []; // key: strtolower(judul|pengarang) => inventori data
 
-            foreach ($data as $index => $row) {
+            foreach ($data as $row) {
                 // Ambil dan trim kolom
                 [$judul, $pengarang, $penerbitNama, $kategoriNama, $tanggalInput, $hargaStr, $jenisSumberNama, $noPanggil] = [
                     trim($row['A']),
@@ -764,14 +764,16 @@ class InventoriController extends Controller
                 // Lewati jika judul kosong
                 if ($judul === '') continue;
 
-                $judulKey = strtolower($judul); // pengelompokan hanya berdasar judul
+                // Key gabungan judul + pengarang (case-insensitive)
+                $inventoriKey = strtolower($judul . '|' . $pengarang);
+
                 $harga = $this->parseHarga($hargaStr);
                 $tanggal = $this->parseTanggal($tanggalInput);
                 $tahun = date('Y', strtotime($tanggal));
                 $jenis = strtoupper(substr($jenisSumberNama, 0, 1));
 
-                if (!isset($inventoriMap[$judulKey])) {
-                    // Buat entitas relasi jika belum ada
+                if (!isset($inventoriMap[$inventoriKey])) {
+                    // Buat entitas relasi
                     $penerbit = Penerbit::firstOrCreate(['nama_penerbit' => $penerbitNama]);
                     $kategori = KategoriBuku::firstOrCreate(['nama_kategori' => $kategoriNama]);
                     $jenisSumber = JenisSumber::firstOrCreate(['nama_sumber' => $jenisSumberNama]);
@@ -802,7 +804,7 @@ class InventoriController extends Controller
                         'no_panggil'     => $noPanggil,
                     ]);
 
-                    $inventoriMap[$judulKey] = [
+                    $inventoriMap[$inventoriKey] = [
                         'inventori' => $inventori,
                         'count' => 0,
                         'harga' => $harga,
@@ -810,10 +812,10 @@ class InventoriController extends Controller
                 }
 
                 // Ambil inventori dari map
-                $inventoriData = &$inventoriMap[$judulKey];
+                $inventoriData = &$inventoriMap[$inventoriKey];
                 $inventori = $inventoriData['inventori'];
 
-                // Buat eksemplar
+                // Buat eksemplar dengan nomor induk urut sesuai file
                 $noInduk = str_pad($noIndukCounter++, $pad, '0', STR_PAD_LEFT);
                 $noInventori = "{$noInduk}/{$kodeSekolah}/{$jenis}/{$tahun}";
 
@@ -827,7 +829,7 @@ class InventoriController extends Controller
                 $inventoriData['count']++;
             }
 
-            // Update jumlah dan total harga untuk setiap inventori
+            // Update jumlah_eksemplar dan total_harga per inventori
             foreach ($inventoriMap as $entry) {
                 $entry['inventori']->update([
                     'jumlah_eksemplar' => $entry['count'],
@@ -836,6 +838,7 @@ class InventoriController extends Controller
             }
 
             DB::commit();
+
             return back()->with('success', 'Import berhasil!');
         } catch (\Exception $e) {
             DB::rollBack();
