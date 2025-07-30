@@ -267,10 +267,10 @@
     </script>
 
     <script>
-        document.getElementById('generate-ddc').addEventListener('click', async function() {
+        document.getElementById('generate-ringkasan').addEventListener('click', async function() {
             const judul = document.getElementById('judul_buku_display').value;
             const pengarang = document.getElementById('pengarang_display').value;
-            const spinner = document.getElementById('spinner-ddc');
+            const spinner = document.getElementById('spinner-ringkasan');
             const button = this;
 
             // Tampilkan spinner & disable tombol
@@ -279,7 +279,7 @@
             button.classList.add('opacity-50', 'cursor-not-allowed');
 
             try {
-                const res = await fetch("{{ route('admin.katalog.generate-ddc') }}", {
+                const res = await fetch("{{ route('admin.katalog.generate-ringkasan') }}", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -293,15 +293,15 @@
 
                 const data = await res.json();
                 if (data.success) {
-                    document.getElementById('kode_ddc').value = data.kode_ddc;
-                    document.getElementById('no_panggil').value = data.no_panggil;
+                    document.getElementById('ringkasan_buku').value = data.ringkasan;
                 } else {
-                    alert("Gagal generate kode DDC.");
+                    alert("Gagal generate ringkasan.");
                 }
             } catch (error) {
                 console.error(error);
                 alert("Terjadi kesalahan saat menghubungi server.");
             } finally {
+                // Sembunyikan spinner & aktifkan tombol kembali
                 spinner.classList.add('hidden');
                 button.disabled = false;
                 button.classList.remove('opacity-50', 'cursor-not-allowed');
