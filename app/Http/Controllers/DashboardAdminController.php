@@ -9,8 +9,8 @@ use App\Models\Eksemplar;
 use App\Models\Inventori;
 use App\Models\BukuTamu;
 use App\Models\DetailPeminjaman;
+use App\Models\WebVisit;  // Jangan lupa import model ini
 use Illuminate\Support\Facades\DB;
-
 
 class DashboardAdminController extends Controller
 {
@@ -23,6 +23,13 @@ class DashboardAdminController extends Controller
         $totalJudulBuku = Inventori::count();
         $totalEksemplar = Eksemplar::count();
 
+        // --- Tambahan pengunjung manual dari web_visits ---
+        // Total pengunjung unik hari ini
+        $totalPengunjungHariIni = WebVisit::whereDate('created_at', now()->toDateString())->distinct('ip')->count('ip');
+
+        // Total pengunjung unik keseluruhan (bisa juga berdasarkan IP unik total)
+        $totalPengunjungKeseluruhan = WebVisit::distinct('ip')->count('ip');
+
         $years = collect(array_unique(array_merge(
             Peminjaman::selectRaw('YEAR(created_at) as year')->distinct()->pluck('year')->toArray(),
             BukuTamu::selectRaw('YEAR(created_at) as year')->distinct()->pluck('year')->toArray()
@@ -32,28 +39,14 @@ class DashboardAdminController extends Controller
         $selectedMonth = $request->input('month', 'all');
         $selectedDay = $request->input('day', 'all');
 
-        // Siapkan data bulan untuk dropdown
         $months = [
-            1 => 'Jan',
-            2 => 'Feb',
-            3 => 'Mar',
-            4 => 'Apr',
-            5 => 'Mei',
-            6 => 'Jun',
-            7 => 'Jul',
-            8 => 'Agu',
-            9 => 'Sep',
-            10 => 'Okt',
-            11 => 'Nov',
-            12 => 'Des'
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'Mei', 6 => 'Jun',
+            7 => 'Jul', 8 => 'Agu', 9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
         ];
 
-        // Siapkan array hari kosong untuk nanti diisi sesuai bulan & tahun
         $days = [];
 
-        // Ambil data berdasarkan filter
         if ($selectedYear === 'all') {
-            // Data per tahun
             $peminjamanData = Peminjaman::selectRaw('YEAR(created_at) as year, COUNT(*) as total')
                 ->whereIn('status', ['berhasil', 'selesai'])
                 ->groupBy('year')
@@ -72,8 +65,8 @@ class DashboardAdminController extends Controller
 
             $monthlyPengunjung = array_values($pengunjungData);
             $pengunjungLabels = array_keys($pengunjungData);
+
         } elseif ($selectedMonth === 'all') {
-            // Data per bulan di tahun tertentu
             $peminjamanRaw = Peminjaman::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
                 ->whereYear('created_at', $selectedYear)
                 ->whereIn('status', ['berhasil', 'selesai'])
@@ -100,10 +93,8 @@ class DashboardAdminController extends Controller
                 $monthlyPengunjung[] = $pengunjungRaw[$i] ?? 0;
             }
             $pengunjungLabels = array_values($months);
-        } else {
-            // Data per hari di bulan dan tahun tertentu
 
-            // Hitung jumlah hari di bulan tersebut
+        } else {
             $totalDays = cal_days_in_month(CAL_GREGORIAN, $selectedMonth, $selectedYear);
             for ($d = 1; $d <= $totalDays; $d++) {
                 $days[] = $d;
@@ -139,8 +130,6 @@ class DashboardAdminController extends Controller
             $pengunjungLabels = $days;
         }
 
-        // Tambahan top 10 data (jangan ubah kode yang sudah ada)
-        // Top 10 kunjungan tanpa kelas, karena kolom tidak ada
         $top10_kunjungan = DB::table('buku_tamu')
             ->select('nama', DB::raw('COUNT(*) as total_kunjungan'))
             ->whereNotNull('nama')
@@ -149,7 +138,6 @@ class DashboardAdminController extends Controller
             ->limit(10)
             ->get();
 
-        // Top 10 peminjam
         $top10_peminjaman = Peminjaman::select('anggota_id', DB::raw('COUNT(*) as total_peminjaman'))
             ->with(['anggota.user'])
             ->groupBy('anggota_id')
@@ -157,7 +145,6 @@ class DashboardAdminController extends Controller
             ->limit(10)
             ->get();
 
-        // Top 10 buku paling sering dipinjam
         $top10_buku = DetailPeminjaman::selectRaw('inventori.judul_buku, COUNT(*) as total_dipinjam')
             ->join('eksemplar', 'detail_peminjaman.eksemplar_id', '=', 'eksemplar.id')
             ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
@@ -165,7 +152,6 @@ class DashboardAdminController extends Controller
             ->orderByDesc('total_dipinjam')
             ->limit(10)
             ->get();
-
 
         return view('admin.dashboard', compact(
             'activeMenu',
@@ -185,7 +171,10 @@ class DashboardAdminController extends Controller
             'pengunjungLabels',
             'top10_kunjungan',
             'top10_peminjaman',
-            'top10_buku'
+            'top10_buku',
+            // Kirim data pengunjung manual ke view
+            'totalPengunjungHariIni',
+            'totalPengunjungKeseluruhan'
         ));
     }
 }

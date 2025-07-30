@@ -241,7 +241,12 @@
     
     </div>
     
-
+    <div class="bg-white rounded shadow p-4 mb-6">
+        <h3 class="text-lg font-semibold mb-2">Pengunjung Website</h3>
+        <p>Pengunjung unik hari ini: <strong>{{ $totalPengunjungHariIni }}</strong></p>
+        <p>Pengunjung unik total: <strong>{{ $totalPengunjungKeseluruhan }}</strong></p>
+    </div>
+    
 
 
 
