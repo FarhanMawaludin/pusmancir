@@ -15,25 +15,25 @@ use Illuminate\Support\Facades\DB;
 class DashboardAdminController extends Controller
 {
     // Fungsi untuk menyimpan data kunjungan manual
-    // public function trackVisit(Request $request)
-    // {
-    //     $ip = $request->ip();
+    public function trackVisit(Request $request)
+    {
+        $ip = $request->ip();
 
-    //     // Cek apakah IP ini sudah tercatat hari ini
-    //     $exists = WebVisit::where('ip', $ip)
-    //         ->whereDate('created_at', now()->toDateString())
-    //         ->exists();
+        // Cek apakah IP ini sudah tercatat hari ini
+        $exists = WebVisit::where('ip', $ip)
+            ->whereDate('created_at', now()->toDateString())
+            ->exists();
 
-    //     if (!$exists) {
-    //         WebVisit::create([
-    //             'ip' => $ip,
-    //             'user_agent' => $request->userAgent(),
-    //             'url' => $request->fullUrl(),
-    //         ]);
-    //     }
+        if (!$exists) {
+            WebVisit::create([
+                'ip' => $ip,
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl(),
+            ]);
+        }
 
-    //     return response()->json(['message' => 'Visit recorded']);
-    // }
+        return response()->json(['message' => 'Visit recorded']);
+    }
 
     public function index(Request $request)
     {
@@ -156,11 +156,11 @@ class DashboardAdminController extends Controller
         }
 
         // Tambahan: hitung jumlah pengunjung menggunakan WebVisit
-        // $totalPengunjungHariIni = WebVisit::whereDate('created_at', now()->toDateString())
-        //     ->distinct('ip')
-        //     ->count('ip');
+        $totalPengunjungHariIni = WebVisit::whereDate('created_at', now()->toDateString())
+            ->distinct('ip')
+            ->count('ip');
 
-        // $totalPengunjungKeseluruhan = WebVisit::distinct('ip')->count('ip');
+        $totalPengunjungKeseluruhan = WebVisit::distinct('ip')->count('ip');
 
         $top10_kunjungan = DB::table('buku_tamu')
             ->select('nama', DB::raw('COUNT(*) as total_kunjungan'))
