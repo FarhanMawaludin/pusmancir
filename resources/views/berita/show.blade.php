@@ -5,23 +5,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Meta untuk Sosial Media (Open Graph untuk WhatsApp, Facebook, dll) -->
-    <meta property="og:title" content="{{ $berita->judul }}">
-    <meta property="og:description" content="{{ Str::limit(strip_tags($berita->isi), 150) }}">
-    <meta property="og:image"
-        content="{{ $berita->thumbnail ? asset($berita->thumbnail) : 'https://source.unsplash.com/random/1200x630?news' }}">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:type" content="article">
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <!-- Twitter Card (untuk Twitter/X) -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $berita->judul }}">
-    <meta name="twitter:description" content="{{ Str::limit(strip_tags($berita->isi), 150) }}">
-    <meta name="twitter:image"
-        content="{{ $berita->thumbnail ? asset($berita->thumbnail) : 'https://source.unsplash.com/random/1200x630?news' }}">
+    @if (Request::segment(1) === null)
+        <!-- Beranda -->
+        <meta property="og:title" content="Perpustakaan SMAN 1 Ciruas">
+        <meta property="og:description" content="Selamat datang di Perpustakaan SMAN 1 Ciruas. Temukan buku-buku terbaik dan informasi literasi di sini.">
+        <meta property="og:image" content="{{ asset('logo-smancir.png') }}">
+        <meta property="og:url" content="{{ url('/') }}">
+        <meta property="og:type" content="website">
 
-    <title>{{ $berita->judul }} - PERPUSTAKAAN SMA NEGERI 1 CIRUAS</title>
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Perpustakaan SMAN 1 Ciruas">
+        <meta name="twitter:description" content="Selamat datang di Perpustakaan SMAN 1 Ciruas.">
+        <meta name="twitter:image" content="{{ asset('logo-smancir.png') }}">
+
+        <title>PERPUSTAKAAN SMA NEGERI 1 CIRUAS</title>
+
+    @elseif (Request::segment(1) === 'berita' && isset($berita))
+        <!-- Detail Berita -->
+        <meta property="og:title" content="{{ $berita->judul }}">
+        <meta property="og:description" content="{{ Str::limit(strip_tags($berita->isi), 150) }}">
+        <meta property="og:image" content="{{ $berita->thumbnail ? asset($berita->thumbnail) : 'https://source.unsplash.com/random/1200x630?news' }}">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta property="og:type" content="article">
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ $berita->judul }}">
+        <meta name="twitter:description" content="{{ Str::limit(strip_tags($berita->isi), 150) }}">
+        <meta name="twitter:image" content="{{ $berita->thumbnail ? asset($berita->thumbnail) : 'https://source.unsplash.com/random/1200x630?news' }}">
+
+        <title>{{ $berita->judul }} - PERPUSTAKAAN SMA NEGERI 1 CIRUAS</title>
+
+    @else
+        <!-- Fallback -->
+        <meta property="og:title" content="Perpustakaan SMAN 1 Ciruas">
+        <meta property="og:description" content="Kunjungi koleksi dan berita terbaru dari Perpustakaan SMAN 1 Ciruas.">
+        <meta property="og:image" content="{{ asset('logo-smancir.png') }}">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta property="og:type" content="website">
+
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Perpustakaan SMAN 1 Ciruas">
+        <meta name="twitter:description" content="Kunjungi koleksi dan berita terbaru dari Perpustakaan SMAN 1 Ciruas.">
+        <meta name="twitter:image" content="{{ asset('logo-smancir.png') }}">
+
+        <title>PERPUSTAKAAN SMA NEGERI 1 CIRUAS</title>
+    @endif
 
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('logo-smancir.png') }}" type="image/png">
@@ -29,6 +59,7 @@
     <!-- CSS & JS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 
 
 <body class="bg-white text-text">
