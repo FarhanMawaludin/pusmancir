@@ -5,6 +5,20 @@
         <h1 class="text-2xl font-bold text-text">Data eksemplar</h1>
     </div>
 
+    <form method="GET" action="{{ route('admin.eksemplar.index') }}" class="flex items-center gap-3 mb-4">
+        <input type="text" name="search" placeholder="Cari judul atau pengarang..." value="{{ request('search') }}"
+            class="border border-gray-300 rounded px-4 py-1.5 text-sm">
+
+        <select name="sort" class="border border-gray-300 rounded px-3 py-1.5 text-sm">
+            <option value="asc" {{ request('sort') == 'asc' ? 'selected' : '' }}>A - Z</option>
+            <option value="desc" {{ request('sort') == 'desc' ? 'selected' : '' }}>Z - A</option>
+        </select>
+
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-sm">
+            Filter
+        </button>
+    </form>
+
     <div class="overflow-x-auto relative rounded border border-gray-200">
         <form action="{{ route('admin.eksemplar.cetak-batch') }}" method="POST" target="_blank">
             @csrf

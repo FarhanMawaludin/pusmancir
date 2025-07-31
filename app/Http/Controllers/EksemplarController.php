@@ -17,30 +17,37 @@ class EksemplarController extends Controller
 
         $search = $request->input('search');
         $category = $request->input('category', 'all');
+        $sort = $request->input('sort', 'asc'); // default ASC
 
+        // Validasi sort hanya asc atau desc
+        if (!in_array($sort, ['asc', 'desc'])) {
+            $sort = 'asc';
+        }
+
+        // Query awal
         $query = Eksemplar::with('inventori')
-            ->orderBy('no_induk', 'desc')
-            ->orderBy('created_at', 'desc');
-
-
-        if ($search) {
-            $query->whereHas('inventori', function ($q) use ($search) {
-                $q->where('judul_buku', 'like', "%{$search}%")
-                    ->orWhere('pengarang', 'like', "%{$search}%");
-            });
-        }
-
-        if ($category !== 'all') {
-            $query->where('id_kategori_buku', $category);
-        }
+            ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id') // Join untuk sort
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($subQuery) use ($search) {
+                    $subQuery->where('inventori.judul_buku', 'like', "%{$search}%")
+                        ->orWhere('inventori.pengarang', 'like', "%{$search}%");
+                });
+            })
+            ->when($category !== 'all', function ($q) use ($category) {
+                $q->where('eksemplars.id_kategori_buku', $category);
+            })
+            ->orderBy('inventori.judul_buku', $sort)
+            ->select('eksemplar.*');
 
         $eksemplar = $query->paginate(10)->appends([
             'search' => $search,
             'category' => $category,
+            'sort' => $sort,
         ]);
 
-        return view('admin.eksemplar.index', compact('eksemplar', 'activeMenu', 'search', 'category'));
+        return view('admin.eksemplar.index', compact('eksemplar', 'activeMenu', 'search', 'category', 'sort'));
     }
+
 
     public function cetakBarcode($id)
     {
