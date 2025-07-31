@@ -170,33 +170,53 @@
                 @endif
 
                 {{-- Meta Info --}}
-                <div class="text-sm text-gray-500 flex items-center gap-4 mb-4">
-                    <span><i class="far fa-calendar-alt"></i> {{ $berita->created_at->format('d M Y') }}</span>
-                    <span><i class="far fa-user"></i> {{ $berita->penulis ?? 'Admin' }}</span>
-                    <span
-                        class="flex items-center gap-1 border border-gray-300 rounded-full px-2 py-1 bg-blue-700 text-white">
-                        <i class="far fa-eye"></i> {{ $berita->views ?? 0 }} kali dilihat
+                <div class="text-sm text-gray-500 flex flex-wrap items-start gap-2 sm:gap-4 mb-4">
+                    <!-- Info Tanggal -->
+                    <span class="flex items-center gap-1">
+                        <i class="far fa-calendar-alt"></i>
+                        {{ $berita->created_at->format('d M Y') }}
                     </span>
-
-                    {{-- Share Buttons --}}
-                    <a href="https://api.whatsapp.com/send?text={{ urlencode(route('berita.show', $berita->id)) }}"
-                        target="_blank" class="text-green-500 hover:text-green-600" title="Bagikan ke WhatsApp">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"
-                            fill="currentColor">
-                            <path
-                                d="M20.5 3.5A11.5 11.5 0 0012 1C6.2 1 1.5 5.8 1.5 11.5c0 2 .6 3.9 1.7 5.6L1 23l6.2-2c1.6 1 3.5 1.6 5.4 1.6h.1c6.1 0 11.1-5 11.1-11.1 0-3-1.2-5.8-3.3-7.9zM12 21c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.7 1.2 1.2-3.6-.2-.3c-1-1.3-1.6-2.9-1.6-4.5C3 6.5 7.5 2 12.9 2 17.4 2 21 5.6 21 10.1S17.4 21 12 21zm5.3-6.6c-.3-.2-1.5-.7-1.7-.8-.2-.1-.3-.1-.5.1s-.6.8-.7 1c-.1.2-.3.2-.6.1-1.7-.8-2.9-1.6-4.1-3.7-.3-.6.3-.5.8-1.6.1-.2.1-.4 0-.6s-.5-1.1-.7-1.5c-.2-.5-.4-.4-.6-.4s-.3 0-.5 0c-.2 0-.5.1-.7.4-.2.2-.8.8-.8 2 0 1.1.8 2.2.9 2.4 1.1 1.8 2.6 3.1 4.5 3.9.6.2 1.1.4 1.5.5.6.2 1.1.1 1.5.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2z" />
-                        </svg>
-                    </a>
-
-                    <button onclick="copyToClipboard('{{ route('berita.show', $berita->id) }}')"
-                        class="text-blue-500 hover:text-blue-600" title="Salin link">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M16 8h2a2 2 0 012 2v8a2 2 0 01-2 2h-8a2 2 0 01-2-2v-2" />
-                        </svg>
-                    </button>
+                
+                    <!-- Info Penulis -->
+                    <span class="flex items-center gap-1">
+                        <i class="far fa-user"></i>
+                        {{ $berita->penulis ?? 'Admin' }}
+                    </span>
+                
+                    <!-- Info Dilihat -->
+                    <span class="flex items-center gap-1 border border-gray-300 rounded-full px-2 py-1 bg-blue-700 text-white">
+                        <i class="far fa-eye"></i>
+                        {{ $berita->views ?? 0 }} kali dilihat
+                    </span>
+                
+                    <!-- Share Buttons dibungkus agar bisa ke bawah di mobile -->
+                    <div class="w-full flex gap-2 sm:w-auto sm:ml-auto">
+                        <!-- WhatsApp -->
+                        <a href="https://api.whatsapp.com/send?text={{ urlencode(route('berita.show', $berita->id)) }}"
+                            target="_blank"
+                            class="text-green-500 hover:text-green-600 flex items-center gap-1"
+                            title="Bagikan ke WhatsApp">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M20.5 3.5A11.5 11.5 0 0012 1C6.2 1 1.5 5.8 1.5 11.5c0 2 .6 3.9 1.7 5.6L1 23l6.2-2c1.6 1 3.5 1.6 5.4 1.6h.1c6.1 0 11.1-5 11.1-11.1 0-3-1.2-5.8-3.3-7.9zM12 21c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.7 1.2 1.2-3.6-.2-.3c-1-1.3-1.6-2.9-1.6-4.5C3 6.5 7.5 2 12.9 2 17.4 2 21 5.6 21 10.1S17.4 21 12 21zm5.3-6.6c-.3-.2-1.5-.7-1.7-.8-.2-.1-.3-.1-.5.1s-.6.8-.7 1c-.1.2-.3.2-.6.1-1.7-.8-2.9-1.6-4.1-3.7-.3-.6.3-.5.8-1.6.1-.2.1-.4 0-.6s-.5-1.1-.7-1.5c-.2-.5-.4-.4-.6-.4s-.3 0-.5 0c-.2 0-.5.1-.7.4-.2.2-.8.8-.8 2 0 1.1.8 2.2.9 2.4 1.1 1.8 2.6 3.1 4.5 3.9.6.2 1.1.4 1.5.5.6.2 1.1.1 1.5.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2z" />
+                            </svg>
+                            WhatsApp
+                        </a>
+                
+                        <!-- Copy Button -->
+                        <button onclick="copyToClipboard('{{ route('berita.show', $berita->id) }}')"
+                            class="text-blue-500 hover:text-blue-600 flex items-center gap-1"
+                            title="Salin link">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M16 8h2a2 2 0 012 2v8a2 2 0 01-2 2h-8a2 2 0 01-2-2v-2" />
+                            </svg>
+                            Salin
+                        </button>
+                    </div>
                 </div>
+                
 
 
                 {{-- Isi Berita --}}

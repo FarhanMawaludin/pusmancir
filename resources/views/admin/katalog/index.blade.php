@@ -34,7 +34,7 @@
                             </button>
                         </li>
                         <li>
-                            <button type="button" data-value="judul"
+                            <button type="button" data-value="judul_buku"
                                 class="category-btn w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
                                 Judul Buku
                             </button>

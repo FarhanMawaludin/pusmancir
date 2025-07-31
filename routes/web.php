@@ -283,6 +283,10 @@ Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('adm
     Route::get('/admin/laporan-peminjaman/paket/export', [PeminjamanPaketController::class, 'exportLaporanPaketExcel'])->name('laporan.exportPaket');
     Route::get('/laporan-peminjaman/non-paket', [PeminjamanController::class, 'laporanPeminjamanNonPaket'])->name('laporan.non-paket');
     Route::get('/admin/laporan-peminjaman/non-paket/export', [PeminjamanController::class, 'exportLaporanNonPaketExcel'])->name('laporan.exportNonPaket');
+
+    //PENGADUAN
+    Route::get('/pengaduan', [PengaduanController::class, 'index'])->name('pengaduan.index');
+    Route::get('/pengaduan/{id}', [PengaduanController::class, 'show'])->name('pengaduan.show');
 });
 
 // Cek anggota berdasarkan NISN

@@ -20,11 +20,14 @@
             height: 21.5cm;
             padding: 0.2cm 0.5cm;
             box-sizing: border-box;
+
             display: grid;
             grid-template-columns: repeat(2, 8cm);
             grid-template-rows: repeat(5, 4cm);
             column-gap: 0.5cm;
             row-gap: 0.2cm;
+
+            page-break-after: always; /* agar tiap sheet cetak di halaman baru */
         }
 
         .label {
@@ -193,71 +196,77 @@
 </head>
 
 <body>
-    <div class="sheet">
-        {{-- Kosong awal jika diperlukan --}}
-        @for ($i = 0; $i < $kosongAwal; $i++)
-            <div class="label"></div>
-        @endfor
+    @php
+        // Memecah eksemplarList jadi chunks 10 per halaman
+        $chunkedEksemplar = $eksemplarList->chunk(10);
+    @endphp
 
-        {{-- Isi label --}}
-        @foreach ($eksemplarList as $eksemplar)
-            @php
-                $generator = new \Picqer\Barcode\BarcodeGeneratorPNG();
-                $barcode = base64_encode($generator->getBarcode($eksemplar->no_rfid, $generator::TYPE_CODE_128));
-            @endphp
+    @foreach ($chunkedEksemplar as $chunkIndex => $chunk)
+        <div class="sheet">
+            {{-- Kosong awal hanya untuk halaman pertama --}}
+            @if ($chunkIndex === 0)
+                @for ($i = 0; $i < $kosongAwal; $i++)
+                    <div class="label"></div>
+                @endfor
+            @endif
 
-            <div class="label">
-                <div class="label-columns">
-                    {{-- Kolom Kiri --}}
-                    <div class="left-column">
-                        <div class="label-top">
-                            <div class="top-left">
-                                <img class="logo" src="{{ asset('/logo-banten.png') }}" alt="Logo Banten">
-                                <img class="logo" src="{{ asset('/logo-smancir.png') }}" alt="Logo Smancir">
-                                <div class="header-text">
-                                    <strong>PUSMANCIR</strong><br>
-                                    Perpustakaan SMAN 1 Ciruas<br>
-                                    NPP: <strong>3604091E1000002</strong>
+            @foreach ($chunk as $eksemplar)
+                @php
+                    $generator = new \Picqer\Barcode\BarcodeGeneratorPNG();
+                    $barcode = base64_encode($generator->getBarcode($eksemplar->no_rfid, $generator::TYPE_CODE_128));
+
+                    $noPanggil = optional($eksemplar->inventori->katalog->first())->no_panggil ?? '-';
+                    $firstDigit = is_numeric($noPanggil[0]) ? $noPanggil[0] : null;
+                    $colorClass = match ($firstDigit) {
+                        '0' => 'bg-pink-dark',
+                        '1' => 'bg-light',
+                        '2' => 'bg-orange-dark',
+                        '3' => 'bg-green-light',
+                        '4' => 'bg-white',
+                        '5' => 'bg-navy',
+                        '6' => 'bg-yellow-light',
+                        '7' => 'bg-orange-light',
+                        '8' => 'bg-pink-light',
+                        '9' => 'bg-green-light',
+                        default => 'bg-default',
+                    };
+                @endphp
+
+                <div class="label">
+                    <div class="label-columns">
+                        {{-- Kolom Kiri --}}
+                        <div class="left-column">
+                            <div class="label-top">
+                                <div class="top-left">
+                                    <img class="logo" src="{{ asset('/logo-banten.png') }}" alt="Logo Banten">
+                                    <img class="logo" src="{{ asset('/logo-smancir.png') }}" alt="Logo Smancir">
+                                    <div class="header-text">
+                                        <strong>PUSMANCIR</strong><br>
+                                        Perpustakaan SMAN 1 Ciruas<br>
+                                        NPP: <strong>3604091E1000002</strong>
+                                    </div>
                                 </div>
+                            </div>
+
+                            <div class="label-content">
+                                <p><strong>{{ Str::limit($eksemplar->inventori->judul_buku, 25) }}</strong></p>
+                                <p>{{ $eksemplar->no_induk }}</p>
+                                <img class="barcode" src="data:image/png;base64,{{ $barcode }}" alt="Barcode">
+                                <p>{{ $eksemplar->no_rfid }}</p>
                             </div>
                         </div>
 
-                        <div class="label-content">
-                            <p><strong>{{ Str::limit($eksemplar->inventori->judul_buku, 25) }}</strong></p>
-                            <p>{{ $eksemplar->no_induk }}</p>
-                            <img class="barcode" src="data:image/png;base64,{{ $barcode }}" alt="Barcode">
-                            <p>{{ $eksemplar->no_rfid }}</p>
-                        </div>
-                    </div>
-
-                    {{-- Kolom Kanan --}}
-                    @php
-                        $noPanggil = optional($eksemplar->inventori->katalog->first())->no_panggil ?? '-';
-                        $firstDigit = is_numeric($noPanggil[0]) ? $noPanggil[0] : null;
-                        $colorClass = match ($firstDigit) {
-                            '0' => 'bg-pink-dark',
-                            '1' => 'bg-light',
-                            '2' => 'bg-orange-dark',
-                            '3' => 'bg-green-light',
-                            '4' => 'bg-white',
-                            '5' => 'bg-navy',
-                            '6' => 'bg-yellow-light',
-                            '7' => 'bg-orange-light',
-                            '8' => 'bg-pink-light',
-                            '9' => 'bg-green-light',
-                            default => 'bg-default',
-                        };
-                    @endphp
-
-                    <div class="right-column {{ $colorClass }}">
-                        <div class="no-panggil">
-                            {{ $noPanggil }}
+                        {{-- Kolom Kanan --}}
+                        <div class="right-column {{ $colorClass }}">
+                            <div class="no-panggil">
+                                {{ $noPanggil }}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        @endforeach
-    </div>
+            @endforeach
+        </div>
+    @endforeach
 
     <script>
         window.print();

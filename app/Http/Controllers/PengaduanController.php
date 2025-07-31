@@ -25,4 +25,18 @@ class PengaduanController extends Controller
 
         return redirect()->route('pengaduan')->with('success', 'Pengaduan berhasil dikirim.');
     }
+
+    public function index()
+    {
+        $activeMenu = 'pengaduan';
+        $pengaduans = Pengaduan::orderBy('created_at', 'desc')->paginate(10);  // paginate 10
+        return view('admin.pengaduan.index', compact('activeMenu', 'pengaduans'));
+    }
+
+    public function show($id)
+    {
+        $activeMenu = 'pengaduan';
+        $pengaduan = Pengaduan::findOrFail($id);
+        return view('admin.pengaduan.show', compact('pengaduan', 'activeMenu'));
+    }
 }

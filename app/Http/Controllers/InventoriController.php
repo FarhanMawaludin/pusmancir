@@ -300,11 +300,10 @@ class InventoriController extends Controller
     /**
      * Export laporan inventori per eksemplar (dengan kolom Jumlah Judul & Jumlah Eksemplar di paling kanan).
      */
-    public function export()
+
+     public function export()
     {
-        /* =============================================================
-         * 1. Ambil data inventori + eksemplar
-         * ===========================================================*/
+        // Ambil data dari DB dengan join
         $data = DB::table('eksemplar')
             ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
             ->join('sekolah',   'inventori.id_sekolah',  '=', 'sekolah.id')
@@ -328,16 +327,12 @@ class InventoriController extends Controller
             ->orderBy('eksemplar.no_induk')
             ->get();
 
-        /* =============================================================
-         * 2. Inisialisasi Spreadsheet
-         * ===========================================================*/
+        // Setup spreadsheet
         $spreadsheet = new Spreadsheet();
         $sheet       = $spreadsheet->getActiveSheet();
 
-        /* =============================================================
-         * 3. Logo + Kop Surat
-         * ===========================================================*/
-        $logoPath = public_path('logo-smancir.png');            // JANGAN DIHILANGKAN
+        // Tambahkan logo jika ada
+        $logoPath = public_path('logo-smancir.png');
         if (file_exists($logoPath)) {
             $drawing = new Drawing();
             $drawing->setName('Logo')
@@ -348,13 +343,12 @@ class InventoriController extends Controller
                 ->setOffsetX(10)
                 ->setWorksheet($sheet);
 
-            // Tinggi baris kop
             for ($i = 2; $i <= 6; $i++) {
                 $sheet->getRowDimension($i)->setRowHeight(20);
             }
         }
 
-        // Teks kop
+        // Header info instansi
         $sheet->mergeCells('C1:M1')->setCellValue('C1', 'PEMERINTAH PROVINSI BANTEN');
         $sheet->mergeCells('C2:M2')->setCellValue('C2', 'DINAS PENDIDIKAN DAN KEBUDAYAAN');
         $sheet->mergeCells('C3:M3')->setCellValue('C3', 'UPT SMA NEGERI 1 CIRUAS');
@@ -363,43 +357,27 @@ class InventoriController extends Controller
         $sheet->mergeCells('A7:M7')->setCellValue('A7', 'BUKU INVENTARIS/INDUK');
 
         $sheet->getStyle('C1:C5')->applyFromArray([
-            'font'      => ['bold' => true, 'size' => 12],
+            'font' => ['bold' => true, 'size' => 12],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
         $sheet->getStyle('A7')->applyFromArray([
-            'font'      => ['bold' => true, 'size' => 11],
+            'font' => ['bold' => true, 'size' => 11],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
         ]);
         $sheet->getStyle('A5:M5')->applyFromArray([
             'borders' => [
-                'bottom' => [
-                    'borderStyle' => Border::BORDER_MEDIUM,
-                    'color'       => ['rgb' => '000000'],
-                ],
+                'bottom' => ['borderStyle' => Border::BORDER_MEDIUM],
             ],
         ]);
 
-        /* =============================================================
-         * 4. Header Tabel (kolom L & M = Jumlah Judul & Jumlah Eksemplar)
-         * ===========================================================*/
+        // Header kolom
         $headers = [
-            'No',
-            'No Induk',
-            'No Inventori',
-            'Judul Buku',
-            'Pengarang',
-            'Penerbit',
-            'Kategori',
-            'Tanggal Pembelian',
-            'Harga Satuan',
-            'Jenis Sumber',
-            'No Panggil',
-            'Jumlah Judul',          // L
-            'Jumlah Eksemplar'       // M
+            'No', 'No Induk', 'No Inventori', 'Judul Buku', 'Pengarang', 'Penerbit',
+            'Kategori', 'Tanggal Pembelian', 'Harga Satuan', 'Jenis Sumber', 'No Panggil',
+            'Jumlah Judul', 'Jumlah Eksemplar'
         ];
-        $startRow = 9;
-        $sheet->fromArray($headers, null, "A{$startRow}");
 
+        // Style header dan cell
         $headerStyle = [
             'font' => ['bold' => true, 'name' => 'Calibri', 'size' => 11],
             'alignment' => [
@@ -408,18 +386,14 @@ class InventoriController extends Controller
                 'wrapText'   => true,
             ],
             'fill' => [
-                'fillType'   => Fill::FILL_SOLID,
+                'fillType' => Fill::FILL_SOLID,
                 'startColor' => ['rgb' => 'BDD7EE'],
             ],
             'borders' => [
                 'allBorders' => ['borderStyle' => Border::BORDER_THIN],
             ],
         ];
-        $sheet->getStyle("A{$startRow}:M{$startRow}")->applyFromArray($headerStyle);
 
-        /* =============================================================
-         * 5. Isi Data
-         * ===========================================================*/
         $cellStyle = [
             'font' => ['name' => 'Calibri', 'size' => 11],
             'alignment' => [
@@ -432,68 +406,97 @@ class InventoriController extends Controller
             ],
         ];
 
-        $grouped        = collect($data)->groupBy('id_inventori');
-        $row            = $startRow + 1;
-        $no             = 1;
-        $totalJudul     = 0;
-        $totalEksemplar = 0;
+        // Inisialisasi variabel batch
+        $row = 9;
+        $no = 1;
+        $grandTotalJudul = 0;
+        $grandTotalEksemplar = 0;
+        $batchEksemplar = 0;
+        $rowsInBatch = 0;
+        $batchSize = 15;
+        $judulTerhitung = [];
+
+        // Group data berdasarkan id_inventori agar mudah hitung judul unik
+        $grouped = collect($data)->groupBy('id_inventori');
 
         foreach ($grouped as $group) {
-            $jumlahBaris = $group->count();      // eksemplar per judul
-            $totalJudul++;
-            $totalEksemplar += $jumlahBaris;
+            $jumlahBaris = $group->count();
+            $grandTotalJudul++;
+            $grandTotalEksemplar += $jumlahBaris;
 
             foreach ($group as $item) {
+                // Tampilkan header tiap batch baru
+                if ($rowsInBatch === 0) {
+                    $sheet->fromArray($headers, null, "A{$row}");
+                    $sheet->getStyle("A{$row}:M{$row}")->applyFromArray($headerStyle);
+                    $row++;
+                }
+
+                // Isi data baris
                 $sheet->fromArray([
-                    $no,
-                    $item->no_induk,
-                    $item->no_inventori,
-                    $item->judul_buku,
-                    $item->pengarang,
-                    $item->nama_penerbit,
-                    $item->nama_kategori,
-                    $item->tanggal_pembelian,
-                    'Rp. ' . number_format($item->harga_satuan, 0, ',', '.'),
-                    $item->jenis_sumber,
-                    $item->no_panggil,
-                    '',   // L (Jumlah Judul)
-                    '',   // M (Jumlah Eksemplar)
+                    $no++, $item->no_induk, $item->no_inventori, $item->judul_buku, $item->pengarang,
+                    $item->nama_penerbit, $item->nama_kategori, $item->tanggal_pembelian,
+                    'Rp. ' . number_format($item->harga_satuan, 0, ',', '.'), $item->jenis_sumber,
+                    $item->no_panggil, '', ''
                 ], null, "A{$row}");
-
                 $sheet->getStyle("A{$row}:M{$row}")->applyFromArray($cellStyle);
+
+                // Simpan id inventori untuk hitung jumlah judul per batch
+                $judulTerhitung[$item->id_inventori] = true;
+
                 $row++;
-                $no++;
-            }
+                $rowsInBatch++;
+                $batchEksemplar++;
 
-            /* ===== Merge & Isi kolom L & M ===== */
-            $mergeStart = $row - $jumlahBaris;
+                // Jika batch penuh, tampilkan subtotal dan reset
+                if ($rowsInBatch === $batchSize) {
+                    $jumlahJudulBatch = count($judulTerhitung);
 
-            // L = Jumlah Judul (selalu 1)
-            $sheet->setCellValue("L{$mergeStart}", 1);
-            if ($jumlahBaris > 1) {
-                $sheet->mergeCells("L{$mergeStart}:L" . ($mergeStart + $jumlahBaris - 1));
-            }
-            $sheet->getStyle("L{$mergeStart}")->getAlignment()
-                ->setHorizontal(Alignment::HORIZONTAL_CENTER)
-                ->setVertical(Alignment::VERTICAL_CENTER);
+                    $sheet->setCellValue("K{$row}", 'Subtotal');
+                    $sheet->setCellValue("L{$row}", $jumlahJudulBatch);
+                    $sheet->setCellValue("M{$row}", $batchEksemplar);
+                    $sheet->getStyle("K{$row}:M{$row}")->applyFromArray([
+                        'font' => ['bold' => true],
+                        'alignment' => [
+                            'horizontal' => Alignment::HORIZONTAL_CENTER,
+                            'vertical'   => Alignment::VERTICAL_CENTER,
+                        ],
+                        'borders' => [
+                            'allBorders' => ['borderStyle' => Border::BORDER_THIN],
+                        ],
+                    ]);
 
-            // M = Jumlah Eksemplar
-            $sheet->setCellValue("M{$mergeStart}", $jumlahBaris);
-            if ($jumlahBaris > 1) {
-                $sheet->mergeCells("M{$mergeStart}:M" . ($mergeStart + $jumlahBaris - 1));
+                    $row += 3; // Spasi 2 baris kosong sebelum header baru
+                    $rowsInBatch = 0;
+                    $batchEksemplar = 0;
+                    $judulTerhitung = [];
+                }
             }
-            $sheet->getStyle("M{$mergeStart}")->getAlignment()
-                ->setHorizontal(Alignment::HORIZONTAL_CENTER)
-                ->setVertical(Alignment::VERTICAL_CENTER);
         }
 
-        /* =============================================================
-         * 6. Baris Total
-         * ===========================================================*/
-        $sheet->setCellValue("K{$row}", 'TOTAL');
-        $sheet->setCellValue("L{$row}", $totalJudul);
-        $sheet->setCellValue("M{$row}", $totalEksemplar);
+        // Jika masih ada sisa batch yang belum ditotal
+        if ($rowsInBatch > 0) {
+            $jumlahJudulBatch = count($judulTerhitung);
+            $sheet->setCellValue("K{$row}", 'Subtotal');
+            $sheet->setCellValue("L{$row}", $jumlahJudulBatch);
+            $sheet->setCellValue("M{$row}", $batchEksemplar);
+            $sheet->getStyle("K{$row}:M{$row}")->applyFromArray([
+                'font' => ['bold' => true],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical'   => Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => ['borderStyle' => Border::BORDER_THIN],
+                ],
+            ]);
+            $row += 3;
+        }
 
+        // Total keseluruhan
+        $sheet->setCellValue("K{$row}", 'TOTAL');
+        $sheet->setCellValue("L{$row}", $grandTotalJudul);
+        $sheet->setCellValue("M{$row}", $grandTotalEksemplar);
         $sheet->getStyle("K{$row}:M{$row}")->applyFromArray([
             'font' => ['bold' => true],
             'alignment' => [
@@ -505,17 +508,13 @@ class InventoriController extends Controller
             ],
         ]);
 
-        /* =============================================================
-         * 7. Auto‑size kolom
-         * ===========================================================*/
+        // Autosize kolom A sampai M
         foreach (range('A', 'M') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        /* =============================================================
-         * 8. Export ke XLSX
-         * ===========================================================*/
-        $writer   = new Xlsx($spreadsheet);
+        // Generate file Excel dan kirim response
+        $writer = new Xlsx($spreadsheet);
         $filename = 'laporan-inventori-per-eksemplar.xlsx';
 
         ob_start();
@@ -523,10 +522,12 @@ class InventoriController extends Controller
         $excelOutput = ob_get_clean();
 
         return response($excelOutput, 200, [
-            'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
+
+     
 
     // public function import(Request $request)
     // {

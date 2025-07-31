@@ -10,18 +10,33 @@
             class="border border-gray-300 rounded px-4 py-1.5 text-sm">
 
         <select name="sort" class="border border-gray-300 rounded px-3 py-1.5 text-sm">
-            <option value="asc" {{ request('sort') == 'asc' ? 'selected' : '' }}>A - Z</option>
-            <option value="desc" {{ request('sort') == 'desc' ? 'selected' : '' }}>Z - A</option>
+            <option value="no_induk_asc" {{ request('sort', 'no_induk_asc') == 'no_induk_asc' ? 'selected' : '' }}>
+                No Induk Asc
+            </option>
+            <option value="judul_asc" {{ request('sort') == 'judul_asc' ? 'selected' : '' }}>
+                Judul A - Z
+            </option>
+            <option value="judul_desc" {{ request('sort') == 'judul_desc' ? 'selected' : '' }}>
+                Judul Z - A
+            </option>
         </select>
+        <input type="date" name="tanggal" value="{{ request('tanggal') }}"
+            class="border border-gray-300 rounded px-2 py-1.5 text-sm">
 
         <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-sm">
             Filter
         </button>
+
+        
+
     </form>
+
 
     <div class="overflow-x-auto relative rounded border border-gray-200">
         <form action="{{ route('admin.eksemplar.cetak-batch') }}" method="POST" target="_blank">
             @csrf
+            <input type="hidden" name="search" value="{{ request('search') }}">
+            <input type="hidden" name="sort" value="{{ request('sort') }}">
 
             <table class="min-w-full text-sm text-left text-text">
                 <thead class="text-xs uppercase bg-gray-100 text-text">
@@ -106,27 +121,29 @@
                             focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                     </div>
 
-                    <!-- Dari No. Induk -->
+                    <!-- Dari Baris Ke -->
                     <div>
-                        <label for="start_induk" class="block text-sm font-medium text-gray-700">
-                            Dari No. Induk
+                        <label for="start_row" class="block text-sm font-medium text-gray-700">
+                            Dari Baris Ke
                         </label>
-                        <input type="number" name="start_induk" id="start_induk"
+                        <input type="number" name="start_row" id="start_row" min="1"
                             class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
-                        border border-gray-300 placeholder:text-gray-400
-                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+        border border-gray-300 placeholder:text-gray-400
+        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                     </div>
 
-                    <!-- Sampai No. Induk -->
+                    <!-- Sampai Baris Ke -->
                     <div>
-                        <label for="end_induk" class="block text-sm font-medium text-gray-700">
-                            Sampai No. Induk
+                        <label for="end_row" class="block text-sm font-medium text-gray-700">
+                            Sampai Baris Ke
                         </label>
-                        <input type="number" name="end_induk" id="end_induk"
-                            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text >
-                        border border-gray-300 placeholder:text-gray-400>
-                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                        <input type="number" name="end_row" id="end_row" min="1"
+                            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+        border border-gray-300 placeholder:text-gray-400
+        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                     </div>
+
+
 
                     <!-- Tombol Submit -->
                     <div class="flex">
