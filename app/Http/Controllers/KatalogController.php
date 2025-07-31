@@ -25,7 +25,7 @@ class KatalogController extends Controller
             $query->where(function ($q) use ($search, $category) {
                 switch ($category) {
                     case 'judul_buku':
-                        $q->where('judul_buku_buku', 'like', "%{$search}%");
+                        $q->where('judul_buku', 'like', "%{$search}%");
                         break;
                     case 'penerbit':
                         $q->where('penerbit', 'like', "%{$search}%");
