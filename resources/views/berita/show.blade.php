@@ -24,7 +24,7 @@
         <!-- Detail Berita -->
         <meta property="og:title" content="{{ $berita->judul }}">
         <meta property="og:description" content="{{ Str::limit(strip_tags($berita->isi), 150) }}">
-        <meta property="og:image" content="{{ $berita->thumbnail ? asset($berita->thumbnail) : 'https://source.unsplash.com/random/1200x630?news' }}">
+        <meta property="og:image" content="{{ url($berita->thumbnail) }}">
         <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:type" content="article">
         <meta property="og:image:width" content="1200" />
