@@ -2,7 +2,7 @@
 
 @section('content')
     {{-- Kartu Statistik --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-10 w-full">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-6 w-full">
         {{-- Total Anggota --}}
         <div class="w-full p-4 bg-white border border-gray-200 rounded dark:border-gray-700">
             <div class="flex items-start space-x-4">
@@ -74,7 +74,7 @@
         <div>
             <label for="year" class="text-sm font-medium text-gray-700">Filter Tahun:</label>
             <select name="year" id="year" onchange="this.form.submit()"
-                class="ml-2 border border-gray-300 rounded px-2 py-1">
+                class="ml-2 border border-gray-300 rounded px-2 py-1.5">
                 <option value="all" {{ $selectedYear === 'all' ? 'selected' : '' }}>Semua Tahun</option>
                 @foreach ($years as $year)
                     <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}
@@ -115,7 +115,7 @@
     </form>
 
     {{-- Grafik Peminjaman --}}
-    <div class="flex flex-col md:flex-row gap-6 mt-4">
+    <div class="flex flex-col md:flex-row gap-6 mt-5 mb-5">
 
         {{-- Grafik Peminjaman --}}
         <div class="bg-white p-4 rounded border border-gray-200 w-full md:w-1/2">
@@ -166,7 +166,7 @@
         </div>
     </div>
 
-    <div class="flex flex-col md:flex-row gap-6 mt-8">
+    <div class="flex flex-col md:flex-row gap-6 mt-5 mb-5">
 
         {{-- Tabel Top 10 Kunjungan --}}
         <div class="bg-white p-4 rounded border border-gray-200 w-full md:w-1/3 overflow-x-auto">
@@ -190,7 +190,7 @@
                 </tbody>
             </table>
         </div>
-    
+
         {{-- Tabel Top 10 Peminjam --}}
         <div class="bg-white p-4 rounded border border-gray-200 w-full md:w-1/3 overflow-x-auto">
             <h3 class="font-bold mb-4 text-lg">Top 10 Peminjam</h3>
@@ -215,7 +215,7 @@
                 </tbody>
             </table>
         </div>
-    
+
         {{-- Tabel Top 10 Buku Peminjaman --}}
         <div class="bg-white p-4 rounded border border-gray-200 w-full md:w-1/3 overflow-x-auto">
             <h3 class="font-bold mb-4 text-lg">Top 10 Buku Peminjaman</h3>
@@ -238,17 +238,83 @@
                 </tbody>
             </table>
         </div>
-    
+
     </div>
-    
-    <div class="bg-white rounded shadow p-4 mb-6">
-        <h3 class="text-lg font-semibold mb-2">Pengunjung Website</h3>
-        <p>Pengunjung unik hari ini: <strong>{{ $totalPengunjungHariIni }}</strong></p>
-        <p>Pengunjung unik total: <strong>{{ $totalPengunjungKeseluruhan }}</strong></p>
+
+    <div class="bg-white p-4 rounded border border-gray-200 w-full mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-700">
+                Grafik Pengunjung Website
+            </h2>
+            <div class="flex gap-2 items-center">
+                <select id="pengunjungType" class="border border-gray-300 rounded px-3 py-1.5">
+                    <option value="today">Hari Ini</option>
+                    <option value="total">Total</option>
+                </select>
+                <button onclick="exportChartToPDF('pengunjungWebsite', 'Laporan_Pengunjung')"
+                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
+                    Export PDF
+                </button>
+            </div>
+        </div>
+        <canvas id="pengunjungWebsite" height="100"></canvas>
     </div>
-    
 
 
+    <script>
+        const ctx = document.getElementById('pengunjungWebsite').getContext('2d');
+    
+        // Data untuk dua jenis chart
+        const chartData = {
+            today: {
+                labels: ['Hari Ini'],
+                data: [{{ $totalPengunjungHariIni }}],
+            },
+            total: {
+                labels: ['Total'],
+                data: [{{ $totalPengunjungKeseluruhan }}],
+            }
+        };
+    
+        // Inisialisasi chart
+        let pengunjungChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.today.labels,
+                datasets: [{
+                    label: 'Jumlah Pengunjung',
+                    data: chartData.today.data,
+                    borderColor: '#3B82F6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#3B82F6',
+                    pointBorderColor: '#fff',
+                    pointRadius: 5,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+    
+        // Ganti data saat dropdown berubah
+        document.getElementById('pengunjungType').addEventListener('change', function () {
+            const selected = this.value;
+            pengunjungChart.data.labels = chartData[selected].labels;
+            pengunjungChart.data.datasets[0].data = chartData[selected].data;
+            pengunjungChart.update();
+        });
+    </script>
 
 @endsection
 
