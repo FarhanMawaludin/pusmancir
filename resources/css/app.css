@@ -40,3 +40,45 @@ nav[role="navigation"].pagination {
 .apexcharts-tooltip {
     z-index: 9999 !important;
 }
+
+.bg-pink-dark {
+    background-color: #c53074;
+    color: white;
+}
+.bg-light {
+    background-color: #f3f4f6;
+    color: #111;
+}
+.bg-orange-dark {
+    background-color: #c05621;
+    color: white;
+}
+.bg-green-light {
+    background-color: #9ae6b4;
+    color: #1a202c;
+}
+.bg-white {
+    background-color: #ffffff;
+    color: #000;
+}
+.bg-navy {
+    background-color: #2c3e50;
+    color: white;
+}
+.bg-yellow-light {
+    background-color: #faf089;
+    color: #1a202c;
+}
+.bg-orange-light {
+    background-color: #f6ad55;
+    color: #1a202c;
+}
+.bg-pink-light {
+    background-color: #fbb6ce;
+    color: #1a202c;
+}
+.bg-default {
+    background-color: #e2e8f0;
+    color: #1a202c;
+}
+
