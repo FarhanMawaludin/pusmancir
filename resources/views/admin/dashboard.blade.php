@@ -246,75 +246,62 @@
             <h2 class="text-lg font-semibold text-gray-700">
                 Grafik Pengunjung Website
             </h2>
-            <div class="flex gap-2 items-center">
-                <select id="pengunjungType" class="border border-gray-300 rounded px-3 py-1.5">
-                    <option value="today">Hari Ini</option>
-                    <option value="total">Total</option>
-                </select>
-                <button onclick="exportChartToPDF('pengunjungWebsite', 'Laporan_Pengunjung')"
-                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
-                    Export PDF
-                </button>
-            </div>
+            <button onclick="exportChartToPDF('pengunjungWebsite', 'Laporan_Pengunjung')"
+                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
+                Export PDF
+            </button>
         </div>
         <canvas id="pengunjungWebsite" height="100"></canvas>
     </div>
-
-
+    
     <script>
         const ctx = document.getElementById('pengunjungWebsite').getContext('2d');
     
-        // Data untuk dua jenis chart
-        const chartData = {
-            today: {
-                labels: ['Hari Ini'],
-                data: [{{ $totalPengunjungHariIni }}],
-            },
-            total: {
-                labels: ['Total'],
-                data: [{{ $totalPengunjungKeseluruhan }}],
-            }
-        };
-    
-        // Inisialisasi chart
-        let pengunjungChart = new Chart(ctx, {
-            type: 'line',
+        new Chart(ctx, {
+            type: 'bar',
             data: {
-                labels: chartData.today.labels,
+                labels: ['Hari Ini', 'Total'],
                 datasets: [{
                     label: 'Jumlah Pengunjung',
-                    data: chartData.today.data,
-                    borderColor: '#3B82F6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#3B82F6',
-                    pointBorderColor: '#fff',
-                    pointRadius: 5,
+                    data: [{{ $totalPengunjungHariIni }}, {{ $totalPengunjungKeseluruhan }}],
+                    backgroundColor: ['#3B82F6', '#10B981'], // Biru dan hijau
+                    borderRadius: 6,
+                    barThickness: 25,
                 }]
             },
             options: {
+                indexAxis: 'y', // 👉 Horizontal bar
                 responsive: true,
                 plugins: {
-                    legend: { display: true }
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: context => `${context.dataset.label}: ${context.raw}`
+                        }
+                    }
                 },
                 scales: {
-                    y: {
+                    x: {
                         beginAtZero: true,
-                        ticks: { stepSize: 1 }
+                        ticks: {
+                            stepSize: 1
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            font: {
+                                size: 14
+                            }
+                        }
                     }
                 }
             }
         });
-    
-        // Ganti data saat dropdown berubah
-        document.getElementById('pengunjungType').addEventListener('change', function () {
-            const selected = this.value;
-            pengunjungChart.data.labels = chartData[selected].labels;
-            pengunjungChart.data.datasets[0].data = chartData[selected].data;
-            pengunjungChart.update();
-        });
     </script>
+    
+
 
 @endsection
 
