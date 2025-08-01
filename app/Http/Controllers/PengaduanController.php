@@ -7,11 +7,18 @@ use App\Models\Pengaduan;
 
 class PengaduanController extends Controller
 {
+    public function index()
+    {
+        $activeMenu = 'pengaduan';
+        $pengaduans = Pengaduan::orderBy('created_at', 'desc')->paginate(10);  // paginate 10
+        return view('admin.pengaduan.index', compact('activeMenu', 'pengaduans'));
+    }
 
     public function create()
     {
         return view('pengaduan'); // view untuk form pengaduan
     }
+    
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -26,12 +33,7 @@ class PengaduanController extends Controller
         return redirect()->route('pengaduan')->with('success', 'Pengaduan berhasil dikirim.');
     }
 
-    public function index()
-    {
-        $activeMenu = 'pengaduan';
-        $pengaduans = Pengaduan::orderBy('created_at', 'desc')->paginate(10);  // paginate 10
-        return view('admin.pengaduan.index', compact('activeMenu', 'pengaduans'));
-    }
+    
 
     public function show($id)
     {
