@@ -13,5 +13,5 @@ class Pengaduan extends Model
 
     protected $primaryKey = 'id';
 
-    protected $fillable = ['nama', 'no_telp', 'email', 'isi', 'status'];
+    protected $fillable = ['nama', 'no_telp', 'email', 'isi'];
 }

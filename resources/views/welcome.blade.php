@@ -194,6 +194,60 @@
             @endunless
         </div>
 
+        @if (request('ebook'))
+            <form method="GET" action="{{ route('welcome') }}" class="px-4 md:px-10 mt-6 w-full max-w-full">
+                <input type="hidden" name="ebook" value="1">
+                <input type="hidden" name="search" value="{{ request('search') }}">
+                <input type="hidden" name="search_by" value="{{ request('search_by') }}">
+
+                <div class="grid grid-cols-1 md:grid-cols-[3fr_3fr_1fr] gap-2 w-full max-w-full">
+                    {{-- Kolom Kategori --}}
+                    <div class="border rounded-md p-4 w-full">
+                        <h3 class="text-sm font-semibold text-gray-800 mb-2">Kategori</h3>
+                        <div class="-mx-6 px-6 overflow-x-auto scrollbar-hide">
+                            <div class="flex gap-4 w-full min-w-max">
+                                @foreach ($kategoriList as $kat)
+                                    <label
+                                        class="inline-flex items-center gap-2 text-sm text-gray-700 whitespace-nowrap min-w-max relative">
+                                        <input type="checkbox" name="kategori[]" value="{{ $kat }}"
+                                            class="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                                            {{ is_array(request('kategori')) && in_array($kat, request('kategori')) ? 'checked' : '' }}>
+                                        <span>{{ $kat }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Kolom Kelas --}}
+                    <div class="border rounded-md p-4 w-full">
+                        <h3 class="text-sm font-semibold text-gray-800 mb-2">Kelas</h3>
+                        <div class="-mx-6 px-6 overflow-x-auto scrollbar-hide">
+                            <div class="flex gap-4 w-full min-w-max">
+                                @foreach ($kelasList as $kelas)
+                                    <label
+                                        class="inline-flex items-center gap-2 text-sm text-gray-700 whitespace-nowrap min-w-max relative">
+                                        <input type="checkbox" name="kelas[]" value="{{ $kelas }}"
+                                            class="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                                            {{ is_array(request('kelas')) && in_array($kelas, request('kelas')) ? 'checked' : '' }}>
+                                        <span>{{ $kelas }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Kolom Tombol Filter --}}
+                    <div class="flex md:items-start items-center justify-center md:justify-start pt-2 md:pt-0 w-full">
+                        <button type="submit"
+                            class="px-5 py-2 bg-blue-700 text-white rounded-md text-sm font-medium hover:bg-blue-800 transition whitespace-nowrap">
+                            Terapkan Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        @endif
+
         {{-- Grid buku --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 max-w-6xl mx-auto" id="buku-container">
             @php
