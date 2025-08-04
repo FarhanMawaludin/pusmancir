@@ -414,72 +414,69 @@ class EksemplarController extends Controller
 
     public function cetakBatch(Request $request)
     {
-        $ids        = $request->input('selected', []);
+        $ids = $request->input('selected', []);
         $kosongAwal = (int) $request->input('kosong_awal', 0);
-        $search     = $request->input('search');
-        $category   = $request->input('category', 'all');
-        $tanggal    = $request->input('tanggal');
-        $sort       = $request->input('sort', 'no_induk_asc');
-        $page       = (int) $request->input('page', 1); // halaman aktif dari index
-        $perPage    = 10; // sama seperti paginate(10) di index
 
-        [$sortField, $sortDirection] = explode('_', $sort) + ['no_induk', 'asc'];
-        $sortDirection = in_array($sortDirection, ['asc', 'desc']) ? $sortDirection : 'asc';
+        $startRow = (int) $request->input('start_row');
+        $endRow = (int) $request->input('end_row');
+        $search = $request->input('search');
+        $sort = $request->input('sort', 'judul_asc');
+
+        [$sortField, $sortDirection] = explode('_', $sort) + ['judul', 'asc'];
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
 
         $eksemplarList = collect();
 
+
         if (!empty($ids)) {
-            // Mode checkbox
+            // Jika user memilih checkbox
             $eksemplarList = Eksemplar::with('inventori.katalog')
                 ->whereIn('id', $ids)
                 ->orderBy('created_at', 'asc')
                 ->get();
 
+
             Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
-        } else {
-            // Query base sama dengan index
-            $query = Eksemplar::with('inventori')
+        } elseif ($startRow && $endRow && $endRow >= $startRow) {
+            $take = $endRow - $startRow + 1;
+
+            // Gunakan query yang sama persis seperti index
+            $query = Eksemplar::with('inventori.katalog')
                 ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
                 ->when($search, function ($q) use ($search) {
-                    $q->where(function ($subQuery) use ($search) {
-                        $subQuery->where('inventori.judul_buku', 'like', "%{$search}%")
+                    $q->where(function ($sub) use ($search) {
+                        $sub->where('inventori.judul_buku', 'like', "%{$search}%")
                             ->orWhere('inventori.pengarang', 'like', "%{$search}%");
                     });
-                })
-                ->when($category !== 'all', function ($q) use ($category) {
-                    $q->where('eksemplar.id_kategori_buku', $category);
-                })
-                ->when($tanggal, function ($q) use ($tanggal) {
-                    $q->whereDate('eksemplar.created_at', $tanggal);
                 });
 
-            // Sorting sama dengan index
             switch ($sortField) {
                 case 'judul':
                     $query->orderBy('inventori.judul_buku', $sortDirection);
                     break;
+
                 case 'no_induk':
-                    $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) $sortDirection");
+                    $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) {$sortDirection}");
                     break;
-                case 'created_at':
-                    $query->orderBy('eksemplar.created_at', $sortDirection);
-                    break;
+
                 default:
-                    $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) asc");
+                    $query->orderBy('inventori.judul_buku', 'asc');
             }
 
-            // Ambil data sesuai halaman yang sedang dibuka di index
+            // Select eksemplar.* agar mapping ke model
             $eksemplarList = $query
                 ->select('eksemplar.*')
-                ->skip(($page - 1) * $perPage)
-                ->take($perPage)
+                ->skip($startRow - 1)
+                ->take($take)
                 ->get();
 
-            // Update status cetak
-            $idsChunked = $eksemplarList->pluck('id')->chunk(100);
-            foreach ($idsChunked as $chunk) {
-                Eksemplar::whereIn('id', $chunk)->update(['sudah_dicetak' => true]);
-            }
+            Eksemplar::whereIn('id', $eksemplarList->pluck('id'))->update(['sudah_dicetak' => true]);
+
+
+        } else {
+            return back()->with('error', 'Pilih data lewat checkbox atau isi rentang baris.');
         }
 
         return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
