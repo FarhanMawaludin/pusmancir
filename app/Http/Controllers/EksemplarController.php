@@ -412,75 +412,166 @@ class EksemplarController extends Controller
     //     return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
     // }
 
+    // public function cetakBatch(Request $request)
+    // {
+    //     $ids = $request->input('selected', []);
+    //     $kosongAwal = (int) $request->input('kosong_awal', 0);
+
+    //     $startRow = (int) $request->input('start_row');
+    //     $endRow = (int) $request->input('end_row');
+    //     $search = $request->input('search');
+    //     $sort = $request->input('sort', 'judul_asc');
+
+    //     [$sortField, $sortDirection] = explode('_', $sort) + ['judul', 'asc'];
+    //     if (!in_array($sortDirection, ['asc', 'desc'])) {
+    //         $sortDirection = 'asc';
+    //     }
+
+    //     $eksemplarList = collect();
+
+
+    //     if (!empty($ids)) {
+    //         // Jika user memilih checkbox
+    //         $eksemplarList = Eksemplar::with('inventori.katalog')
+    //             ->whereIn('id', $ids)
+    //             ->orderBy('created_at', 'asc')
+    //             ->get();
+
+
+    //         Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
+    //     } elseif ($startRow && $endRow && $endRow >= $startRow) {
+    //         $take = $endRow - $startRow + 1;
+
+    //         // Gunakan query yang sama persis seperti index
+    //         $query = Eksemplar::with('inventori.katalog')
+    //             ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
+    //             ->when($search, function ($q) use ($search) {
+    //                 $q->where(function ($sub) use ($search) {
+    //                     $sub->where('inventori.judul_buku', 'like', "%{$search}%")
+    //                         ->orWhere('inventori.pengarang', 'like', "%{$search}%");
+    //                 });
+    //             });
+
+    //         switch ($sortField) {
+    //             case 'judul':
+    //                 $query->orderBy('inventori.judul_buku', $sortDirection);
+    //                 break;
+
+    //             case 'no_induk':
+    //                 $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) {$sortDirection}");
+    //                 break;
+
+    //             default:
+    //                 $query->orderBy('inventori.judul_buku', 'asc');
+    //         }
+
+    //         // Select eksemplar.* agar mapping ke model
+    //         $eksemplarList = $query
+    //             ->select('eksemplar.*')
+    //             ->skip($startRow - 1)
+    //             ->take($take)
+    //             ->get();
+
+    //         Eksemplar::whereIn('id', $eksemplarList->pluck('id'))->update(['sudah_dicetak' => true]);
+
+
+    //     } else {
+    //         return back()->with('error', 'Pilih data lewat checkbox atau isi rentang baris.');
+    //     }
+
+    //     return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
+    // }
+
     public function cetakBatch(Request $request)
-    {
-        $ids = $request->input('selected', []);
-        $kosongAwal = (int) $request->input('kosong_awal', 0);
+{
+    $ids = $request->input('selected', []);
+    $kosongAwal = (int) $request->input('kosong_awal', 0);
 
-        $startRow = (int) $request->input('start_row');
-        $endRow = (int) $request->input('end_row');
-        $search = $request->input('search');
-        $sort = $request->input('sort', 'judul_asc');
+    $startRow = (int) $request->input('start_row');
+    $endRow   = (int) $request->input('end_row');
+    $search   = $request->input('search');
+    $sort     = $request->input('sort', 'judul_asc');
 
-        [$sortField, $sortDirection] = explode('_', $sort) + ['judul', 'asc'];
-        if (!in_array($sortDirection, ['asc', 'desc'])) {
-            $sortDirection = 'asc';
+    [$sortField, $sortDirection] = explode('_', $sort) + ['judul', 'asc'];
+    if (!in_array($sortDirection, ['asc', 'desc'])) {
+        $sortDirection = 'asc';
+    }
+
+    $eksemplarList = collect();
+
+    if (!empty($ids)) {
+        // Jika user memilih checkbox
+        $eksemplarList = Eksemplar::with('inventori.katalog')
+            ->whereIn('id', $ids)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
+    } elseif ($startRow && $endRow && $endRow >= $startRow) {
+        $take = $endRow - $startRow + 1;
+
+        // Query dasar sama seperti index
+        $baseQuery = Eksemplar::with('inventori.katalog')
+            ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('inventori.judul_buku', 'like', "%{$search}%")
+                        ->orWhere('inventori.pengarang', 'like', "%{$search}%");
+                });
+            });
+
+        switch ($sortField) {
+            case 'judul':
+                $baseQuery->orderBy('inventori.judul_buku', $sortDirection);
+                break;
+            case 'no_induk':
+                $baseQuery->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) {$sortDirection}");
+                break;
+            default:
+                $baseQuery->orderBy('inventori.judul_buku', 'asc');
         }
 
-        $eksemplarList = collect();
-
-
-        if (!empty($ids)) {
-            // Jika user memilih checkbox
-            $eksemplarList = Eksemplar::with('inventori.katalog')
-                ->whereIn('id', $ids)
-                ->orderBy('created_at', 'asc')
-                ->get();
-
-
-            Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
-        } elseif ($startRow && $endRow && $endRow >= $startRow) {
-            $take = $endRow - $startRow + 1;
-
-            // Gunakan query yang sama persis seperti index
-            $query = Eksemplar::with('inventori.katalog')
-                ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
-                ->when($search, function ($q) use ($search) {
-                    $q->where(function ($sub) use ($search) {
-                        $sub->where('inventori.judul_buku', 'like', "%{$search}%")
-                            ->orWhere('inventori.pengarang', 'like', "%{$search}%");
-                    });
-                });
-
-            switch ($sortField) {
-                case 'judul':
-                    $query->orderBy('inventori.judul_buku', $sortDirection);
-                    break;
-
-                case 'no_induk':
-                    $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) {$sortDirection}");
-                    break;
-
-                default:
-                    $query->orderBy('inventori.judul_buku', 'asc');
-            }
-
-            // Select eksemplar.* agar mapping ke model
-            $eksemplarList = $query
+        if ($startRow <= 1000) {
+            // Normal skip jika masih kecil
+            $eksemplarList = (clone $baseQuery)
                 ->select('eksemplar.*')
                 ->skip($startRow - 1)
                 ->take($take)
                 ->get();
-
-            Eksemplar::whereIn('id', $eksemplarList->pluck('id'))->update(['sudah_dicetak' => true]);
-
-
         } else {
-            return back()->with('error', 'Pilih data lewat checkbox atau isi rentang baris.');
+            // Cursor-based pagination jika offset besar
+            $firstRecord = (clone $baseQuery)
+                ->select('eksemplar.*')
+                ->skip($startRow - 1)
+                ->first();
+
+            if (!$firstRecord) {
+                return back()->with('error', 'Rentang baris tidak ditemukan.');
+            }
+
+            $operator = $sortDirection === 'asc' ? '>=' : '<=';
+            $field    = $sortField === 'no_induk'
+                        ? 'eksemplar.no_induk'
+                        : ($sortField === 'created_at'
+                           ? 'eksemplar.created_at'
+                           : 'inventori.judul_buku');
+
+            $eksemplarList = (clone $baseQuery)
+                ->where($field, $operator, $firstRecord->{$sortField})
+                ->select('eksemplar.*')
+                ->take($take)
+                ->get();
         }
 
-        return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
+        Eksemplar::whereIn('id', $eksemplarList->pluck('id'))
+            ->update(['sudah_dicetak' => true]);
+    } else {
+        return back()->with('error', 'Pilih data lewat checkbox atau isi rentang baris.');
     }
+
+    return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
+}
+
 
 
 
