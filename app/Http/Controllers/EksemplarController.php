@@ -508,14 +508,8 @@ class EksemplarController extends Controller
     
             Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
         } elseif ($startRow && $endRow && $endRow >= $startRow) {
-            $take = $endRow - $startRow + 1;
-    
-            if ($take > 500) {
-                return back()->with('error', 'Maksimal hanya bisa mencetak 500 baris dalam sekali proses.');
-            }
-    
             try {
-                // Ambil semua ID dulu TANPA JOIN
+                // Ambil semua data dulu tanpa join langsung IDs
                 $allIds = Eksemplar::query()
                     ->when($search, function ($q) use ($search) {
                         $q->whereHas('inventori', function ($sub) use ($search) {
@@ -530,8 +524,11 @@ class EksemplarController extends Controller
                         $q->whereDate('created_at', $tanggal);
                     })
                     ->with('inventori')
-                    ->get()
-                    ->sortBy(function ($item) use ($sortField) {
+                    ->get();
+    
+                // Sorting collection berdasarkan kondisi
+                if ($sortDirection === 'desc') {
+                    $allIds = $allIds->sortByDesc(function ($item) use ($sortField) {
                         if ($sortField === 'judul') {
                             return $item->inventori->judul_buku ?? '';
                         }
@@ -539,22 +536,52 @@ class EksemplarController extends Controller
                             return (int) $item->no_induk;
                         }
                         return $item->{$sortField} ?? '';
-                    }, SORT_REGULAR, $sortDirection === 'desc')
-                    ->pluck('id');
+                    });
+                } else {
+                    $allIds = $allIds->sortBy(function ($item) use ($sortField) {
+                        if ($sortField === 'judul') {
+                            return $item->inventori->judul_buku ?? '';
+                        }
+                        if ($sortField === 'no_induk') {
+                            return (int) $item->no_induk;
+                        }
+                        return $item->{$sortField} ?? '';
+                    });
+                }
     
-                // Ambil ID yang sesuai range
+                $allIds = $allIds->pluck('id');
+    
+                // Validasi jumlah data
+                $totalData = $allIds->count();
+    
+                if ($startRow > $totalData) {
+                    return back()->with('error', "Baris mulai ($startRow) melebihi jumlah data yang tersedia ($totalData).");
+                }
+    
+                if ($endRow > $totalData) {
+                    $endRow = $totalData;
+                }
+    
+                $take = $endRow - $startRow + 1;
+    
+                if ($take > 500) {
+                    return back()->with('error', 'Maksimal hanya bisa mencetak 500 baris dalam sekali proses.');
+                }
+    
+                // Ambil ID rentang yang diminta
                 $idList = $allIds->slice($startRow - 1, $take)->values();
     
                 if ($idList->isEmpty()) {
                     return back()->with('error', 'Tidak ada data ditemukan.');
                 }
     
-                // Ambil data berdasarkan ID yang sudah stabil
+                // Ambil data sesuai ID dan urutkan sesuai urutan $idList
                 $eksemplarList = Eksemplar::with('inventori.katalog')
                     ->whereIn('id', $idList)
                     ->orderByRaw("FIELD(id, " . $idList->implode(',') . ")")
                     ->get();
     
+                // Update status cetak
                 Eksemplar::whereIn('id', $idList)->update(['sudah_dicetak' => true]);
             } catch (\Exception $e) {
                 Log::error('CetakBatch gagal final aman:', [
@@ -569,6 +596,7 @@ class EksemplarController extends Controller
     
         return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
     }
+    
     
 
 
