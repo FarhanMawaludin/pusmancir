@@ -484,13 +484,13 @@ class EksemplarController extends Controller
 
     public function cetakBatch(Request $request)
 {
-    $ids = $request->input('selected', []);
+    $ids        = $request->input('selected', []);
     $kosongAwal = (int) $request->input('kosong_awal', 0);
 
-    $startRow = (int) $request->input('start_row');
-    $endRow   = (int) $request->input('end_row');
-    $search   = $request->input('search');
-    $sort     = $request->input('sort', 'judul_asc');
+    $startRow   = (int) $request->input('start_row');
+    $endRow     = (int) $request->input('end_row');
+    $search     = $request->input('search');
+    $sort       = $request->input('sort', 'judul_asc');
 
     [$sortField, $sortDirection] = explode('_', $sort) + ['judul', 'asc'];
     if (!in_array($sortDirection, ['asc', 'desc'])) {
@@ -500,13 +500,14 @@ class EksemplarController extends Controller
     $eksemplarList = collect();
 
     if (!empty($ids)) {
-        // Jika user memilih checkbox
+        // Mode checkbox
         $eksemplarList = Eksemplar::with('inventori.katalog')
             ->whereIn('id', $ids)
             ->orderBy('created_at', 'asc')
             ->get();
 
         Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
+
     } elseif ($startRow && $endRow && $endRow >= $startRow) {
         $take = $endRow - $startRow + 1;
 
@@ -527,12 +528,15 @@ class EksemplarController extends Controller
             case 'no_induk':
                 $baseQuery->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) {$sortDirection}");
                 break;
+            case 'created_at':
+                $baseQuery->orderBy('eksemplar.created_at', $sortDirection);
+                break;
             default:
                 $baseQuery->orderBy('inventori.judul_buku', 'asc');
         }
 
         if ($startRow <= 1000) {
-            // Normal skip jika masih kecil
+            // Normal skip jika offset kecil
             $eksemplarList = (clone $baseQuery)
                 ->select('eksemplar.*')
                 ->skip($startRow - 1)
@@ -549,28 +553,60 @@ class EksemplarController extends Controller
                 return back()->with('error', 'Rentang baris tidak ditemukan.');
             }
 
-            $operator = $sortDirection === 'asc' ? '>=' : '<=';
-            $field    = $sortField === 'no_induk'
-                        ? 'eksemplar.no_induk'
-                        : ($sortField === 'created_at'
-                           ? 'eksemplar.created_at'
-                           : 'inventori.judul_buku');
+            $eksemplarList = collect();
+            $remaining = $take;
+            $lastRecord = $firstRecord;
 
-            $eksemplarList = (clone $baseQuery)
-                ->where($field, $operator, $firstRecord->{$sortField})
-                ->select('eksemplar.*')
-                ->take($take)
-                ->get();
+            while ($remaining > 0) {
+                $batchSize = min($remaining, 500);
+
+                $batch = (clone $baseQuery)
+                    ->select('eksemplar.*')
+                    ->when($lastRecord, function ($q) use ($lastRecord, $sortField, $sortDirection) {
+                        if ($sortDirection === 'asc') {
+                            $q->where(function ($sub) use ($lastRecord, $sortField) {
+                                $sub->where($sortField, '>', $lastRecord->{$sortField})
+                                    ->orWhere(function ($q2) use ($lastRecord, $sortField) {
+                                        $q2->where($sortField, '=', $lastRecord->{$sortField})
+                                           ->where('eksemplar.id', '>', $lastRecord->id);
+                                    });
+                            });
+                        } else {
+                            $q->where(function ($sub) use ($lastRecord, $sortField) {
+                                $sub->where($sortField, '<', $lastRecord->{$sortField})
+                                    ->orWhere(function ($q2) use ($lastRecord, $sortField) {
+                                        $q2->where($sortField, '=', $lastRecord->{$sortField})
+                                           ->where('eksemplar.id', '<', $lastRecord->id);
+                                    });
+                            });
+                        }
+                    })
+                    ->take($batchSize)
+                    ->get();
+
+                if ($batch->isEmpty()) {
+                    break;
+                }
+
+                $eksemplarList = $eksemplarList->merge($batch);
+                $remaining -= $batch->count();
+                $lastRecord = $batch->last();
+            }
         }
 
-        Eksemplar::whereIn('id', $eksemplarList->pluck('id'))
-            ->update(['sudah_dicetak' => true]);
+        // Update status cetak
+        $idsChunked = $eksemplarList->pluck('id')->chunk(100);
+        foreach ($idsChunked as $chunk) {
+            Eksemplar::whereIn('id', $chunk)->update(['sudah_dicetak' => true]);
+        }
+
     } else {
         return back()->with('error', 'Pilih data lewat checkbox atau isi rentang baris.');
     }
 
     return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
 }
+
 
 
 
