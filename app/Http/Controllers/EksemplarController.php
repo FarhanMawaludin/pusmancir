@@ -299,7 +299,7 @@ class EksemplarController extends Controller
         }
 
         try {
-            // Query base (sama seperti index)
+            // Query base (sama dengan index)
             $baseQuery = Eksemplar::with('inventori')
                 ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
                 ->when($search, function ($q) use ($search) {
@@ -340,7 +340,6 @@ class EksemplarController extends Controller
             $idsForRange = collect();
             $remaining   = $take;
 
-            // Cari titik awal (row ke startRow)
             $firstId = (clone $baseQuery)
                 ->select('eksemplar.id')
                 ->skip($startRow - 1)
@@ -351,7 +350,6 @@ class EksemplarController extends Controller
                 return back()->with('error', 'Rentang baris tidak ditemukan.');
             }
 
-            // Ambil mulai dari firstId secara bertahap
             $lastFetchedId = null;
             while ($remaining > 0) {
                 $batchSize = min($remaining, 200);
@@ -381,7 +379,7 @@ class EksemplarController extends Controller
                 return back()->with('error', 'Rentang baris tidak ditemukan.');
             }
 
-            // ✅ Ambil data lengkap sesuai query index
+            // Ambil data lengkap berdasarkan ID, pakai baseQuery agar sama dengan index
             $eksemplarList = (clone $baseQuery)
                 ->select('eksemplar.*')
                 ->whereIn('eksemplar.id', $idsForRange)
