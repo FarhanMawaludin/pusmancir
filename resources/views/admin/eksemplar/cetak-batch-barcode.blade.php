@@ -18,7 +18,8 @@
         .sheet {
             width: 17.5cm;
             height: 21.5cm;
-            padding: 0.2cm 0.5cm;
+            padding: 0.1cm 0.5cm 0 0.6cm;
+            /* atas, kanan, bawah, kiri */
             box-sizing: border-box;
 
             display: grid;
@@ -27,7 +28,7 @@
             column-gap: 0.5cm;
             row-gap: 0.2cm;
 
-            page-break-after: always; /* agar tiap sheet cetak di halaman baru */
+            page-break-after: always;
         }
 
         .label {
@@ -41,7 +42,16 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+
+            margin-top: -0.1cm;
+            /* geser semua label sedikit ke atas */
         }
+
+        .label:nth-child(odd) {
+            margin-left: 0.15cm;
+            /* hanya kolom kiri yang digeser ke kanan */
+        }
+
 
         .label-columns {
             display: flex;
