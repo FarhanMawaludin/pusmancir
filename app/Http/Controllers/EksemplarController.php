@@ -264,14 +264,33 @@ class EksemplarController extends Controller
 
     $eksemplarList = collect();
 
-    if (!empty($ids)) {
-        // Checkbox mode
-        $eksemplarList = Eksemplar::with('inventori.katalog')
-            ->whereIn('id', $ids)
-            ->orderBy('created_at', 'asc')
-            ->get();
+    Log::info('CetakBatch Request:', [
+        'ids' => $ids,
+        'startRow' => $startRow,
+        'endRow' => $endRow,
+        'search' => $search,
+        'category' => $category,
+        'tanggal' => $tanggal,
+        'sort' => $sort,
+    ]);
 
-        Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
+    if (!empty($ids)) {
+        // Mode checkbox
+        try {
+            $eksemplarList = Eksemplar::with('inventori.katalog')
+                ->whereIn('id', $ids)
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
+            Log::info('CetakBatch Mode: Checkbox', ['jumlah' => $eksemplarList->count()]);
+        } catch (\Exception $e) {
+            Log::error('CetakBatch gagal di mode checkbox: ', [
+                'error' => $e->getMessage(),
+                'ids_count' => count($ids),
+            ]);
+            return back()->with('error', 'Terjadi kesalahan saat memproses data checkbox.');
+        }
     } elseif ($startRow && $endRow && $endRow >= $startRow) {
         $take = $endRow - $startRow + 1;
 
@@ -280,7 +299,7 @@ class EksemplarController extends Controller
         }
 
         try {
-            // Query dasar sama dengan index
+            // Query dasar (sesuai index)
             $baseQuery = Eksemplar::with('inventori')
                 ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
                 ->when($search, function ($q) use ($search) {
@@ -296,51 +315,59 @@ class EksemplarController extends Controller
                     $q->whereDate('eksemplar.created_at', $tanggal);
                 });
 
-            // Sorting
+            // Sorting (sesuai index)
             switch ($sortField) {
                 case 'judul':
                     $baseQuery->orderBy('inventori.judul_buku', $sortDirection)
                               ->orderBy('eksemplar.id', $sortDirection);
-                    $sortColumn = 'inventori.judul_buku';
                     break;
                 case 'created_at':
                     $baseQuery->orderBy('eksemplar.created_at', $sortDirection)
                               ->orderBy('eksemplar.id', $sortDirection);
-                    $sortColumn = 'eksemplar.created_at';
                     break;
                 case 'no_induk':
                 default:
                     $baseQuery->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) $sortDirection")
                               ->orderBy('eksemplar.id', $sortDirection);
-                    $sortColumn = 'eksemplar.no_induk';
                     break;
             }
 
-            // Hitung total
+            // Hitung total data
             $totalRows = (clone $baseQuery)->count();
             if ($endRow > $totalRows) {
                 return back()->with('error', 'Rentang baris melebihi jumlah data yang tersedia.');
             }
 
-            // Cari record awal tanpa offset berat
-            $cursorQuery = (clone $baseQuery)->select('eksemplar.*');
-            $eksemplarList = collect();
+            // Ambil data dengan cursor (keyset pagination)
             $rowNum = 0;
-
-            foreach ($cursorQuery->cursor() as $row) {
+            $eksemplarList = collect();
+            foreach ((clone $baseQuery)->select('eksemplar.*') as $row) {
                 $rowNum++;
                 if ($rowNum < $startRow) continue;
                 if ($rowNum > $endRow) break;
                 $eksemplarList->push($row);
             }
 
-            // Update status cetak
+            if ($eksemplarList->isEmpty()) {
+                return back()->with('error', 'Rentang baris tidak ditemukan.');
+            }
+
+            // Update status cetak bertahap
             $idsChunked = $eksemplarList->pluck('id')->chunk(100);
             foreach ($idsChunked as $chunk) {
                 Eksemplar::whereIn('id', $chunk)->update(['sudah_dicetak' => true]);
             }
 
+            Log::info('CetakBatch berhasil', [
+                'dari_row' => $startRow,
+                'sampai_row' => $endRow,
+                'jumlah_ditemukan' => $eksemplarList->count(),
+            ]);
         } catch (\Exception $e) {
+            Log::error('CetakBatch gagal: Error saat query', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return back()->with('error', 'Terjadi kesalahan saat memproses data.');
         }
     } else {
