@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Eksemplar;
+use Illuminate\Support\Facades\DB;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -255,8 +256,6 @@ class EksemplarController extends Controller
         [$sortField, $sortDirection] = explode('_', $sort) + ['no_induk', 'asc'];
         $sortDirection = in_array($sortDirection, ['asc', 'desc']) ? $sortDirection : 'asc';
 
-        $eksemplarList = collect();
-
         if (!empty($ids)) {
             // Mode checkbox
             $eksemplarList = Eksemplar::with('inventori.katalog')
@@ -266,56 +265,53 @@ class EksemplarController extends Controller
 
             Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
         } elseif ($startRow && $endRow && $endRow >= $startRow) {
-            $take   = $endRow - $startRow + 1;
-            $offset = $startRow - 1;
+            $take = $endRow - $startRow + 1;
 
-            // Batasi maksimal 500 baris
             if ($take > 500) {
                 return back()->with('error', 'Maksimal hanya bisa mencetak 500 baris dalam sekali proses.');
             }
 
-            // Query dasar sesuai filter
-            $query = Eksemplar::with('inventori.katalog')
+            // Build sorting field
+            $orderField = match ($sortField) {
+                'judul'      => 'inventori.judul_buku',
+                'no_induk'   => "CAST(eksemplar.no_induk AS UNSIGNED)",
+                'created_at' => 'eksemplar.created_at',
+                default      => 'inventori.judul_buku',
+            };
+
+            // Gunakan ROW_NUMBER agar ambil range baris
+            $subQuery = DB::table('eksemplar')
                 ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
                 ->when($search, function ($q) use ($search) {
                     $q->where(function ($sub) use ($search) {
                         $sub->where('inventori.judul_buku', 'like', "%{$search}%")
                             ->orWhere('inventori.pengarang', 'like', "%{$search}%");
                     });
-                });
+                })
+                ->selectRaw("eksemplar.id, ROW_NUMBER() OVER (ORDER BY {$orderField} {$sortDirection}) as rownum");
 
-            // Sorting sesuai index
-            switch ($sortField) {
-                case 'judul':
-                    $query->orderBy('inventori.judul_buku', $sortDirection);
-                    break;
-                case 'no_induk':
-                    $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) {$sortDirection}");
-                    break;
-                case 'created_at':
-                    $query->orderBy('eksemplar.created_at', $sortDirection);
-                    break;
-                default:
-                    $query->orderBy('inventori.judul_buku', 'asc');
-            }
+            $idList = DB::table(DB::raw("({$subQuery->toSql()}) as t"))
+                ->mergeBindings($subQuery)
+                ->whereBetween('rownum', [$startRow, $endRow])
+                ->pluck('id');
 
-            // Ambil data persis sesuai range
-            $eksemplarList = $query->select('eksemplar.*')
-                ->skip($offset)
-                ->take($take)
-                ->get();
-
-            if ($eksemplarList->isEmpty()) {
+            if ($idList->isEmpty()) {
                 return back()->with('error', 'Rentang baris tidak ditemukan.');
             }
 
-            Eksemplar::whereIn('id', $eksemplarList->pluck('id'))->update(['sudah_dicetak' => true]);
+            $eksemplarList = Eksemplar::with('inventori.katalog')
+                ->whereIn('eksemplar.id', $idList)
+                ->orderByRaw("FIELD(eksemplar.id, " . $idList->implode(',') . ")")
+                ->get();
+
+            Eksemplar::whereIn('id', $idList)->update(['sudah_dicetak' => true]);
         } else {
             return back()->with('error', 'Pilih data lewat checkbox atau isi rentang baris.');
         }
 
         return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
     }
+
 
 
 
