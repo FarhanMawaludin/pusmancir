@@ -482,7 +482,7 @@ class EksemplarController extends Controller
     //     return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
     // }
 
-    
+
 
     public function cetakBatch(Request $request)
     {
@@ -616,6 +616,13 @@ class EksemplarController extends Controller
 
 
 
+
+
+
+
+
+
+    
 
     public function edit($id)
     {
