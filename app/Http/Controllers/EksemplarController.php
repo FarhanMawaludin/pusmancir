@@ -536,7 +536,8 @@ class EksemplarController extends Controller
             }
 
             try {
-                $baseQuery = Eksemplar::with('inventori.katalog')
+                // PERBAIKAN: Gunakan query yang sama persis seperti fungsi bawah
+                $query = Eksemplar::with('inventori.katalog')
                     ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
                     ->when($search, function ($q) use ($search) {
                         $q->where(function ($sub) use ($search) {
@@ -551,81 +552,27 @@ class EksemplarController extends Controller
                         $q->whereDate('eksemplar.created_at', $tanggal);
                     });
 
-                // Sorting
+                // Sorting sama dengan fungsi bawah
                 switch ($sortField) {
                     case 'judul':
-                        $baseQuery->orderBy('inventori.judul_buku', $sortDirection);
-                        $orderField = 'inventori.judul_buku';
+                        $query->orderBy('inventori.judul_buku', $sortDirection);
                         break;
                     case 'no_induk':
-                        $baseQuery->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) {$sortDirection}");
-                        $orderField = 'eksemplar.no_induk';
+                        $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) {$sortDirection}");
                         break;
                     case 'created_at':
-                        $baseQuery->orderBy('eksemplar.created_at', $sortDirection);
-                        $orderField = 'eksemplar.created_at';
+                        $query->orderBy('eksemplar.created_at', $sortDirection);
                         break;
                     default:
-                        $baseQuery->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) asc");
-                        $orderField = 'eksemplar.no_induk';
+                        $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) asc");
                 }
 
-                if ($startRow <= 1000) {
-                    // Pakai skip kalau offset kecil
-                    $eksemplarList = (clone $baseQuery)
-                        ->select('eksemplar.*')
-                        ->skip($startRow - 1)
-                        ->take($take)
-                        ->get();
-                } else {
-                    // Cursor pagination kalau offset besar
-                    $firstRecord = (clone $baseQuery)
-                        ->select('eksemplar.*')
-                        ->skip($startRow - 1)
-                        ->first();
-
-                    if (!$firstRecord) {
-                        return back()->with('error', 'Rentang baris tidak ditemukan.');
-                    }
-
-                    $eksemplarList = collect([$firstRecord]);
-                    $lastRecord = $firstRecord;
-
-                    while ($eksemplarList->count() < $take) {
-                        $remaining = $take - $eksemplarList->count();
-
-                        $batch = (clone $baseQuery)
-                            ->select('eksemplar.*')
-                            ->when($lastRecord, function ($q) use ($lastRecord, $orderField, $sortDirection) {
-                                if ($sortDirection === 'asc') {
-                                    $q->where(function ($sub) use ($lastRecord, $orderField) {
-                                        $sub->where($orderField, '>', $lastRecord->{$orderField})
-                                            ->orWhere(function ($q2) use ($lastRecord, $orderField) {
-                                                $q2->where($orderField, '=', $lastRecord->{$orderField})
-                                                    ->where('eksemplar.id', '>', $lastRecord->id);
-                                            });
-                                    });
-                                } else {
-                                    $q->where(function ($sub) use ($lastRecord, $orderField) {
-                                        $sub->where($orderField, '<', $lastRecord->{$orderField})
-                                            ->orWhere(function ($q2) use ($lastRecord, $orderField) {
-                                                $q2->where($orderField, '=', $lastRecord->{$orderField})
-                                                    ->where('eksemplar.id', '<', $lastRecord->id);
-                                            });
-                                    });
-                                }
-                            })
-                            ->take(min($remaining, 100)) // ambil batch kecil
-                            ->get();
-
-                        if ($batch->isEmpty()) {
-                            break;
-                        }
-
-                        $eksemplarList = $eksemplarList->merge($batch);
-                        $lastRecord = $batch->last();
-                    }
-                }
+                // Ambil data dengan skip dan take - SAMA SEPERTI FUNGSI BAWAH
+                $eksemplarList = $query
+                    ->select('eksemplar.*')
+                    ->skip($startRow - 1)
+                    ->take($take)
+                    ->get();
 
                 if ($eksemplarList->isEmpty()) {
                     return back()->with('error', 'Tidak ada data yang ditemukan pada rentang tersebut.');
@@ -675,8 +622,7 @@ class EksemplarController extends Controller
 
 
 
-
-
+    
 
     public function edit($id)
     {
