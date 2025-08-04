@@ -536,14 +536,14 @@ class EksemplarController extends Controller
         }
 
         if ($startRow <= 1000) {
-            // Normal skip jika offset kecil
+            // Normal skip untuk offset kecil
             $eksemplarList = (clone $baseQuery)
                 ->select('eksemplar.*')
                 ->skip($startRow - 1)
                 ->take($take)
                 ->get();
         } else {
-            // Cursor-based pagination jika offset besar
+            // Cari titik awal sekali pakai skip
             $firstRecord = (clone $baseQuery)
                 ->select('eksemplar.*')
                 ->skip($startRow - 1)
@@ -553,6 +553,7 @@ class EksemplarController extends Controller
                 return back()->with('error', 'Rentang baris tidak ditemukan.');
             }
 
+            // Ambil data setelah firstRecord pakai cursor
             $eksemplarList = collect();
             $remaining = $take;
             $lastRecord = $firstRecord;
@@ -592,6 +593,9 @@ class EksemplarController extends Controller
                 $remaining -= $batch->count();
                 $lastRecord = $batch->last();
             }
+
+            // Tambahkan firstRecord di depan hasil
+            $eksemplarList->prepend($firstRecord);
         }
 
         // Update status cetak
@@ -606,6 +610,7 @@ class EksemplarController extends Controller
 
     return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
 }
+
 
 
 
