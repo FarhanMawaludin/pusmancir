@@ -276,7 +276,7 @@ class EksemplarController extends Controller
             }
     
             // Query sesuai filter index
-            $query = Eksemplar::with('inventori')
+            $query = Eksemplar::with('inventori') 
                 ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
                 ->when($search, function ($q) use ($search) {
                     $q->where(function ($sub) use ($search) {
@@ -306,22 +306,37 @@ class EksemplarController extends Controller
                     $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) asc");
             }
     
-            // ✅ Hitung halaman berdasarkan startRow
-            $page = (int) ceil($startRow / $take);
-            $blockSize = $take + 50; // buffer aman
-    
-            // Ambil blok data
-            $eksemplarBlock = $query->select('eksemplar.*')
-                ->forPage($page, $blockSize)
-                ->get();
-    
-            if ($eksemplarBlock->isEmpty()) {
-                return back()->with('error', 'Rentang baris tidak ditemukan.');
+            // Hitung total data biar ga out of range
+            $totalRows = $query->count();
+            if ($startRow > $totalRows) {
+                return back()->with('error', 'Rentang baris tidak ditemukan (melebihi jumlah data).');
             }
     
-            // Slice supaya sesuai startRow & endRow
-            $startIndex = ($startRow - 1) % $blockSize;
-            $eksemplarList = $eksemplarBlock->slice($startIndex, $take)->values();
+            // Ambil data pakai chunk (per 500) biar aman
+            $remaining = $take;
+            $eksemplarList = collect();
+            $page = (int) ceil($startRow / 500);
+    
+            while ($remaining > 0 && $eksemplarList->count() < $take) {
+                $chunk = $query->select('eksemplar.*')
+                    ->forPage($page, 500) // ambil maksimal 500 per halaman
+                    ->get();
+    
+                if ($chunk->isEmpty()) {
+                    break;
+                }
+    
+                $offsetInChunk = max(0, $startRow - (($page - 1) * 500) - 1);
+                $slice = $chunk->slice($offsetInChunk, $remaining);
+    
+                $eksemplarList = $eksemplarList->merge($slice);
+                $remaining = $take - $eksemplarList->count();
+                $page++;
+            }
+    
+            if ($eksemplarList->isEmpty()) {
+                return back()->with('error', 'Rentang baris tidak ditemukan.');
+            }
     
             Eksemplar::whereIn('id', $eksemplarList->pluck('id'))
                 ->update(['sudah_dicetak' => true]);
@@ -332,7 +347,6 @@ class EksemplarController extends Controller
         return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
     }
     
-
 
 
 
