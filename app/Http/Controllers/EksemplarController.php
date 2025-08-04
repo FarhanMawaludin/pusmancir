@@ -247,113 +247,93 @@ class EksemplarController extends Controller
 
 
 
-public function cetakBatch(Request $request)
-{
-    $ids        = $request->input('selected', []);
-    $kosongAwal = (int) $request->input('kosong_awal', 0);
-    $startRow   = (int) $request->input('start_row');
-    $endRow     = (int) $request->input('end_row');
-    $search     = $request->input('search');
-    $category   = $request->input('category', 'all');
-    $tanggal    = $request->input('tanggal');
-    $sort       = $request->input('sort', 'no_induk_asc');
-
-    [$sortField, $sortDirection] = explode('_', $sort) + ['no_induk', 'asc'];
-    $sortDirection = in_array($sortDirection, ['asc', 'desc']) ? $sortDirection : 'asc';
-
-    $eksemplarList = collect();
-
-    Log::info('CetakBatch Request:', [
-        'ids' => $ids,
-        'startRow' => $startRow,
-        'endRow' => $endRow,
-        'search' => $search,
-        'category' => $category,
-        'tanggal' => $tanggal,
-        'sort' => $sort,
-    ]);
-
-    if (!empty($ids)) {
-        // Mode checkbox
-        $eksemplarList = Eksemplar::with('inventori.katalog')
-            ->whereIn('id', $ids)
-            ->orderBy('created_at', 'asc')
-            ->get();
-
-        Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
-        Log::info('CetakBatch Mode: Checkbox', ['jumlah' => $eksemplarList->count()]);
-    } elseif ($startRow && $endRow && $endRow >= $startRow) {
-        $take   = $endRow - $startRow + 1;
-
-        if ($take > 500) {
-            Log::warning('CetakBatch gagal: lebih dari 500 baris', ['take' => $take]);
-            return back()->with('error', 'Maksimal hanya bisa mencetak 500 baris dalam sekali proses.');
+    public function cetakBatch(Request $request)
+    {
+        $ids        = $request->input('selected', []);
+        $kosongAwal = (int) $request->input('kosong_awal', 0);
+        $startRow   = (int) $request->input('start_row');
+        $endRow     = (int) $request->input('end_row');
+        $search     = $request->input('search');
+        $category   = $request->input('category', 'all');
+        $tanggal    = $request->input('tanggal');
+        $sort       = $request->input('sort', 'no_induk_asc');
+    
+        [$sortField, $sortDirection] = explode('_', $sort) + ['no_induk', 'asc'];
+        $sortDirection = in_array($sortDirection, ['asc', 'desc']) ? $sortDirection : 'asc';
+    
+        $eksemplarList = collect();
+    
+        if (!empty($ids)) {
+            // Mode checkbox
+            $eksemplarList = Eksemplar::with('inventori.katalog')
+                ->whereIn('id', $ids)
+                ->orderBy('created_at', 'asc')
+                ->get();
+    
+            Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
+        } elseif ($startRow && $endRow && $endRow >= $startRow) {
+            $take   = $endRow - $startRow + 1;
+    
+            if ($take > 500) {
+                return back()->with('error', 'Maksimal hanya bisa mencetak 500 baris dalam sekali proses.');
+            }
+    
+            // Subquery dengan ROW_NUMBER biar offset besar tetap cepat
+            $subQuery = Eksemplar::join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
+                ->when($search, function ($q) use ($search) {
+                    $q->where(function ($sub) use ($search) {
+                        $sub->where('inventori.judul_buku', 'like', "%{$search}%")
+                            ->orWhere('inventori.pengarang', 'like', "%{$search}%");
+                    });
+                })
+                ->when($category !== 'all', function ($q) use ($category) {
+                    $q->where('eksemplar.id_kategori_buku', $category);
+                })
+                ->when($tanggal, function ($q) use ($tanggal) {
+                    $q->whereDate('eksemplar.created_at', $tanggal);
+                })
+                ->select(
+                    'eksemplar.*',
+                    DB::raw('ROW_NUMBER() OVER (ORDER BY ' . $this->getSortColumn($sortField) . ' ' . $sortDirection . ') as row_num')
+                );
+    
+            $wrapped = DB::table(DB::raw("({$subQuery->toSql()}) as sub"))
+                ->mergeBindings($subQuery->getQuery())
+                ->whereBetween('row_num', [$startRow, $endRow])
+                ->get();
+    
+            $eksemplarList = Eksemplar::with('inventori')
+                ->whereIn('id', $wrapped->pluck('id'))
+                ->get();
+    
+            if ($eksemplarList->isEmpty()) {
+                return back()->with('error', 'Rentang baris tidak ditemukan.');
+            }
+    
+            Eksemplar::whereIn('id', $eksemplarList->pluck('id'))
+                ->update(['sudah_dicetak' => true]);
+        } else {
+            return back()->with('error', 'Pilih data lewat checkbox atau isi rentang baris.');
         }
-
-        $query = Eksemplar::with('inventori')
-            ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
-            ->when($search, function ($q) use ($search) {
-                $q->where(function ($sub) use ($search) {
-                    $sub->where('inventori.judul_buku', 'like', "%{$search}%")
-                        ->orWhere('inventori.pengarang', 'like', "%{$search}%");
-                });
-            })
-            ->when($category !== 'all', function ($q) use ($category) {
-                $q->where('eksemplar.id_kategori_buku', $category);
-            })
-            ->when($tanggal, function ($q) use ($tanggal) {
-                $q->whereDate('eksemplar.created_at', $tanggal);
-            });
-
-        // Sorting
+    
+        return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
+    }
+    
+    /**
+     * Mapping kolom sort biar sesuai index
+     */
+    private function getSortColumn($sortField)
+    {
         switch ($sortField) {
             case 'judul':
-                $query->orderBy('inventori.judul_buku', $sortDirection);
-                break;
-            case 'no_induk':
-                $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) {$sortDirection}");
-                break;
+                return 'inventori.judul_buku';
             case 'created_at':
-                $query->orderBy('eksemplar.created_at', $sortDirection);
-                break;
+                return 'eksemplar.created_at';
+            case 'no_induk':
             default:
-                $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) asc");
+                return 'CAST(eksemplar.no_induk AS UNSIGNED)';
         }
-
-        Log::info('CetakBatch Query sebelum ambil data', [
-            'skip' => $startRow - 1,
-            'take' => $take,
-        ]);
-
-        $eksemplarList = $query->select('eksemplar.*')
-            ->skip($startRow - 1)
-            ->take($take)
-            ->get();
-
-        Log::info('CetakBatch Data diambil', [
-            'dari_row' => $startRow,
-            'sampai_row' => $endRow,
-            'jumlah_ditemukan' => $eksemplarList->count(),
-        ]);
-
-        if ($eksemplarList->isEmpty()) {
-            Log::warning('CetakBatch gagal: Rentang baris tidak ditemukan', [
-                'startRow' => $startRow,
-                'endRow' => $endRow,
-            ]);
-            return back()->with('error', 'Rentang baris tidak ditemukan.');
-        }
-
-        Eksemplar::whereIn('id', $eksemplarList->pluck('id'))
-            ->update(['sudah_dicetak' => true]);
-    } else {
-        Log::warning('CetakBatch gagal: tidak ada checkbox dan tidak ada rentang baris');
-        return back()->with('error', 'Pilih data lewat checkbox atau isi rentang baris.');
     }
-
-    return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
-}
-
 
 
 
