@@ -257,13 +257,12 @@ class EksemplarController extends Controller
         $category   = $request->input('category', 'all');
         $tanggal    = $request->input('tanggal');
         $sort       = $request->input('sort', 'no_induk_asc');
-
-        [$sortField, $sortDirection] = explode('_', $sort) + [null, null];
-        $sortField = $sortField ?? 'no_induk';
+    
+        [$sortField, $sortDirection] = explode('_', $sort) + ['no_induk', 'asc'];
         $sortDirection = in_array($sortDirection, ['asc', 'desc']) ? $sortDirection : 'asc';
-
+    
         $eksemplarList = collect();
-
+    
         Log::info('CetakBatch Request:', [
             'ids' => $ids,
             'startRow' => $startRow,
@@ -273,7 +272,7 @@ class EksemplarController extends Controller
             'tanggal' => $tanggal,
             'sort' => $sort,
         ]);
-
+    
         if (!empty($ids)) {
             // Mode checkbox
             try {
@@ -281,7 +280,7 @@ class EksemplarController extends Controller
                     ->whereIn('id', $ids)
                     ->orderBy('created_at', 'asc')
                     ->get();
-
+    
                 Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
                 Log::info('CetakBatch Mode: Checkbox', ['jumlah' => $eksemplarList->count()]);
             } catch (\Exception $e) {
@@ -293,16 +292,15 @@ class EksemplarController extends Controller
             }
         } elseif ($startRow && $endRow && $endRow >= $startRow) {
             $take = $endRow - $startRow + 1;
-
+    
             if ($take > 500) {
                 Log::warning('CetakBatch gagal: lebih dari 500 baris', ['take' => $take]);
                 return back()->with('error', 'Maksimal hanya bisa mencetak 500 baris dalam sekali proses.');
             }
-
+    
             try {
-                // Query base (SAMA DENGAN INDEX)
-                $baseQuery = Eksemplar::with('inventori')
-                    ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
+                // Query base (untuk count dan ambil ID)
+                $baseQuery = Eksemplar::join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
                     ->when($search, function ($q) use ($search) {
                         $q->where(function ($sub) use ($search) {
                             $sub->where('inventori.judul_buku', 'like', "%{$search}%")
@@ -315,7 +313,13 @@ class EksemplarController extends Controller
                     ->when($tanggal, function ($q) use ($tanggal) {
                         $q->whereDate('eksemplar.created_at', $tanggal);
                     });
-
+    
+                // Hitung total data
+                $totalRows = (clone $baseQuery)->count();
+                if ($endRow > $totalRows) {
+                    return back()->with('error', 'Rentang baris melebihi jumlah data yang tersedia.');
+                }
+    
                 // Sorting sama dengan index
                 switch ($sortField) {
                     case 'judul':
@@ -329,33 +333,28 @@ class EksemplarController extends Controller
                         break;
                     default:
                         $baseQuery->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) asc");
-                        break;
                 }
-
-                // Hitung total data
-                $totalRows = (clone $baseQuery)->count();
-                if ($endRow > $totalRows) {
-                    return back()->with('error', 'Rentang baris melebihi jumlah data yang tersedia.');
-                }
-
-                // Ambil ID berdasarkan rentang
+    
+                // Ambil ID berdasarkan rentang tanpa skip besar
                 $idsForRange = collect();
                 $remaining   = $take;
-
+    
+                // Cari titik awal (row ke startRow)
                 $firstId = (clone $baseQuery)
                     ->select('eksemplar.id')
                     ->skip($startRow - 1)
                     ->take(1)
                     ->value('eksemplar.id');
-
+    
                 if (!$firstId) {
                     return back()->with('error', 'Rentang baris tidak ditemukan.');
                 }
-
+    
+                // Ambil mulai dari firstId secara bertahap
                 $lastFetchedId = null;
                 while ($remaining > 0) {
                     $batchSize = min($remaining, 200);
-
+    
                     $batch = (clone $baseQuery)
                         ->select('eksemplar.id')
                         ->when($lastFetchedId, function ($q) use ($lastFetchedId, $sortDirection) {
@@ -367,35 +366,38 @@ class EksemplarController extends Controller
                         })
                         ->take($batchSize)
                         ->pluck('eksemplar.id');
-
+    
                     if ($batch->isEmpty()) {
                         break;
                     }
-
+    
                     $idsForRange = $idsForRange->merge($batch);
                     $remaining   -= $batch->count();
                     $lastFetchedId = $batch->last();
                 }
-
+    
                 if ($idsForRange->isEmpty()) {
                     return back()->with('error', 'Rentang baris tidak ditemukan.');
                 }
-
+    
+                // Ambil data lengkap berdasarkan ID
                 $eksemplarList = Eksemplar::with('inventori')
                     ->whereIn('eksemplar.id', $idsForRange)
                     ->orderByRaw("FIELD(eksemplar.id, " . implode(',', $idsForRange->toArray()) . ")")
                     ->get();
-
+    
+                // Update status cetak bertahap
                 $idsChunked = $eksemplarList->pluck('id')->chunk(100);
                 foreach ($idsChunked as $chunk) {
                     Eksemplar::whereIn('id', $chunk)->update(['sudah_dicetak' => true]);
                 }
-
+    
                 Log::info('CetakBatch berhasil', [
                     'dari_row' => $startRow,
                     'sampai_row' => $endRow,
                     'jumlah_ditemukan' => $eksemplarList->count(),
                 ]);
+    
             } catch (\Exception $e) {
                 Log::error('CetakBatch gagal: Error saat query', [
                     'error' => $e->getMessage(),
@@ -406,11 +408,10 @@ class EksemplarController extends Controller
         } else {
             return back()->with('error', 'Pilih data lewat checkbox atau isi rentang baris.');
         }
-
+    
         return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
     }
-
-
+    
 
 
 
