@@ -308,9 +308,9 @@ class EksemplarController extends Controller
     
             // Hitung halaman forPage berdasarkan startRow
             $page = (int) ceil($startRow / $take);
-            $blockSize = $take + 100; // ✅ Tambah buffer biar aman
+            $blockSize = $take + 100; // buffer aman
     
-            // Ambil blok data
+            // Ambil blok data sesuai filter & sort index
             $eksemplarBlock = $query->select('eksemplar.*')
                 ->forPage($page, $blockSize)
                 ->get();
@@ -331,6 +331,7 @@ class EksemplarController extends Controller
     
         return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
     }
+    
     
 
 
