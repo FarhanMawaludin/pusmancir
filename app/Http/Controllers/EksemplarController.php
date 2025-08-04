@@ -270,7 +270,6 @@ class EksemplarController extends Controller
             Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
         } elseif ($startRow && $endRow && $endRow >= $startRow) {
             $take   = $endRow - $startRow + 1;
-            $offset = $startRow - 1;
     
             if ($take > 500) {
                 return back()->with('error', 'Maksimal hanya bisa mencetak 500 baris dalam sekali proses.');
@@ -307,10 +306,11 @@ class EksemplarController extends Controller
                     $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) asc");
             }
     
-            // ✅ Solusi untuk offset besar
+            // Hitung halaman forPage berdasarkan startRow
             $page = (int) ceil($startRow / $take);
-            $blockSize = $take + 50; // buffer
+            $blockSize = $take + 100; // ✅ Tambah buffer biar aman
     
+            // Ambil blok data
             $eksemplarBlock = $query->select('eksemplar.*')
                 ->forPage($page, $blockSize)
                 ->get();
@@ -319,7 +319,7 @@ class EksemplarController extends Controller
                 return back()->with('error', 'Rentang baris tidak ditemukan.');
             }
     
-            // Slice supaya tepat sesuai startRow–endRow
+            // Slice supaya sesuai startRow & endRow persis
             $startIndex = ($startRow - 1) % $blockSize;
             $eksemplarList = $eksemplarBlock->slice($startIndex, $take)->values();
     
