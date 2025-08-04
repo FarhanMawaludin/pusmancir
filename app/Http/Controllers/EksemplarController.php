@@ -276,7 +276,7 @@ class EksemplarController extends Controller
             }
     
             // Query sesuai filter index
-            $query = Eksemplar::with('inventori') 
+            $query = Eksemplar::with('inventori')
                 ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
                 ->when($search, function ($q) use ($search) {
                     $q->where(function ($sub) use ($search) {
@@ -312,27 +312,11 @@ class EksemplarController extends Controller
                 return back()->with('error', 'Rentang baris tidak ditemukan (melebihi jumlah data).');
             }
     
-            // Ambil data pakai chunk (per 500) biar aman
-            $remaining = $take;
-            $eksemplarList = collect();
-            $page = (int) ceil($startRow / 500);
-    
-            while ($remaining > 0 && $eksemplarList->count() < $take) {
-                $chunk = $query->select('eksemplar.*')
-                    ->forPage($page, 500) // ambil maksimal 500 per halaman
-                    ->get();
-    
-                if ($chunk->isEmpty()) {
-                    break;
-                }
-    
-                $offsetInChunk = max(0, $startRow - (($page - 1) * 500) - 1);
-                $slice = $chunk->slice($offsetInChunk, $remaining);
-    
-                $eksemplarList = $eksemplarList->merge($slice);
-                $remaining = $take - $eksemplarList->count();
-                $page++;
-            }
+            // Ambil data langsung pakai skip & take sesuai startRow dan endRow
+            $eksemplarList = $query->select('eksemplar.*')
+                ->skip($startRow - 1)
+                ->take($take)
+                ->get();
     
             if ($eksemplarList->isEmpty()) {
                 return back()->with('error', 'Rentang baris tidak ditemukan.');
