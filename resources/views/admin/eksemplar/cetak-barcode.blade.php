@@ -3,11 +3,26 @@
 
     $generator = new BarcodeGeneratorPNG();
     $barcode = base64_encode($generator->getBarcode($eksemplar->no_rfid, $generator::TYPE_CODE_128));
+
+    $noPanggil = optional($eksemplar->inventori->katalog->first())->no_panggil ?? '-';
+    $firstDigit = is_numeric($noPanggil[0] ?? null) ? $noPanggil[0] : null;
+    $colorClass = match ($firstDigit) {
+        '0' => 'bg-pink-dark',
+        '1' => 'bg-light',
+        '2' => 'bg-orange-dark',
+        '3' => 'bg-green-light',
+        '4' => 'bg-white',
+        '5' => 'bg-navy',
+        '6' => 'bg-yellow-light',
+        '7' => 'bg-orange-light',
+        '8' => 'bg-pink-light',
+        '9' => 'bg-green-light',
+        default => 'bg-default',
+    };
 @endphp
 
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <title>Cetak Label Barcode - Satuan (TJ121)</title>
@@ -27,11 +42,14 @@
             height: 21.5cm;
             padding: 0.2cm 0.5cm;
             box-sizing: border-box;
+
             display: grid;
             grid-template-columns: repeat(2, 8cm);
             grid-template-rows: repeat(5, 4cm);
             column-gap: 0.5cm;
             row-gap: 0.2cm;
+
+            page-break-after: always;
         }
 
         .label {
@@ -44,7 +62,7 @@
             font-size: 8pt;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
         }
 
         .label-columns {
@@ -82,6 +100,7 @@
             display: flex;
             flex-direction: row;
             align-items: center;
+            height: auto;
         }
 
         .top-left {
@@ -135,10 +154,35 @@
             .sheet {
                 page-break-inside: avoid;
             }
+
+            .bg-pink-dark,
+            .bg-light,
+            .bg-orange-dark,
+            .bg-green-light,
+            .bg-white,
+            .bg-navy,
+            .bg-yellow-light,
+            .bg-orange-light,
+            .bg-pink-light,
+            .bg-default {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
+
+        /* Warna Label */
+        .bg-pink-dark { background-color: #c53074; color: white; }
+        .bg-light { background-color: #ADD8E6; color: #111; }
+        .bg-orange-dark { background-color: #c05621; color: white; }
+        .bg-green-light { background-color: #9ae6b4; color: #1a202c; }
+        .bg-white { background-color: #ffffff; color: #000; }
+        .bg-navy { background-color: #2c3e50; color: white; }
+        .bg-yellow-light { background-color: #faf089; color: #1a202c; }
+        .bg-orange-light { background-color: #f6ad55; color: #1a202c; }
+        .bg-pink-light { background-color: #fbb6ce; color: #1a202c; }
+        .bg-default { background-color: #e2e8f0; color: #1a202c; }
     </style>
 </head>
-
 <body>
     <div class="sheet">
         <div class="label">
@@ -166,9 +210,9 @@
                 </div>
 
                 {{-- Kolom Kanan --}}
-                <div class="right-column">
+                <div class="right-column {{ $colorClass }}">
                     <div class="no-panggil">
-                        {{ optional($eksemplar->inventori->katalog->first())->no_panggil ?? '-' }}
+                        {{ $noPanggil }}
                     </div>
                 </div>
             </div>
@@ -184,5 +228,4 @@
         window.print();
     </script>
 </body>
-
 </html>

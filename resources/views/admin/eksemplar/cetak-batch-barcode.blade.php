@@ -149,7 +149,7 @@
         }
 
         .bg-light {
-            background-color: #f3f4f6;
+            background-color: #ADD8E6;
             color: #111;
         }
 
