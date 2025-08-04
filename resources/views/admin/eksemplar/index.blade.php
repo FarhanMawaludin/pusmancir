@@ -8,7 +8,7 @@
     <form method="GET" action="{{ route('admin.eksemplar.index') }}" class="flex items-center gap-3 mb-4">
         <input type="text" name="search" placeholder="Cari judul atau pengarang..." value="{{ request('search') }}"
             class="border border-gray-300 rounded px-4 py-1.5 text-sm">
-
+    
         <select name="sort" class="border border-gray-300 rounded px-3 py-1.5 text-sm">
             <option value="no_induk_asc" {{ request('sort', 'no_induk_asc') == 'no_induk_asc' ? 'selected' : '' }}>
                 No Induk Asc
@@ -20,15 +20,21 @@
                 Judul Z - A
             </option>
         </select>
+    
         <input type="date" name="tanggal" value="{{ request('tanggal') }}"
             class="border border-gray-300 rounded px-2 py-1.5 text-sm">
-
+    
+        <select name="per_page" class="border border-gray-300 rounded px-3 py-1.5 text-sm"
+            onchange="this.form.submit()">
+            <option value="25" {{ request('per_page', 25) == 25 ? 'selected' : '' }}>25</option>
+            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+            <option value="500" {{ request('per_page') == 500 ? 'selected' : '' }}>500</option>
+            <option value="1000" {{ request('per_page') == 1000 ? 'selected' : '' }}>1000</option>
+        </select>
+    
         <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-sm">
             Filter
         </button>
-
-        
-
     </form>
 
 
