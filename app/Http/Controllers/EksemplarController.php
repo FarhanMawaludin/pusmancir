@@ -486,6 +486,10 @@ class EksemplarController extends Controller
 
     public function cetakBatch(Request $request)
     {
+
+        ini_set('memory_limit', '512M'); // atau lebih
+        ini_set('max_execution_time', 300); // 5 menit, sesuaikan
+        
         $ids        = $request->input('selected', []);
         $kosongAwal = (int) $request->input('kosong_awal', 0);
         $startRow   = (int) $request->input('start_row');
@@ -494,18 +498,18 @@ class EksemplarController extends Controller
         $category   = $request->input('category', 'all');
         $tanggal    = $request->input('tanggal');
         $sort       = $request->input('sort', 'no_induk_asc');
-    
+
         [$sortField, $sortDirection] = explode('_', $sort) + ['no_induk', 'asc'];
         $sortDirection = in_array($sortDirection, ['asc', 'desc']) ? $sortDirection : 'asc';
-    
+
         $eksemplarList = collect();
-    
+
         if (!empty($ids)) {
             $eksemplarList = Eksemplar::with('inventori.katalog')
                 ->whereIn('id', $ids)
                 ->orderBy('created_at', 'asc')
                 ->get();
-    
+
             Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
         } elseif ($startRow && $endRow && $endRow >= $startRow) {
             try {
@@ -525,7 +529,7 @@ class EksemplarController extends Controller
                     })
                     ->with('inventori')
                     ->get();
-    
+
                 // Sorting collection berdasarkan kondisi
                 if ($sortDirection === 'desc') {
                     $allIds = $allIds->sortByDesc(function ($item) use ($sortField) {
@@ -548,39 +552,39 @@ class EksemplarController extends Controller
                         return $item->{$sortField} ?? '';
                     });
                 }
-    
+
                 $allIds = $allIds->pluck('id');
-    
+
                 // Validasi jumlah data
                 $totalData = $allIds->count();
-    
+
                 if ($startRow > $totalData) {
                     return back()->with('error', "Baris mulai ($startRow) melebihi jumlah data yang tersedia ($totalData).");
                 }
-    
+
                 if ($endRow > $totalData) {
                     $endRow = $totalData;
                 }
-    
+
                 $take = $endRow - $startRow + 1;
-    
+
                 if ($take > 500) {
                     return back()->with('error', 'Maksimal hanya bisa mencetak 500 baris dalam sekali proses.');
                 }
-    
+
                 // Ambil ID rentang yang diminta
                 $idList = $allIds->slice($startRow - 1, $take)->values();
-    
+
                 if ($idList->isEmpty()) {
                     return back()->with('error', 'Tidak ada data ditemukan.');
                 }
-    
+
                 // Ambil data sesuai ID dan urutkan sesuai urutan $idList
                 $eksemplarList = Eksemplar::with('inventori.katalog')
                     ->whereIn('id', $idList)
                     ->orderByRaw("FIELD(id, " . $idList->implode(',') . ")")
                     ->get();
-    
+
                 // Update status cetak
                 Eksemplar::whereIn('id', $idList)->update(['sudah_dicetak' => true]);
             } catch (\Exception $e) {
@@ -593,11 +597,9 @@ class EksemplarController extends Controller
         } else {
             return back()->with('error', 'Pilih data atau isi rentang baris.');
         }
-    
+
         return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
     }
-    
-    
 
 
 
@@ -618,7 +620,9 @@ class EksemplarController extends Controller
 
 
 
-    
+
+
+
 
     public function edit($id)
     {
