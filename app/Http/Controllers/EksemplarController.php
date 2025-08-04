@@ -83,76 +83,76 @@ class EksemplarController extends Controller
     // }
 
     public function index(Request $request)
-    {
-        $activeMenu = "eksemplar";
+{
+    $activeMenu = "eksemplar";
 
-        $search = $request->input('search');
-        $category = $request->input('category', 'all');
-        $sort = $request->input('sort', 'no_induk_asc');
-        $tanggal = $request->input('tanggal');
-        $perPage = $request->input('per_page', 25); // default 25
+    $search = $request->input('search');
+    $category = $request->input('category', 'all');
+    $sort = $request->input('sort', 'no_induk_asc');
+    $tanggal = $request->input('tanggal');
+    $perPage = $request->input('per_page', 25); // default 25
 
-        [$sortField, $sortDirection] = explode('_', $sort) + [null, null];
-        $sortField = $sortField ?? 'no_induk';
-        $sortDirection = in_array($sortDirection, ['asc', 'desc']) ? $sortDirection : 'asc';
+    [$sortField, $sortDirection] = explode('_', $sort) + [null, null];
+    $sortField = $sortField ?? 'no_induk';
+    $sortDirection = in_array($sortDirection, ['asc', 'desc']) ? $sortDirection : 'asc';
 
-        $query = \App\Models\Eksemplar::with('inventori')
-            ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
-            ->when($search, function ($q) use ($search) {
-                $q->where(function ($subQuery) use ($search) {
-                    $subQuery->where('inventori.judul_buku', 'like', "%{$search}%")
-                        ->orWhere('inventori.pengarang', 'like', "%{$search}%");
-                });
-            })
-            ->when($category !== 'all', function ($q) use ($category) {
-                $q->where('eksemplar.id_kategori_buku', $category);
-            })
-            ->when($tanggal, function ($q) use ($tanggal) {
-                $q->whereDate('eksemplar.created_at', $tanggal);
+    $query = \App\Models\Eksemplar::with('inventori')
+        ->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
+        ->when($search, function ($q) use ($search) {
+            $q->where(function ($subQuery) use ($search) {
+                $subQuery->where('inventori.judul_buku', 'like', "%{$search}%")
+                    ->orWhere('inventori.pengarang', 'like', "%{$search}%");
             });
+        })
+        ->when($category !== 'all', function ($q) use ($category) {
+            $q->where('eksemplar.id_kategori_buku', $category);
+        })
+        ->when($tanggal, function ($q) use ($tanggal) {
+            $q->whereDate('eksemplar.created_at', $tanggal);
+        });
 
-        // Sorting
-        switch ($sortField) {
-            case 'judul':
-                $query->orderBy('inventori.judul_buku', $sortDirection);
-                break;
+    // Sorting
+    switch ($sortField) {
+        case 'judul':
+            $query->orderBy('inventori.judul_buku', $sortDirection);
+            break;
 
-            case 'no_induk':
-                $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) $sortDirection");
-                break;
+        case 'no_induk':
+            $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) $sortDirection");
+            break;
 
-            case 'created_at':
-                $query->orderBy('eksemplar.created_at', $sortDirection);
-                break;
+        case 'created_at':
+            $query->orderBy('eksemplar.created_at', $sortDirection);
+            break;
 
-            default:
-                $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) asc");
-                break;
-        }
-
-        $eksemplar = $query->select('eksemplar.*')
-            ->paginate($perPage)
-            ->appends([
-                'search' => $search,
-                'category' => $category,
-                'sort' => $sort,
-                'tanggal' => $tanggal,
-                'per_page' => $perPage,
-            ]);
-
-        return view('admin.eksemplar.index', compact(
-            'eksemplar',
-            'activeMenu',
-            'search',
-            'category',
-            'sort',
-            'tanggal',
-            'perPage'
-        ));
+        default:
+            $query->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) asc");
+            break;
     }
 
+    $eksemplar = $query->select('eksemplar.*')
+        ->paginate($perPage)
+        ->appends([
+            'search' => $search,
+            'category' => $category,
+            'sort' => $sort,
+            'tanggal' => $tanggal,
+            'per_page' => $perPage,
+        ]);
+
+    return view('admin.eksemplar.index', compact(
+        'eksemplar',
+        'activeMenu',
+        'search',
+        'category',
+        'sort',
+        'tanggal',
+        'perPage'
+    ));
+}
 
 
+    
 
 
 
@@ -169,43 +169,43 @@ class EksemplarController extends Controller
     }
 
 
-    // public function cetakBatch(Request $request)
-    // {
-    //     $ids = $request->input('selected', []);
-    //     $kosongAwal = (int) $request->input('kosong_awal', 0);
-    //     $start = (int) $request->input('start_induk');
-    //     $end = (int) $request->input('end_induk');
+    public function cetakBatch(Request $request)
+    {
+        $ids = $request->input('selected', []);
+        $kosongAwal = (int) $request->input('kosong_awal', 0);
+        $start = (int) $request->input('start_induk');
+        $end = (int) $request->input('end_induk');
 
-    //     $eksemplarList = collect();
+        $eksemplarList = collect();
 
-    //     // Pilihan via checkbox
-    //     if (!empty($ids)) {
-    //         $eksemplarList = Eksemplar::with('inventori.katalog')
-    //             ->whereIn('id', $ids)
-    //             ->orderBy('no_induk', 'desc')
-    //             ->get();
+        // Pilihan via checkbox
+        if (!empty($ids)) {
+            $eksemplarList = Eksemplar::with('inventori.katalog')
+                ->whereIn('id', $ids)
+                ->orderBy('no_induk', 'desc')
+                ->get();
 
-    //         //Tandai sudah dicetak
-    //         Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
-    //     } elseif ($start && $end && $end >= $start) {
-    //         $take = $end - $start + 1;
+            //Tandai sudah dicetak
+            Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
+        } elseif ($start && $end && $end >= $start) {
+            $take = $end - $start + 1;
 
-    //         $eksemplarList = Eksemplar::with('inventori.katalog')
-    //             ->orderBy('no_induk', 'desc')
-    //             ->orderBy('created_at', 'desc')
-    //             ->skip($start - 1)
-    //             ->take($take)
-    //             ->get();
+            $eksemplarList = Eksemplar::with('inventori.katalog')
+                ->orderBy('no_induk', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->skip($start - 1)
+                ->take($take)
+                ->get();
 
-    //         // Ambil ID untuk update cetak
-    //         $updateIds = $eksemplarList->pluck('id')->toArray();
-    //         Eksemplar::whereIn('id', $updateIds)->update(['sudah_dicetak' => true]);
-    //     } else {
-    //         return back()->with('error', 'Pilih data lewat checkbox atau isi rentang No. Induk.');
-    //     }
+            // Ambil ID untuk update cetak
+            $updateIds = $eksemplarList->pluck('id')->toArray();
+            Eksemplar::whereIn('id', $updateIds)->update(['sudah_dicetak' => true]);
+        } else {
+            return back()->with('error', 'Pilih data lewat checkbox atau isi rentang No. Induk.');
+        }
 
-    //     return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
-    // }
+        return view('admin.eksemplar.cetak-batch-barcode', compact('eksemplarList', 'kosongAwal'));
+    }
 
 
 
