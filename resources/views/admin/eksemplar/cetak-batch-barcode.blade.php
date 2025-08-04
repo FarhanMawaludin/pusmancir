@@ -32,7 +32,6 @@
             page-break-after: always;
         }
 
-
         .label {
             width: 8cm;
             height: 4cm;
@@ -53,7 +52,6 @@
             margin-left: 0.15cm;
             /* hanya kolom kiri yang digeser ke kanan */
         }
-
 
         .label-columns {
             display: flex;
@@ -211,10 +209,11 @@
     @php
         // Memecah eksemplarList jadi chunks 10 per halaman
         $chunkedEksemplar = $eksemplarList->chunk(10);
+        $generator = new \Picqer\Barcode\BarcodeGeneratorPNG(); // buat sekali
     @endphp
 
     @foreach ($chunkedEksemplar as $chunkIndex => $chunk)
-        <div class="sheet">
+        <div class="sheet" style="{{ $loop->last ? '' : 'page-break-after: always;' }}">
             {{-- Kosong awal hanya untuk halaman pertama --}}
             @if ($chunkIndex === 0)
                 @for ($i = 0; $i < $kosongAwal; $i++)
@@ -224,11 +223,15 @@
 
             @foreach ($chunk as $eksemplar)
                 @php
-                    $generator = new \Picqer\Barcode\BarcodeGeneratorPNG();
-                    $barcode = base64_encode($generator->getBarcode($eksemplar->no_rfid, $generator::TYPE_CODE_128));
+                    $barcode = !empty($eksemplar->no_rfid)
+                        ? base64_encode($generator->getBarcode($eksemplar->no_rfid, $generator::TYPE_CODE_128))
+                        : null;
 
-                    $noPanggil = optional($eksemplar->inventori->katalog->first())->no_panggil ?? '-';
-                    $firstDigit = is_numeric($noPanggil[0]) ? $noPanggil[0] : null;
+                    $noPanggil = optional($eksemplar->inventori->katalog->first())->no_panggil ?? '';
+                    $firstDigit = (!empty($noPanggil) && is_numeric(substr($noPanggil, 0, 1)))
+                        ? substr($noPanggil, 0, 1)
+                        : null;
+
                     $colorClass = match ($firstDigit) {
                         '0' => 'bg-pink-dark',
                         '1' => 'bg-light',
@@ -261,17 +264,21 @@
                             </div>
 
                             <div class="label-content">
-                                <p><strong>{{ Str::limit($eksemplar->inventori->judul_buku, 25) }}</strong></p>
-                                <p>{{ $eksemplar->no_induk }}</p>
-                                <img class="barcode" src="data:image/png;base64,{{ $barcode }}" alt="Barcode">
-                                <p>{{ $eksemplar->no_rfid }}</p>
+                                <p><strong>{{ Str::limit($eksemplar->inventori->judul_buku ?? '-', 25) }}</strong></p>
+                                <p>{{ $eksemplar->no_induk ?? '-' }}</p>
+                                @if($barcode)
+                                    <img class="barcode" src="data:image/png;base64,{{ $barcode }}" alt="Barcode">
+                                @else
+                                    <p style="color:red;font-size:6pt;">RFID kosong</p>
+                                @endif
+                                <p>{{ $eksemplar->no_rfid ?? '-' }}</p>
                             </div>
                         </div>
 
                         {{-- Kolom Kanan --}}
                         <div class="right-column {{ $colorClass }}">
                             <div class="no-panggil">
-                                {{ $noPanggil }}
+                                {{ $noPanggil ?: '-' }}
                             </div>
                         </div>
                     </div>
