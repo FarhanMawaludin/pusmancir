@@ -26,10 +26,12 @@
             grid-template-columns: repeat(2, 8cm);
             grid-template-rows: repeat(5, 4cm);
             column-gap: 0.5cm;
-            row-gap: 0.2cm;
+            row-gap: 0.1cm;
+            /* <--- jarak antar baris diperkecil */
 
             page-break-after: always;
         }
+
 
         .label {
             width: 8cm;
