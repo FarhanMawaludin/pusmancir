@@ -486,6 +486,9 @@ class EksemplarController extends Controller
 
     public function cetakBatch(Request $request)
     {
+        ini_set('max_execution_time', 120);
+        ini_set('memory_limit', '512M');
+    
         $ids        = $request->input('selected', []);
         $kosongAwal = (int) $request->input('kosong_awal', 0);
         $startRow   = (int) $request->input('start_row');
@@ -500,18 +503,7 @@ class EksemplarController extends Controller
     
         $eksemplarList = collect();
     
-        Log::info('CetakBatch Request:', [
-            'ids' => $ids,
-            'startRow' => $startRow,
-            'endRow' => $endRow,
-            'search' => $search,
-            'category' => $category,
-            'tanggal' => $tanggal,
-            'sort' => $sort,
-        ]);
-    
         if (!empty($ids)) {
-            // Mode checkbox
             try {
                 $eksemplarList = Eksemplar::with('inventori.katalog')
                     ->whereIn('id', $ids)
@@ -519,89 +511,76 @@ class EksemplarController extends Controller
                     ->get();
     
                 Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
-    
-                Log::info('CetakBatch Mode: Checkbox', ['jumlah' => $eksemplarList->count()]);
             } catch (\Exception $e) {
-                Log::error('CetakBatch gagal di mode checkbox: ', [
-                    'error' => $e->getMessage(),
-                    'ids_count' => count($ids),
-                ]);
+                Log::error('CetakBatch error checkbox', ['msg' => $e->getMessage()]);
                 return back()->with('error', 'Terjadi kesalahan saat memproses data checkbox.');
             }
         } elseif ($startRow && $endRow && $endRow >= $startRow) {
             $take = $endRow - $startRow + 1;
     
             if ($take > 500) {
-                Log::warning('CetakBatch gagal: lebih dari 500 baris', ['take' => $take]);
                 return back()->with('error', 'Maksimal hanya bisa mencetak 500 baris dalam sekali proses.');
             }
     
             try {
-                // Query filter awal
-                $baseQuery = Eksemplar::join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
+                $filteredIds = Eksemplar::query()
                     ->when($search, function ($q) use ($search) {
-                        $q->where(function ($sub) use ($search) {
-                            $sub->where('inventori.judul_buku', 'like', "%{$search}%")
-                                ->orWhere('inventori.pengarang', 'like', "%{$search}%");
+                        $q->whereHas('inventori', function ($sub) use ($search) {
+                            $sub->where('judul_buku', 'like', "%{$search}%")
+                                ->orWhere('pengarang', 'like', "%{$search}%");
                         });
                     })
                     ->when($category !== 'all', function ($q) use ($category) {
-                        $q->where('eksemplar.id_kategori_buku', $category);
+                        $q->where('id_kategori_buku', $category);
                     })
                     ->when($tanggal, function ($q) use ($tanggal) {
-                        $q->whereDate('eksemplar.created_at', $tanggal);
+                        $q->whereDate('created_at', $tanggal);
                     });
     
-                // Sorting stabil
+                // Sorting
                 switch ($sortField) {
                     case 'judul':
-                        $baseQuery->orderBy('inventori.judul_buku', $sortDirection)
-                                  ->orderBy('eksemplar.id', 'asc');
+                        $filteredIds->join('inventori', 'eksemplar.id_inventori', '=', 'inventori.id')
+                            ->orderBy('inventori.judul_buku', $sortDirection)
+                            ->orderBy('eksemplar.id', 'asc');
                         break;
                     case 'no_induk':
-                        $baseQuery->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) {$sortDirection}")
-                                  ->orderBy('eksemplar.id', 'asc');
+                        $filteredIds->orderByRaw("CAST(no_induk AS UNSIGNED) {$sortDirection}")
+                            ->orderBy('id', 'asc');
                         break;
                     case 'created_at':
-                        $baseQuery->orderBy('eksemplar.created_at', $sortDirection)
-                                  ->orderBy('eksemplar.id', 'asc');
+                        $filteredIds->orderBy('created_at', $sortDirection)
+                            ->orderBy('id', 'asc');
                         break;
                     default:
-                        $baseQuery->orderByRaw("CAST(eksemplar.no_induk AS UNSIGNED) asc")
-                                  ->orderBy('eksemplar.id', 'asc');
+                        $filteredIds->orderByRaw("CAST(no_induk AS UNSIGNED) asc")
+                            ->orderBy('id', 'asc');
                 }
     
-                // Ambil ID sesuai urutan
-                $ids = (clone $baseQuery)
+                // Ambil ID saja
+                $idList = $filteredIds
                     ->select('eksemplar.id')
                     ->skip($startRow - 1)
                     ->take($take)
-                    ->pluck('eksemplar.id');
+                    ->pluck('id');
     
-                if ($ids->isEmpty()) {
-                    return back()->with('error', 'Tidak ada data yang ditemukan pada rentang tersebut.');
+                if ($idList->isEmpty()) {
+                    return back()->with('error', 'Tidak ada data ditemukan pada rentang tersebut.');
                 }
     
-                // Ambil data lengkap berdasarkan ID
+                // Ambil data lengkap
                 $eksemplarList = Eksemplar::with('inventori.katalog')
-                    ->whereIn('id', $ids)
-                    ->orderByRaw("FIELD(id, " . $ids->implode(',') . ")")
+                    ->whereIn('id', $idList)
+                    ->orderByRaw("FIELD(id, " . $idList->implode(',') . ")")
                     ->get();
     
-                // Update status cetak
-                Eksemplar::whereIn('id', $ids)->update(['sudah_dicetak' => true]);
-    
-                Log::info('CetakBatch berhasil', [
-                    'dari_row' => $startRow,
-                    'sampai_row' => $endRow,
-                    'jumlah_ditemukan' => $eksemplarList->count(),
-                ]);
+                Eksemplar::whereIn('id', $idList)->update(['sudah_dicetak' => true]);
             } catch (\Exception $e) {
-                Log::error('CetakBatch gagal: Error saat query', [
+                Log::error('CetakBatch gagal ambil data range', [
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString(),
                 ]);
-                return back()->with('error', 'Terjadi kesalahan saat memproses data.');
+                return back()->with('error', 'Terjadi kesalahan saat memproses data range.');
             }
         } else {
             return back()->with('error', 'Pilih data lewat checkbox atau isi rentang baris.');
