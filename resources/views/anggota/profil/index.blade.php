@@ -42,7 +42,7 @@
                 <p class="text-[18px] font-semibold">{{ $user->name }}</p>
             </div>
             <div>
-                <p class="text-[16px] text-gray-500 mb-1">NIM</p>
+                <p class="text-[16px] text-gray-500 mb-1">NISN</p>
                 <p class="text-[18px] font-semibold">{{ $user->anggota->nisn ?? '-' }}</p>
             </div>
             <div>
