@@ -20,45 +20,47 @@
 
 <body class="text-text font-Inter bg-white">
     @if ($informasi)
-        <div id="popup-informasi"
-            class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div
-                class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl p-8 md:p-10 relative max-h-[90vh] overflow-y-auto">
-                <!-- Header -->
-                <div class="flex items-start justify-between border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-                        {{ $informasi->judul }}
-                    </h2>
-                    <button onclick="document.getElementById('popup-informasi').remove()"
-                        class="text-gray-400 hover:text-red-500 transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
+    <div id="popup-informasi"
+        class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md md:max-w-2xl p-4 sm:p-6 md:p-8 relative max-h-[85vh] overflow-y-auto">
+            
+            <!-- Header -->
+            <div class="flex items-start justify-between border-b border-gray-200 dark:border-gray-700 pb-3 mb-4">
+                <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+                    {{ $informasi->judul }}
+                </h2>
+                <button onclick="document.getElementById('popup-informasi').remove()"
+                    class="text-gray-400 hover:text-red-500 transition">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
 
-                <!-- Body -->
-                <div class="text-gray-700 dark:text-gray-300 space-y-6">
-                    @if ($informasi->thumbnail)
-                        <img src="{{ asset($informasi->thumbnail) }}" alt="Thumbnail"
-                            class="w-full max-h-40 object-contain rounded-xl mx-auto">
-                    @endif
-                    <div class="text-base leading-relaxed">
-                        {!! $informasi->isi !!}
-                    </div>
-                </div>
-
-                <!-- Footer -->
-                <div class="flex justify-end pt-6 mt-8 border-t border-gray-200 dark:border-gray-700">
-                    <button onclick="document.getElementById('popup-informasi').remove()"
-                        class="inline-flex items-center px-6 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow transition">
-                        Tutup
-                    </button>
+            <!-- Body -->
+            <div class="text-gray-700 dark:text-gray-300 space-y-4">
+                @if ($informasi->thumbnail)
+                    <img src="{{ asset($informasi->thumbnail) }}" alt="Thumbnail"
+                        class="w-full h-auto max-h-48 object-contain rounded-xl mx-auto">
+                @endif
+                <div class="text-sm sm:text-base leading-relaxed">
+                    {!! $informasi->isi !!}
                 </div>
             </div>
+
+            <!-- Footer -->
+            <div class="flex justify-end pt-4 mt-6 border-t border-gray-200 dark:border-gray-700">
+                <button onclick="document.getElementById('popup-informasi').remove()"
+                    class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow transition">
+                    Tutup
+                </button>
+            </div>
         </div>
-    @endif
+    </div>
+@endif
+
 
 
     <!-- Header -->
