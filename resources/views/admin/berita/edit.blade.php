@@ -27,6 +27,7 @@
                             class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-text border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm">
                             <option value="draft" {{ $berita->status === 'draft' ? 'selected' : '' }}>Draft</option>
                             <option value="publish" {{ $berita->status === 'publish' ? 'selected' : '' }}>Publish</option>
+                            <option value="informasi" {{ $berita->status === 'informasi' ? 'selected' : '' }}>Informasi</option>
                         </select>
                         @error('status')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

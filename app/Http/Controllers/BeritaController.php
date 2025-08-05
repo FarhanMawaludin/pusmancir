@@ -58,7 +58,7 @@ class BeritaController extends Controller
             'judul'     => 'required|string|max:255',
             'isi'       => 'required',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'status'    => 'required|in:draft,publish',
+            'status'    => 'required|in:draft,publish,informasi',
             'penulis'   => 'nullable|string|max:100',
         ]);
 
@@ -126,7 +126,7 @@ class BeritaController extends Controller
             'judul'         => 'required|string|max:255',
             'isi'           => 'required',
             'thumbnail'     => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'status'        => 'required|in:draft,publish',
+            'status'        => 'required|in:draft,publish,informasi',
             'penulis'       => 'nullable|string|max:100',
             'thumbnail_url' => 'nullable|string|max:255', // input hidden untuk simpan file lama
         ]);

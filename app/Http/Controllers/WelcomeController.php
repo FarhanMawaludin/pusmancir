@@ -100,6 +100,7 @@ class WelcomeController extends Controller
         $berita = Berita::where('status', 'publish')->latest()->get();
         $hero = $berita->first(); // Hero section: berita pertama
         $popular = Berita::where('status', 'publish')->latest()->take(5)->get(); // ✅ 5 berita terbaru
+        $informasi = Berita::where('status', 'informasi')->latest()->first();
 
 
         return view('welcome', compact(
@@ -113,7 +114,8 @@ class WelcomeController extends Controller
             'searchBy',
             'berita',
             'hero',
-            'popular'
+            'popular',
+            'informasi'
         ));
     }
 
