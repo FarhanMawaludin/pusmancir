@@ -69,7 +69,7 @@ Route::get('/informasi', function () {
 Route::post('/track-visit', [DashboardAdminController::class, 'trackVisit'])->name('track.visit');
 
 // Admin
-Route::middleware(['auth', 'role:admin,pustakawan'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardAdminController::class, 'index'])->name('dashboard.index');
 
     //Kelola Kelas
@@ -327,7 +327,7 @@ Route::get('/api/eksemplar/{no_rfid}', function ($no_rfid) {
 // });
 
 // Anggota
-Route::middleware(['auth', 'role:anggota'])->prefix('anggota')->name('anggota.')->group(function () {
+Route::middleware(['auth', 'role:anggota','prevent.back'])->prefix('anggota')->name('anggota.')->group(function () {
     Route::get('/dashboard', [DashboardAnggotaController::class, 'index'])->name('dashboard.index');
 
     //Profil
