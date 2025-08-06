@@ -16,6 +16,9 @@
                 $statusStyle = $isAvailable ? 'text-green-600' : 'text-red-600';
             @endphp
 
+            <h2 class="text-2xl font-semibold text-text leading-tight text-center mb-1">
+                {{ $buku->nama_paket }}
+            </h2>
 
             <!-- Sinopsis -->
             <div class="mb-6">
