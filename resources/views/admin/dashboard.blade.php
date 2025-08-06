@@ -241,6 +241,48 @@
 
     </div>
 
+    <form method="GET" action="{{ route('admin.dashboard.index') }}" class="flex flex-wrap gap-4 mb-4">
+        <div>
+            <label for="year" class="text-sm font-medium text-gray-600">Tahun:</label>
+            <select name="year" id="year" onchange="this.form.submit()"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                <option value="all" {{ $selectedYear == 'all' ? 'selected' : '' }}>Semua</option>
+                @foreach ($years as $year)
+                    <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>
+                        {{ $year }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        @if ($selectedYear !== 'all')
+            <div>
+                <label for="month" class="text-sm font-medium text-gray-600">Bulan:</label>
+                <select name="month" id="month" onchange="this.form.submit()"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <option value="all" {{ $selectedMonth == 'all' ? 'selected' : '' }}>Semua</option>
+                    @foreach ($months as $num => $name)
+                        <option value="{{ $num }}" {{ $selectedMonth == $num ? 'selected' : '' }}>
+                            {{ $name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
+
+        @if ($selectedYear !== 'all' && $selectedMonth !== 'all')
+            <div>
+                <label for="day" class="text-sm font-medium text-gray-600">Hari:</label>
+                <select name="day" id="day" onchange="this.form.submit()"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <option value="all" {{ $selectedDay == 'all' ? 'selected' : '' }}>Semua</option>
+                    @foreach ($days as $day)
+                        <option value="{{ $day }}" {{ $selectedDay == $day ? 'selected' : '' }}>
+                            {{ $day }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
+    </form>
+
     <div class="bg-white p-4 rounded border border-gray-200 w-full mb-6">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg font-semibold text-gray-700">
@@ -253,28 +295,29 @@
         </div>
         <canvas id="pengunjungWebsite" height="100"></canvas>
     </div>
-    
+
     <script>
-        const ctx = document.getElementById('pengunjungWebsite').getContext('2d');
+        const ctxWebsite = document.getElementById('pengunjungWebsite').getContext('2d');
     
-        new Chart(ctx, {
-            type: 'bar',
+        new Chart(ctxWebsite, {
+            type: 'line',
             data: {
-                labels: ['Hari Ini', 'Total'],
+                labels: @json($webVisitLabels),
                 datasets: [{
-                    label: 'Jumlah Pengunjung',
-                    data: [{{ $totalPengunjungHariIni }}, {{ $totalPengunjungKeseluruhan }}],
-                    backgroundColor: ['#3B82F6', '#10B981'], // Biru dan hijau
-                    borderRadius: 6,
-                    barThickness: 25,
+                    label: 'Pengunjung Website',
+                    data: @json($webVisitData),
+                    fill: false,
+                    borderColor: '#10B981',
+                    backgroundColor: '#10B981',
+                    tension: 0.3,
+                    pointRadius: 4
                 }]
             },
             options: {
-                indexAxis: 'y', // 👉 Horizontal bar
                 responsive: true,
                 plugins: {
                     legend: {
-                        display: false
+                        display: true
                     },
                     tooltip: {
                         callbacks: {
@@ -283,17 +326,10 @@
                     }
                 },
                 scales: {
-                    x: {
+                    y: {
                         beginAtZero: true,
                         ticks: {
                             stepSize: 1
-                        }
-                    },
-                    y: {
-                        ticks: {
-                            font: {
-                                size: 14
-                            }
                         }
                     }
                 }
@@ -301,6 +337,7 @@
         });
     </script>
     
+
 
 
 @endsection
