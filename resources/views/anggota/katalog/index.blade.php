@@ -4,15 +4,15 @@
     <section class="bg-white py-6 text-center">
         <div class="container mx-auto">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Katalog Buku</h1>
-        <p class="text-gray-600 text-sm mb-6">
-            Temukan dan booking buku yang kamu butuhkan dengan mudah
-        </p>
+            <p class="text-gray-600 text-sm mb-6">
+                Temukan dan booking buku yang kamu butuhkan dengan mudah
+            </p>
 
             <form method="GET" action="{{ route('anggota.katalog.index') }}">
                 <div class="mt-2 max-w-2xl mx-auto flex gap-2 items-center">
                     {{-- Dropdown filter kategori --}}
                     <select name="category"
-                    class="h-10 px-4` rounded-md bg-white text-base text-text 
+                        class="h-10 px-4` rounded-md bg-white text-base text-text 
                     border border-gray-300 placeholder:text-gray-400
                     focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         <option value="all">Semua</option>
@@ -25,7 +25,7 @@
 
                     {{-- Input pencarian --}}
                     <input type="text" name="search" placeholder="Cari Buku..." value="{{ request('search') }}"
-                    class="h-10 w-full rounded-md bg-white px-4 py-2 text-base text-text 
+                        class="h-10 w-full rounded-md bg-white px-4 py-2 text-base text-text 
                     border border-gray-300 placeholder:text-gray-400
                     focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm" />
                 </div>
@@ -39,17 +39,23 @@
             <div class="inline-flex gap-2 text-sm font-medium text-gray-700 py-2">
                 {{-- Tombol Semua --}}
                 <a
-                    href="{{ route(
-                        'anggota.katalog.index',
-                        array_filter(['search' => request('search'), 'search_by' => request('search_by')]),
-                    ) }}">
+                    href="{{ route('anggota.katalog.index', array_filter(['search' => request('search'), 'search_by' => request('search_by')])) }}">
                     <button
                         class="px-4 py-2 border rounded-full transition
-                            {{ empty($kategori) ? 'bg-blue-700 text-white' : 'border-gray-300 hover:bg-gray-100' }}">
+                            {{ empty($kategori) && !request('rekomendasi') ? 'bg-blue-700 text-white' : 'border-gray-300 hover:bg-gray-100' }}">
                         Semua
                     </button>
                 </a>
-    
+
+                {{-- Tombol Rekomendasi --}}
+                <a href="{{ route('anggota.katalog.index', array_filter(['rekomendasi' => true])) }}">
+                    <button
+                        class="px-4 py-2 border rounded-full transition
+                            {{ request('rekomendasi') ? 'bg-green-600 text-white' : 'border-gray-300 hover:bg-gray-100' }}">
+                        🎯 Rekomendasi
+                    </button>
+                </a>
+
                 {{-- Kategori Dinamis --}}
                 @foreach ($kategoriList as $kat)
                     <a
@@ -71,10 +77,18 @@
             </div>
         </div>
     </section>
-    
+
+
 
     {{-- ======= LIST SEMUA BUKU ======= --}}
     <section class="md:px-10 pb-12">
+        {{-- Tampilkan pesan jika tidak ada hasil rekomendasi --}}
+        @if ($isRekomendasi && $katalogList->isEmpty())
+            <div class="max-w-6xl mx-auto text-center text-gray-500 py-8">
+                Belum ada rekomendasi buku karena Anda belum pernah meminjam buku.
+            </div>
+        @endif
+
         <div class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-6 gap-4 max-w-6xl mx-auto">
             @foreach ($katalogList as $buku)
                 @php
@@ -86,8 +100,8 @@
                 <div class="bg-white p-3 text-left">
                     {{-- Sampul --}}
                     <div class="h-44 flex items-center justify-center mb-2">
-                        <img src="{{asset($buku->cover_buku ?? 'img/putih.jpg')}}"
-                            alt="{{ $buku->judul_buku }}" class="max-h-full max-w-full object-contain" />
+                        <img src="{{ asset($buku->cover_buku ?? 'img/putih.jpg') }}" alt="{{ $buku->judul_buku }}"
+                            class="max-h-full max-w-full object-contain" />
                     </div>
 
                     {{-- Info --}}

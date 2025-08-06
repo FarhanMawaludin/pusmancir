@@ -167,7 +167,7 @@
                         </td>
 
                         <td class="px-6 py-4">
-                            {{ $peminjamanItem->anggota-> '-' }}
+                            {{ $peminjamanItem->anggota->kelas->nama_kelas ?? '-' }}
                         </td>
 
                         <td class="px-6 py-4">
