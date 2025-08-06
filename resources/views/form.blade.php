@@ -8,13 +8,31 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {{-- Library html5-qrcode --}}
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </head>
 
 <body class="bg-white text-text">
     <section class="min-h-screen flex">
         <!-- Gambar Kiri -->
-        <div class="hidden md:block w-1/2 bg-gray-100 h-screen">
-            <img src="{{ asset('img/Buku-Login.jpg') }}" alt="Buku Bertumpuk" class="w-full h-full object-cover" />
+        <!-- Scanner Kamera -->
+        <div class="hidden md:flex w-1/2 bg-gray-50 h-screen flex-col justify-center items-center p-6 overflow-auto">
+            <label class="block font-medium text-sm mb-4 text-gray-700 text-center">
+                Scan Barcode Anggota (Via Kamera)
+            </label>
+
+            <!-- Area kamera -->
+            <div id="reader" class="mb-4 border border-gray-300 rounded-md shadow"
+                style="width: 100%; max-width: 400px;">
+            </div>
+
+            <!-- Info -->
+            <p class="text-center text-sm text-gray-500 mb-1">
+                Kamera akan otomatis mengisi kolom NISN/NIP.
+            </p>
+            <small class="text-gray-500 block text-center">
+                Arahkan barcode ke kamera, data akan dimasukkan otomatis.
+            </small>
         </div>
 
         <!-- Form Kanan -->
@@ -29,7 +47,7 @@
                 Dashboard
             </a> --}}
 
-            <div class="w-full max-w-md space-y-6 mt-12">
+            <div class="w-full max-w-md space-y-6 mt-8">
 
                 <!-- Judul -->
                 <div class="text-center mb-6">
@@ -102,6 +120,69 @@
         </div>
     </section>
     <x-alert />
+
+    <script>
+        function onScanSuccess(decodedText) {
+            const nisnInput = document.getElementById('nisn');
+            nisnInput.value = decodedText;
+
+            // Langsung submit form
+            const form = document.querySelector('form'); // atau pakai ID kalau form-nya banyak
+            if (form) {
+                form.submit();
+            }
+        }
+
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", {
+                fps: 10,
+                qrbox: 250
+            },
+            false
+        );
+
+        html5QrcodeScanner.render(onScanSuccess);
+    </script>
+
+
+    @if (session('success') || session('error') || session('info') || session('warning'))
+        @php
+            $alertType = session('success')
+                ? 'success'
+                : (session('error')
+                    ? 'error'
+                    : (session('info')
+                        ? 'info'
+                        : 'warning'));
+
+            $alertTitle = session('success')
+                ? 'Berhasil!'
+                : (session('error')
+                    ? 'Gagal!'
+                    : (session('info')
+                        ? 'Info'
+                        : 'Peringatan'));
+
+            $alertText = session('success') ?? (session('error') ?? (session('info') ?? session('warning')));
+        @endphp
+
+        <script>
+            Swal.fire({
+                icon: '{{ $alertType }}',
+                title: '{{ $alertTitle }}',
+                text: '{{ $alertText }}',
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp'
+                },
+                timer: 1500, // tampil 1 detik
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+        </script>
+    @endif
 </body>
 
 </html>
