@@ -35,36 +35,43 @@
 
     {{-- ======= FILTER KATEGORI ======= --}}
     <section class="px-4 mb-8">
-        <div class="flex flex-wrap justify-center gap-2 text-sm font-medium text-gray-700 overflow-x-auto">
-            {{-- Tombol Semua --}}
-            <a
-                href="{{ route(
-                    'anggota.katalog.index',
-                    array_filter(['search' => request('search'), 'search_by' => request('search_by')]),
-                ) }}">
-                <button
-                    class="px-4 py-2 border rounded-full transition
-                           {{ empty($kategori) ? 'bg-blue-700 text-white' : 'border-gray-300 hover:bg-gray-100' }}">
-                    Semua
-                </button>
-            </a>
-
-            {{-- Kategori Dinamis --}}
-            @foreach ($kategoriList as $kat)
+        <div class="overflow-x-auto whitespace-nowrap">
+            <div class="inline-flex gap-2 text-sm font-medium text-gray-700 py-2">
+                {{-- Tombol Semua --}}
                 <a
                     href="{{ route(
                         'anggota.katalog.index',
-                        array_filter(['kategori' => $kat, 'search' => request('search'), 'search_by' => request('search_by')]),
+                        array_filter(['search' => request('search'), 'search_by' => request('search_by')]),
                     ) }}">
                     <button
                         class="px-4 py-2 border rounded-full transition
-                               {{ $kategori === $kat ? 'bg-blue-600 text-white' : 'border-gray-300 hover:bg-gray-100' }}">
-                        {{ $kat }}
+                            {{ empty($kategori) ? 'bg-blue-700 text-white' : 'border-gray-300 hover:bg-gray-100' }}">
+                        Semua
                     </button>
                 </a>
-            @endforeach
+    
+                {{-- Kategori Dinamis --}}
+                @foreach ($kategoriList as $kat)
+                    <a
+                        href="{{ route(
+                            'anggota.katalog.index',
+                            array_filter([
+                                'kategori' => $kat,
+                                'search' => request('search'),
+                                'search_by' => request('search_by'),
+                            ]),
+                        ) }}">
+                        <button
+                            class="px-4 py-2 border rounded-full transition
+                                {{ $kategori === $kat ? 'bg-blue-600 text-white' : 'border-gray-300 hover:bg-gray-100' }}">
+                            {{ $kat }}
+                        </button>
+                    </a>
+                @endforeach
+            </div>
         </div>
     </section>
+    
 
     {{-- ======= LIST SEMUA BUKU ======= --}}
     <section class="md:px-10 pb-12">
