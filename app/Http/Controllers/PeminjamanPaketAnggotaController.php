@@ -183,5 +183,29 @@ class PeminjamanPaketAnggotaController extends Controller
         }
     }
 
-    
+
+    public function batal($id)
+    {
+        DB::beginTransaction();
+        try {
+            // Cari detail peminjaman
+            $detail = DetailPeminjamanPaket::where('peminjaman_id', $id)->first();
+            if (!$detail) {
+                return back()->with('error', 'Detail peminjaman tidak ditemukan.');
+            }
+
+            // Kembalikan stok
+            $detail->paketBuku->increment('stok_tersedia');
+
+            // Hapus detail & peminjaman
+            $detail->delete();
+            PeminjamanPaket::where('id', $id)->where('status', 'menunggu')->delete();
+
+            DB::commit();
+            return back()->with('success', 'Peminjaman berhasil dibatalkan.');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal membatalkan peminjaman: ' . $th->getMessage());
+        }
+    }
 }

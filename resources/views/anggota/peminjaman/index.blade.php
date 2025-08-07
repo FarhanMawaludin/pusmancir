@@ -53,7 +53,20 @@
                             </span>
                         </td>
                         <td class="px-6 py-4">
-                            @if ($status === 'berhasil' && $tanggalKembali->equalTo($besok))
+                            @if ($status === 'menunggu')
+                                <button type="button"
+                                    class="btn-batal bg-red-600 hover:bg-red-700 text-white text-md font-medium px-4 py-2 rounded"
+                                    data-id="{{ $pinjam->id }}">
+                                    Batalkan Peminjaman
+                                </button>
+
+                                {{-- Form tersembunyi --}}
+                                <form id="batal-form-{{ $pinjam->id }}"
+                                    action="{{ route('anggota.peminjaman.batal', $pinjam->id) }}" method="POST"
+                                    style="display: none;">
+                                    @csrf
+                                </form>
+                            @elseif ($status === 'berhasil' && $tanggalKembali->equalTo($besok))
                                 <form id="perpanjang-form-{{ $pinjam->id }}"
                                     action="{{ route('anggota.peminjaman.perpanjang', $pinjam->id) }}" method="POST">
                                     @csrf
@@ -84,6 +97,27 @@
             {{ $peminjaman->links('pagination::tailwind') }}
         </div>
     </div>
+
+    <script>
+        document.querySelectorAll('.btn-batal').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                Swal.fire({
+                    title: 'Yakin ingin membatalkan?',
+                    text: 'Peminjaman ini akan dibatalkan dan data akan dihapus.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, batalkan',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('batal-form-' + id).submit();
+                    }
+                });
+            });
+        });
+    </script>
 
     <script>
         document.querySelectorAll('.btn-perpanjang').forEach(button => {

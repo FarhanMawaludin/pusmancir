@@ -14,6 +14,7 @@
                     <th scope="col" class="px-6 py-3 ">NISN</th>
                     <th scope="col" class="px-6 py-3">Judul Buku</th>
                     <th scope="col" class="px-6 py-3">Status</th>
+                    <th scope="col" class="px-6 py-3">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -63,6 +64,22 @@
                                 @endif
                             </span>
                         </td>
+                        <td class="px-6 py-4">
+                            @if ($status === 'menunggu')
+                                {{-- Tombol yang memicu SweetAlert --}}
+                                <button type="button" class="bg-red-600 hover:bg-red-700 text-white text-md font-medium px-4 py-2 rounded btn-cancel"
+                                    data-id="{{ $item->peminjamanPaket->id }}">
+                                    Batalkan Peminjaman
+                                </button>
+
+                                {{-- Form dibelakang layar untuk submit --}}
+                                <form id="cancel-form-{{ $item->peminjamanPaket->id }}"
+                                    action="{{ route('anggota.peminjaman-paket.batal', $item->peminjamanPaket->id) }}"
+                                    method="POST" style="display: none;">
+                                    @csrf
+                                </form>
+                            @endif
+                        </td>
                     </tr>
                 @empty
                     <tr>
@@ -80,6 +97,30 @@
             {{ $peminjaman->links('pagination::tailwind') }}
         </div>
     </div>
+
+    <script>
+        document.querySelectorAll('.btn-cancel').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+
+                Swal.fire({
+                    title: 'Yakin ingin membatalkan?',
+                    text: 'Peminjaman ini akan dibatalkan.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, batalkan',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Submit form pembatalan
+                        document.getElementById('cancel-form-' + id).submit();
+                    }
+                });
+            });
+        });
+    </script>
+
 
     <script>
         document.querySelectorAll('.btn-delete').forEach(button => {

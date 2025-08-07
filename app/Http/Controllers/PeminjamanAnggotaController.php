@@ -31,7 +31,7 @@ class PeminjamanAnggotaController extends Controller
             ->whereHas('peminjaman.anggota', function ($q) use ($user) {
                 $q->where('user_id', $user->id);          // hanya data milik user login
             })
-            ->whereIn('peminjaman.status', ['menunggu', 'berhasil','tolak', 'selesai'])
+            ->whereIn('peminjaman.status', ['menunggu', 'berhasil', 'tolak', 'selesai'])
             ->orderByDesc('peminjaman.created_at');
 
         /* ─────────────────────────────────────────
@@ -189,5 +189,33 @@ class PeminjamanAnggotaController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Perpanjangan berhasil diajukan dan menunggu konfirmasi.');
+    }
+
+    public function batal($id)
+    {
+        $peminjaman = Peminjaman::findOrFail($id);
+
+        if ($peminjaman->status !== 'menunggu') {
+            return back()->with('error', 'Hanya peminjaman dengan status "menunggu" yang dapat dibatalkan.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // Ambil detail dan eksemplar
+            $detail = $peminjaman->detailPeminjaman()->first();
+            if ($detail && $detail->eksemplar) {
+                $detail->eksemplar->update(['status' => 'tersedia']);
+            }
+
+            // Hapus detail & peminjaman
+            if ($detail) $detail->delete();
+            $peminjaman->delete();
+
+            DB::commit();
+            return back()->with('success', 'Peminjaman berhasil dibatalkan.');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal membatalkan peminjaman: ' . $th->getMessage());
+        }
     }
 }

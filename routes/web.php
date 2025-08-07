@@ -327,7 +327,7 @@ Route::get('/api/eksemplar/{no_rfid}', function ($no_rfid) {
 // });
 
 // Anggota
-Route::middleware(['auth', 'role:anggota','prevent.back'])->prefix('anggota')->name('anggota.')->group(function () {
+Route::middleware(['auth', 'role:anggota', 'prevent.back'])->prefix('anggota')->name('anggota.')->group(function () {
     Route::get('/dashboard', [DashboardAnggotaController::class, 'index'])->name('dashboard.index');
 
     //Profil
@@ -350,10 +350,13 @@ Route::middleware(['auth', 'role:anggota','prevent.back'])->prefix('anggota')->n
     Route::post('/peminjaman/store', [PeminjamanAnggotaController::class, 'store'])->name('peminjaman.store');
     Route::post('/anggota/peminjaman/{id}/perpanjang', [PeminjamanAnggotaController::class, 'perpanjang'])
         ->name('peminjaman.perpanjang');
+    Route::post('/anggota/peminjaman/{id}/batal', [PeminjamanAnggotaController::class, 'batal'])->name('peminjaman.batal');
+
 
     //peminjaman-paket
     Route::get('/peminjaman-paket', [PeminjamanPaketAnggotaController::class, 'index'])->name('peminjaman-paket.index');
     Route::post('/peminjaman-paket/store', [PeminjamanPaketAnggotaController::class, 'store'])->name('peminjaman-paket.store');
+    Route::post('/anggota/peminjaman-paket/{id}/batal', [PeminjamanPaketAnggotaController::class, 'batal'])->name('peminjaman-paket.batal');
 });
 
 
