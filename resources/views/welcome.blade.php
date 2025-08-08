@@ -15,53 +15,50 @@
     {{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <!-- Flowbite JS -->
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script> --}}
-
 </head>
 
 <body class="text-text font-Inter bg-white">
     @if ($informasi)
-    <div id="popup-informasi"
-        class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
-        <div
-            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md md:max-w-2xl p-4 sm:p-6 md:p-8 relative max-h-[85vh] overflow-y-auto">
-            
-            <!-- Header -->
-            <div class="flex items-start justify-between border-b border-gray-200 dark:border-gray-700 pb-3 mb-4">
-                <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-                    {{ $informasi->judul }}
-                </h2>
-                <button onclick="document.getElementById('popup-informasi').remove()"
-                    class="text-gray-400 hover:text-red-500 transition">
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
+        <div id="popup-informasi"
+            class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md md:max-w-2xl p-4 sm:p-6 md:p-8 relative max-h-[85vh] overflow-y-auto">
 
-            <!-- Body -->
-            <div class="text-gray-700 dark:text-gray-300 space-y-4">
-                @if ($informasi->thumbnail)
-                    <img src="{{ asset($informasi->thumbnail) }}" alt="Thumbnail"
-                        class="w-full h-auto max-h-48 object-contain rounded-xl mx-auto">
-                @endif
-                <div class="text-sm sm:text-base leading-relaxed">
-                    {!! $informasi->isi !!}
+                <!-- Header -->
+                <div class="flex items-start justify-between border-b border-gray-200 dark:border-gray-700 pb-3 mb-4">
+                    <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+                        {{ $informasi->judul }}
+                    </h2>
+                    <button onclick="document.getElementById('popup-informasi').remove()"
+                        class="text-gray-400 hover:text-red-500 transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="text-gray-700 dark:text-gray-300 space-y-4">
+                    @if ($informasi->thumbnail)
+                        <img src="{{ asset($informasi->thumbnail) }}" alt="Thumbnail"
+                            class="w-full h-auto max-h-48 object-contain rounded-xl mx-auto">
+                    @endif
+                    <div class="text-sm sm:text-base leading-relaxed">
+                        {!! $informasi->isi !!}
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-end pt-4 mt-6 border-t border-gray-200 dark:border-gray-700">
+                    <button onclick="document.getElementById('popup-informasi').remove()"
+                        class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow transition">
+                        Tutup
+                    </button>
                 </div>
             </div>
-
-            <!-- Footer -->
-            <div class="flex justify-end pt-4 mt-6 border-t border-gray-200 dark:border-gray-700">
-                <button onclick="document.getElementById('popup-informasi').remove()"
-                    class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow transition">
-                    Tutup
-                </button>
-            </div>
         </div>
-    </div>
-@endif
-
-
+    @endif
 
     <!-- Header -->
     <nav class="bg-white fixed w-full z-20 top-0 left-0">
@@ -159,8 +156,6 @@
     </nav>
 
 
-
-
     <!-- Hero Section -->
     <section class="bg-white px-4 mt-40 text-center">
         <div class="container mx-auto">
@@ -226,71 +221,26 @@
 
             {{-- Tombol kategori (hanya jika bukan E-Book) --}}
             @unless (request('ebook'))
-                @foreach ($kategoriList as $kat)
+            @foreach ($kategoriList as $kat)
+                @if (!empty($kat))
                     <a
-                        href="{{ route('welcome', array_filter(['kategori' => $kat, 'search' => request('search'), 'search_by' => request('search_by')])) }}">
+                        href="{{ route('welcome', array_filter([
+                            'kategori' => $kat,
+                            'search' => request('search'),
+                            'search_by' => request('search_by')
+                        ])) }}">
                         <button
                             class="px-4 py-2 border rounded-full {{ request('kategori') === $kat ? 'bg-blue-700 text-white' : '' }} min-w-max whitespace-nowrap">
                             {{ $kat }}
                         </button>
                     </a>
-                @endforeach
-            @endunless
+                @endif
+            @endforeach
+        @endunless
+        
         </div>
 
         @if (request('ebook'))
-            {{-- <form method="GET" action="{{ route('welcome') }}" class="px-4 md:px-10 mt-6 w-full max-w-full">
-                <input type="hidden" name="ebook" value="1">
-                <input type="hidden" name="search" value="{{ request('search') }}">
-                <input type="hidden" name="search_by" value="{{ request('search_by') }}">
-
-                <div class="grid grid-cols-1 md:grid-cols-[3fr_3fr_1fr] gap-2 w-full max-w-full"> --}}
-            {{-- Kolom Kategori --}}
-            {{-- <div class="border rounded-md p-4 w-full">
-                        <h3 class="text-sm font-semibold text-gray-800 mb-2">Kategori</h3>
-                        <div class="-mx-6 px-6 overflow-x-auto scrollbar-hide">
-                            <div class="flex gap-4 w-full min-w-max">
-                                @foreach ($kategoriList as $kat)
-                                    <label
-                                        class="inline-flex items-center gap-2 text-sm text-gray-700 whitespace-nowrap min-w-max relative">
-                                        <input type="checkbox" name="kategori[]" value="{{ $kat }}"
-                                            class="w-4 h-4 text-blue-600 border-gray-300 rounded"
-                                            {{ is_array(request('kategori')) && in_array($kat, request('kategori')) ? 'checked' : '' }}>
-                                        <span>{{ $kat }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div> --}}
-
-            {{-- Kolom Kelas --}}
-            {{-- <div class="border rounded-md p-4 w-full">
-                        <h3 class="text-sm font-semibold text-gray-800 mb-2">Kelas</h3>
-                        <div class="-mx-6 px-6 overflow-x-auto scrollbar-hide">
-                            <div class="flex gap-4 w-full min-w-max">
-                                @foreach ($kelasList as $kelas)
-                                    <label
-                                        class="inline-flex items-center gap-2 text-sm text-gray-700 whitespace-nowrap min-w-max relative">
-                                        <input type="checkbox" name="kelas[]" value="{{ $kelas }}"
-                                            class="w-4 h-4 text-blue-600 border-gray-300 rounded"
-                                            {{ is_array(request('kelas')) && in_array($kelas, request('kelas')) ? 'checked' : '' }}>
-                                        <span>{{ $kelas }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div> --}}
-
-            {{-- Kolom Tombol Filter --}}
-            {{-- <div class="flex md:items-start items-center justify-center md:justify-start pt-2 md:pt-0 w-full">
-                        <button type="submit"
-                            class="px-5 py-2 bg-blue-700 text-white rounded-md text-sm font-medium hover:bg-blue-800 transition whitespace-nowrap">
-                            Terapkan Filter
-                        </button>
-                    </div>
-                </div>
-            </form> --}}
-
             <form method="GET" action="{{ route('welcome') }}" id="filterForm"
                 class="px-4 md:px-10 mt-6 w-full max-w-full">
                 <input type="hidden" name="ebook" value="1">
@@ -464,7 +414,6 @@
             this.classList.add('hidden');
         });
     </script> --}}
-
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             fetch("{{ route('track.visit') }}", {

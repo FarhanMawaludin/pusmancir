@@ -9,7 +9,6 @@ use App\Models\Berita;
 
 class WelcomeController extends Controller
 {
-
     public function index(Request $request)
     {
         $search     = $request->input('search');
@@ -51,7 +50,6 @@ class WelcomeController extends Controller
             }
 
             $ebookList = $ebookQuery->get();
-
             $kategoriList = BukuElektronik::select('kategori')
                 ->distinct()
                 ->orderBy('kategori')
@@ -120,19 +118,17 @@ class WelcomeController extends Controller
     }
 
 
-
-
-
-
     public function show($id)
     {
         $buku = Katalog::with('inventori.eksemplar')->findOrFail($id);
         return view('detail-buku', compact('buku'));
     }
 
+
     public function showEbook($id)
     {
         $buku = BukuElektronik::findOrFail($id);
         return view('detail-buku-elektronik', compact('buku'));
     }
+
 }

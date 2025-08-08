@@ -301,7 +301,7 @@ class InventoriController extends Controller
      * Export laporan inventori per eksemplar (dengan kolom Jumlah Judul & Jumlah Eksemplar di paling kanan).
      */
 
-     public function export()
+    public function export()
     {
         // Ambil data dari DB dengan join
         $data = DB::table('eksemplar')
@@ -372,9 +372,19 @@ class InventoriController extends Controller
 
         // Header kolom
         $headers = [
-            'No', 'No Induk', 'No Inventori', 'Judul Buku', 'Pengarang', 'Penerbit',
-            'Kategori', 'Tanggal Pembelian', 'Harga Satuan', 'Jenis Sumber', 'No Panggil',
-            'Jumlah Judul', 'Jumlah Eksemplar'
+            'No',
+            'No Induk',
+            'No Inventori',
+            'Judul Buku',
+            'Pengarang',
+            'Penerbit',
+            'Kategori',
+            'Tanggal Pembelian',
+            'Harga Satuan',
+            'Jenis Sumber',
+            'No Panggil',
+            'Jumlah Judul',
+            'Jumlah Eksemplar'
         ];
 
         // Style header dan cell
@@ -434,10 +444,19 @@ class InventoriController extends Controller
 
                 // Isi data baris
                 $sheet->fromArray([
-                    $no++, $item->no_induk, $item->no_inventori, $item->judul_buku, $item->pengarang,
-                    $item->nama_penerbit, $item->nama_kategori, $item->tanggal_pembelian,
-                    'Rp. ' . number_format($item->harga_satuan, 0, ',', '.'), $item->jenis_sumber,
-                    $item->no_panggil, '', ''
+                    $no++,
+                    $item->no_induk,
+                    $item->no_inventori,
+                    $item->judul_buku,
+                    $item->pengarang,
+                    $item->nama_penerbit,
+                    $item->nama_kategori,
+                    $item->tanggal_pembelian,
+                    'Rp. ' . number_format($item->harga_satuan, 0, ',', '.'),
+                    $item->jenis_sumber,
+                    $item->no_panggil,
+                    '',
+                    ''
                 ], null, "A{$row}");
                 $sheet->getStyle("A{$row}:M{$row}")->applyFromArray($cellStyle);
 
@@ -527,7 +546,7 @@ class InventoriController extends Controller
         ]);
     }
 
-     
+
 
     // public function import(Request $request)
     // {
@@ -755,7 +774,7 @@ class InventoriController extends Controller
                     trim($row['A']),
                     trim($row['B']),
                     trim($row['C']),
-                    trim($row['D']),
+                    $kategoriNama = trim($row['D']) ?: null,
                     trim($row['E']),
                     trim($row['F']),
                     trim($row['G']),
@@ -776,7 +795,10 @@ class InventoriController extends Controller
                 if (!isset($inventoriMap[$inventoriKey])) {
                     // Buat entitas relasi
                     $penerbit = Penerbit::firstOrCreate(['nama_penerbit' => $penerbitNama]);
-                    $kategori = KategoriBuku::firstOrCreate(['nama_kategori' => $kategoriNama]);
+                    $kategori = null;
+                    if (!is_null($kategoriNama)) {
+                        $kategori = KategoriBuku::firstOrCreate(['nama_kategori' => $kategoriNama]);
+                    }
                     $jenisSumber = JenisSumber::firstOrCreate(['nama_sumber' => $jenisSumberNama]);
 
                     // Buat inventori baru
@@ -784,7 +806,7 @@ class InventoriController extends Controller
                         'judul_buku'        => $judul,
                         'pengarang'         => $pengarang,
                         'id_penerbit'       => $penerbit->id,
-                        'id_kategori_buku'  => $kategori->id,
+                        'id_kategori_buku'  => optional($kategori)->id,
                         'id_jenis_media'    => 1,
                         'id_sekolah'        => $sekolah->id,
                         'tanggal_pembelian' => $tanggal,
