@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pengaduan', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama');
-            $table->string('no_telp');
-            $table->string('email');
-            $table->text('isi');
-            $table->timestamps();
+        Schema::table('pengaduan', function (Blueprint $table) {
+            $table->enum('status', ['belum dibaca', 'telah dibaca'])->default('belum dibaca')->after('isi');
         });
     }
 
@@ -26,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pengaduan');
+        Schema::table('pengaduan', function (Blueprint $table) {
+            $table->dropColumn('status');
+        });
     }
-
-    
 };

@@ -23,9 +23,9 @@
                     <th scope="col" class="px-6 py-3">No</th>
                     <th scope="col" class="px-6 py-3">Nama</th>
                     <th scope="col" class="px-6 py-3">No Telp</th>
-                    <th scope="col" class="px-6 py-3">Email</th>
                     <th scope="col" class="px-6 py-3">Pesan</th>
                     <th scope="col" class="px-6 py-3">Tanggal</th>
+                    <th scope="col" class="px-6 py-3">Status</th>
                     <th scope="col" class="px-6 py-3">Aksi</th>
                 </tr>
             </thead>
@@ -35,10 +35,16 @@
                         <td class="px-6 py-4">{{ $pengaduans->firstItem() + $index }}</td>
                         <td class="px-6 py-4">{{ $item->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $item->no_telp ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $item->email ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $item->isi ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $item->created_at->format('d M Y') }}</td>
                         <td class="px-6 py-4">
+                            <span class="px-2 py-1 rounded text-xs font-semibold
+                                {{ $item->status === 'belum dibaca' ? 'bg-red-100 text-red-800' : ($item->status === 'telah dibaca' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800') }}">
+                                {{ $item->status ? ucfirst($item->status) : '-' }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 flex gap-2">
+                            <!-- Button Detail -->
                             <a href="{{ route('admin.pengaduan.show', $item->id) }}"
                                 class="inline-flex items-center bg-blue-700 text-white px-3 py-2 rounded hover:bg-blue-800 transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:mr-1" fill="none"
@@ -48,6 +54,24 @@
                                 </svg>
                                 <span class="hidden md:inline">Detail</span>
                             </a>
+                        
+                            <!-- Button Telah Dibaca -->
+                            @if ($item->status === 'belum dibaca')
+                                <form action="{{ route('admin.pengaduan.baca', $item->id) }}" method="POST"
+                                    onsubmit="return confirm('Tandai sebagai telah dibaca?')">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit"
+                                        class="inline-flex items-center bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700 transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:mr-1" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span class="hidden md:inline">Telah Dibaca</span>
+                                    </button>
+                                </form>
+                            @endif
                         </td>
                         {{-- <td class="px-6 py-4">
                             <form action="{{ route('admin.pengaduan.destroy', $item->id) }}" method="POST"

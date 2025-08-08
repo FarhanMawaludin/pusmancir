@@ -287,6 +287,8 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     //PENGADUAN
     Route::get('/pengaduan-laporan', [PengaduanController::class, 'index'])->name('pengaduan.index');
     Route::get('/pengaduan-laporan/{id}', [PengaduanController::class, 'show'])->name('pengaduan.show');
+    Route::patch('/admin/pengaduan/{id}/baca', [PengaduanController::class, 'markAsRead'])->name('pengaduan.baca');
+
 });
 
 // Cek anggota berdasarkan NISN

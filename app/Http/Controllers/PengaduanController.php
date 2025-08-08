@@ -18,7 +18,7 @@ class PengaduanController extends Controller
     {
         return view('pengaduan'); // view untuk form pengaduan
     }
-    
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -28,12 +28,26 @@ class PengaduanController extends Controller
             'isi' => 'nullable|string',
         ]);
 
+        // Tambahkan status default
+        $validated['status'] = 'belum dibaca';
+
         Pengaduan::create($validated);
 
         return redirect()->route('pengaduan')->with('success', 'Pengaduan berhasil dikirim.');
     }
 
-    
+    public function markAsRead($id)
+    {
+        $pengaduan = Pengaduan::findOrFail($id);
+        $pengaduan->status = 'telah dibaca';
+        $pengaduan->save();
+
+        return back()->with('success', 'Pengaduan ditandai sebagai telah dibaca.');
+    }
+
+
+
+
 
     public function show($id)
     {
