@@ -70,7 +70,7 @@ class WelcomeController extends Controller
             })->with([
                 'inventori' => function ($q) {
                     $q->with(['eksemplar' => function ($q2) {
-                        $q2->where('status', 'tersedia');
+                        $q2->where('status', ['tersedia', 'dipinjam']);
                     }]);
                 }
             ])->latest();
