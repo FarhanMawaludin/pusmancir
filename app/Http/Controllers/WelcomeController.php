@@ -66,11 +66,11 @@ class WelcomeController extends Controller
         } else {
             // ✅ KATALOG MODE
             $katalogQuery = Katalog::whereHas('inventori.eksemplar', function ($q) {
-                $q->where('status', ['tersedia', 'dipinjam']);
+                $q->whereIn('status', ['tersedia', 'dipinjam']);
             })->with([
                 'inventori' => function ($q) {
                     $q->with(['eksemplar' => function ($q2) {
-                        $q2->where('status', ['tersedia', 'dipinjam']);
+                        $q2->whereIn('status', ['tersedia', 'dipinjam']);
                     }]);
                 }
             ])->latest();
