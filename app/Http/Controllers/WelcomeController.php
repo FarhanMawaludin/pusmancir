@@ -64,7 +64,7 @@ class WelcomeController extends Controller
                 ->unique()
                 ->values();
         } else {
-            // ✅ KATALOG MODE
+            // KATALOG MODE
             $katalogQuery = Katalog::whereHas('inventori.eksemplar', function ($q) {
                 $q->whereIn('status', ['tersedia', 'dipinjam']);
             })->with([

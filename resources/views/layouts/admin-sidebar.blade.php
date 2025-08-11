@@ -477,6 +477,20 @@
                     </a>
                 </li>
 
+                <li class="text-xs px-2 text-text uppercase">Pengaturan</li>
+
+                <li class="mb-4">
+                    <a href="{{ route('admin.backup.index') }}"
+                        class="flex items-center p-2 rounded group {{ $activeMenu == 'backup' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}">
+                        <svg class="w-5 h-5 {{ $activeMenu == 'backup' ? 'text-white' : 'text-base300 ' }}" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 6c0 1.657-3.134 3-7 3S5 7.657 5 6m14 0c0-1.657-3.134-3-7-3S5 4.343 5 6m14 0v6M5 6v6m0 0c0 1.657 3.134 3 7 3s7-1.343 7-3M5 12v6c0 1.657 3.134 3 7 3s7-1.343 7-3v-6"/>
+                          </svg>
+                          
+                          
+                        <span class="ml-3 {{ $activeMenu == 'backup' ? 'text-white' : 'text-base300' }}">Backup</span>
+                    </a>
+                </li>
+
 
             @endif
 

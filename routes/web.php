@@ -38,6 +38,7 @@ use App\Http\Controllers\SuratKeluarController;
 use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\BukuElektronikController;
 use App\Http\Controllers\PengaduanController;
+use App\Http\Controllers\BackupController;
 
 use Illuminate\Support\Facades\Http;
 
@@ -71,6 +72,12 @@ Route::post('/track-visit', [DashboardAdminController::class, 'trackVisit'])->na
 // Admin
 Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardAdminController::class, 'index'])->name('dashboard.index');
+
+    //backup
+    Route::get('/backup', [BackupController::class, 'index'])->name('backup.index');
+    Route::get('/backup/run', [BackupController::class, 'backupDatabase'])->name('backup.run');
+    Route::post('admin/backup/import', [BackupController::class, 'importDatabase'])->name('backup.import');
+
 
     //Kelola Kelas
     Route::get('/kelas', [KelasController::class, 'index'])->name('kelas.index');

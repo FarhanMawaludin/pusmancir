@@ -283,6 +283,11 @@
         @endif
     </form>
 
+    <a href="{{ route('admin.backup.run') }}" class="btn btn-primary">
+        Backup Database
+    </a>
+    
+
     <div class="bg-white p-4 rounded border border-gray-200 w-full mb-6">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg font-semibold text-gray-700">
@@ -337,9 +342,6 @@
         });
     </script>
     
-
-
-
 @endsection
 
 @push('scripts')
