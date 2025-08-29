@@ -66,7 +66,7 @@
                 </ul>
             </li>
 
-            <li class="text-xs px-2 text-text uppercase">Manajemen Peminjaman</li>
+            <li class="text-xs px-2 text-text uppercase">Riwayat Peminjaman</li>
 
             <li class="mb-4">
                 <button type="button"
