@@ -54,7 +54,7 @@
                                   @elseif ($status === 'tolak') bg-red-600 text-white
                                   @else bg-gray-100 text-gray-600 @endif">
                                 @if ($status === 'menunggu')
-                                    Menunggu
+                                    Ambil Di Perpustakaan
                                 @elseif ($status === 'berhasil')
                                     Dipinjam
                                 @elseif ($status === 'tolak')
