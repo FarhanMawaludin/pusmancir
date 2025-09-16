@@ -405,7 +405,7 @@
                 return;
             }
 
-            let url = `{{ url('/api/eksemplar') }}`;
+            let url = `{{ url('/api/eksemplar/') }}`;
 
             // Jika semua angka → No Induk
             if (/^\d+$/.test(value)) {

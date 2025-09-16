@@ -355,7 +355,7 @@ Route::get('/api/anggota/{nisn}', function ($nisn) {
 //     ]);
 // });
 
-Route::get('/api/eksemplar', function (Request $request) {
+Route::get('/api/eksemplar/', function (Request $request) {
     $query = \App\Models\Eksemplar::with('inventori');
 
     if ($request->filled('no_rfid')) {
