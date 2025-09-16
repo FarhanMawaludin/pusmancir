@@ -405,7 +405,7 @@
                 return;
             }
 
-            let url = `{{ url('/api/eksemplar') }}`;
+            let url = `{{ secure_url('api/eksemplar') }}`;
 
             if (/^\d+$/.test(value)) {
                 url += `?no_induk=${encodeURIComponent(value)}`;
