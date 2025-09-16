@@ -358,12 +358,12 @@ Route::get('/api/anggota/{nisn}', function ($nisn) {
 Route::get('/api/eksemplar/{no_rfid?}/{no_induk?}', function ($no_rfid = null, $no_induk = null) {
     $query = \App\Models\Eksemplar::with('inventori');
 
-    // kalau no_rfid dikirim "null", anggap tidak ada
-    if ($no_rfid && $no_rfid !== 'null') {
+    // Abaikan string "null" atau nilai kosong
+    if (!empty($no_rfid) && $no_rfid !== 'null') {
         $query->where('no_rfid', $no_rfid);
     }
 
-    if ($no_induk && $no_induk !== 'null') {
+    if (!empty($no_induk) && $no_induk !== 'null') {
         $query->where('no_induk', $no_induk);
     }
 
@@ -374,9 +374,9 @@ Route::get('/api/eksemplar/{no_rfid?}/{no_induk?}', function ($no_rfid = null, $
     }
 
     return response()->json([
-        'id' => $eksemplar->id,
-        'no_rfid' => $eksemplar->no_rfid,
-        'no_induk' => $eksemplar->no_induk,
+        'id'         => $eksemplar->id,
+        'no_rfid'    => $eksemplar->no_rfid,
+        'no_induk'   => $eksemplar->no_induk,
         'judul_buku' => $eksemplar->inventori->judul_buku ?? '(judul tidak ditemukan)',
     ]);
 });
