@@ -39,7 +39,8 @@ use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\BukuElektronikController;
 use App\Http\Controllers\PengaduanController;
 use App\Http\Controllers\BackupController;
-
+use App\Http\Controllers\KoleksiController;
+use App\Http\Controllers\PeminjamanKoleksiController;
 use Illuminate\Support\Facades\Http;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
@@ -47,6 +48,8 @@ Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 Route::get('/katalog/{id}', [WelcomeController::class, 'show'])->name('detail-buku');
 
 Route::get('/ebook/{id}', [WelcomeController::class, 'showEbook'])->name('detail-buku-elektronik');
+
+Route::get('/koleksi/{id}', [WelcomeController::class, 'showKoleksi'])->name('detail-koleksi');
 
 Route::get('/berita', [BeritaController::class, 'indexPublish'])->name('berita.index');
 Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('berita.show');
@@ -166,6 +169,20 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     Route::get('/admin/inventori/export', [InventoriController::class, 'export'])->name('inventori.export');
     Route::post('/admin/inventori/import', [InventoriController::class, 'import'])->name('inventori.import');
 
+    //inventori Koleksi
+    Route::get('/koleksi', [KoleksiController::class, 'index'])->name('koleksi.index');
+    Route::get('/koleksi/create', [KoleksiController::class, 'create'])->name('koleksi.create');
+    Route::post('/koleksi', [KoleksiController::class, 'store'])->name('koleksi.store');
+    Route::get('/koleksi/{id}', [KoleksiController::class, 'show'])->name('koleksi.show');
+    Route::get('/koleksi/{id}/edit', [KoleksiController::class, 'edit'])->name('koleksi.edit');
+    Route::put('/koleksi/{id}', [KoleksiController::class, 'update'])->name('koleksi.update');
+    Route::delete('/koleksi/{id}', [KoleksiController::class, 'destroy'])->name('koleksi.destroy');
+    Route::put('/admin/koleksi/{id}/ubah-status', [KoleksiController::class, 'ubahStatus'])->name('koleksi.ubahStatus');
+    Route::get('/admin/koleksi/export', [KoleksiController::class, 'exportExcel'])->name('koleksi.export');
+
+
+
+
     //katalog
     Route::get('/katalog', [KatalogController::class, 'index'])->name('katalog.index');
     Route::get('/katalog/create', [KatalogController::class, 'create'])->name('katalog.create');
@@ -232,6 +249,15 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     Route::get('/pengembalian-paket', [PengembalianPaketController::class, 'index'])->name('pengembalian-paket.index');
     Route::put('/pengembalian-paket/update/{id}', [PengembalianPaketController::class, 'update'])->name('pengembalian-paket.update');
 
+    //Peminjaman Koleksi
+    Route::get('/peminjaman-koleksi', [PeminjamanKoleksiController::class, 'index'])->name('peminjaman-koleksi.index');
+    Route::post('/peminjaman-koleksi/store', [PeminjamanKoleksiController::class, 'store'])->name('peminjaman-koleksi.store');
+    Route::patch('/peminjaman-koleksi/{id}/status', [PeminjamanKoleksiController::class, 'updateStatus'])
+        ->name('peminjaman-koleksi.updateStatus');
+    Route::patch('admin/peminjaman-koleksi/{id}/kembalikan', [PeminjamanKoleksiController::class, 'kembalikan'])
+        ->name('peminjaman-koleksi.kembalikan');
+    Route::get('/admin/peminjaman-koleksi/export', [PeminjamanKoleksiController::class, 'export'])->name('peminjaman-koleksi.export');
+
 
     //Buku Tamu
     // Route::get('/buku-tamu', [BukuTamuController::class, 'create'])->name('buku-tamu.form');
@@ -295,7 +321,6 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     Route::get('/pengaduan-laporan', [PengaduanController::class, 'index'])->name('pengaduan.index');
     Route::get('/pengaduan-laporan/{id}', [PengaduanController::class, 'show'])->name('pengaduan.show');
     Route::patch('/admin/pengaduan/{id}/baca', [PengaduanController::class, 'markAsRead'])->name('pengaduan.baca');
-
 });
 
 // Cek anggota berdasarkan NISN
@@ -314,10 +339,35 @@ Route::get('/api/anggota/{nisn}', function ($nisn) {
 });
 
 // Cek eksemplar berdasarkan no_rfid
-Route::get('/api/eksemplar/{no_rfid}', function ($no_rfid) {
-    $eksemplar = \App\Models\Eksemplar::with('inventori')
-        ->where('no_rfid', $no_rfid)
-        ->first();
+// Route::get('/api/eksemplar/{no_rfid}', function ($no_rfid) {
+//     $eksemplar = \App\Models\Eksemplar::with('inventori')
+//         ->where('no_rfid', $no_rfid)
+//         ->first();
+
+//     if (!$eksemplar) {
+//         return response()->json(['error' => 'Eksemplar tidak ditemukan'], 404);
+//     }
+
+//     return response()->json([
+//         'id' => $eksemplar->id,
+//         'no_rfid' => $eksemplar->no_rfid,
+//         'judul_buku' => $eksemplar->inventori->judul_buku ?? '(judul tidak ditemukan)',
+//     ]);
+// });
+
+Route::get('/api/eksemplar/{no_rfid?}/{no_induk?}', function ($no_rfid = null, $no_induk = null) {
+    $query = \App\Models\Eksemplar::with('inventori');
+
+    // kalau no_rfid dikirim "null", anggap tidak ada
+    if ($no_rfid && $no_rfid !== 'null') {
+        $query->where('no_rfid', $no_rfid);
+    }
+
+    if ($no_induk && $no_induk !== 'null') {
+        $query->where('no_induk', $no_induk);
+    }
+
+    $eksemplar = $query->first();
 
     if (!$eksemplar) {
         return response()->json(['error' => 'Eksemplar tidak ditemukan'], 404);
@@ -326,9 +376,27 @@ Route::get('/api/eksemplar/{no_rfid}', function ($no_rfid) {
     return response()->json([
         'id' => $eksemplar->id,
         'no_rfid' => $eksemplar->no_rfid,
+        'no_induk' => $eksemplar->no_induk,
         'judul_buku' => $eksemplar->inventori->judul_buku ?? '(judul tidak ditemukan)',
     ]);
 });
+
+
+
+Route::get('/api/koleksi/{kode}', function ($kode) {
+    $koleksi = \App\Models\Koleksi::where('no_rfid', $kode)->first();
+
+    if (!$koleksi) {
+        return response()->json(['error' => 'Koleksi tidak ditemukan'], 404);
+    }
+
+    return response()->json([
+        'id' => $koleksi->id,
+        'judul_buku' => $koleksi->nama ?? '(judul tidak ditemukan)',
+    ]);
+});
+
+
 
 // Pustakawan
 // Route::middleware(['auth', 'role:pustakawan'])->prefix('pustakawan')->name('pustakawan.')->group(function () {

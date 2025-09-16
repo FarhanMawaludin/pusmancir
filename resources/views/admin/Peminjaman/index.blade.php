@@ -397,19 +397,36 @@
         }
 
         function cekEksemplar() {
-            const rfid = document.getElementById('eksemplar_id_input').value.trim();
+            const value = document.getElementById('eksemplar_id_input').value.trim();
             const infoBox = document.getElementById('eksemplar_info');
 
-            if (!rfid) {
-                infoBox.innerHTML = `<span class="text-red-500">RFID tidak boleh kosong</span>`;
+            if (!value) {
+                infoBox.innerHTML = `<span class="text-red-500">RFID atau No Induk tidak boleh kosong</span>`;
                 return;
             }
 
-            fetch(`{{ url('/api/eksemplar') }}/${rfid}`)
+            let url;
+
+            // Jika semua angka → anggap sebagai No Induk
+            if (/^\d+$/.test(value)) {
+                url = `{{ url('/api/eksemplar') }}/null/${encodeURIComponent(value)}`;
+            }
+            // Jika format CRS-xxxx → anggap sebagai RFID
+            else if (/^CRS-\w+$/i.test(value)) {
+                url = `{{ url('/api/eksemplar') }}/${encodeURIComponent(value)}`;
+            } else {
+                infoBox.innerHTML = `<span class="text-red-500">Format input tidak valid</span>`;
+                return;
+            }
+
+            // Universal fetch untuk RFID maupun No Induk
+            fetch(url)
                 .then(res => res.json())
                 .then(data => {
                     if (data.judul_buku) {
-                        infoBox.innerHTML = `📚 Judul: <strong>${data.judul_buku}</strong>`;
+                        infoBox.innerHTML = `
+                    📚 Judul: <strong>${data.judul_buku}</strong><br>
+                `;
                     } else {
                         infoBox.innerHTML =
                             `<span class="text-red-500">${data.error ?? 'Eksemplar tidak ditemukan'}</span>`;
