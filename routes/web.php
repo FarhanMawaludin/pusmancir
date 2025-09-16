@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
+
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\DashboardPustakawanController;
 use App\Http\Controllers\DashboardAnggotaController;
@@ -355,20 +355,15 @@ Route::get('/api/anggota/{nisn}', function ($nisn) {
 //     ]);
 // });
 
-Route::get('/api/eksemplar', function (Request $request) {
-    // kalau dua-duanya kosong, balikin error
-    if (!$request->filled('no_rfid') && !$request->filled('no_induk')) {
-        return response()->json(['error' => 'Harus isi No RFID atau No Induk'], 400);
-    }
-
+Route::get('/api/eksemplar/{value}', function ($value) {
     $query = \App\Models\Eksemplar::with('inventori');
 
-    if ($request->filled('no_rfid')) {
-        $query->where('no_rfid', $request->no_rfid);
-    }
-
-    if ($request->filled('no_induk')) {
-        $query->where('no_induk', $request->no_induk);
+    if (str_starts_with($value, 'CRS-')) {
+        // kalau input diawali CRS- berarti no_rfid
+        $query->where('no_rfid', $value);
+    } else {
+        // selain itu dianggap no_induk
+        $query->where('no_induk', $value);
     }
 
     $eksemplar = $query->first();
@@ -378,13 +373,12 @@ Route::get('/api/eksemplar', function (Request $request) {
     }
 
     return response()->json([
-        'id'         => $eksemplar->id,
-        'no_rfid'    => $eksemplar->no_rfid,
-        'no_induk'   => $eksemplar->no_induk,
+        'id' => $eksemplar->id,
+        'no_rfid' => $eksemplar->no_rfid,
+        'no_induk' => $eksemplar->no_induk,
         'judul_buku' => $eksemplar->inventori->judul_buku ?? '(judul tidak ditemukan)',
     ]);
 });
-
 
 
 Route::get('/api/koleksi/{kode}', function ($kode) {

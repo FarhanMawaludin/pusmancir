@@ -397,44 +397,25 @@
         }
 
         function cekEksemplar() {
-            const value = document.getElementById('eksemplar_id_input').value.trim();
+            const input = document.getElementById('eksemplar_id_input').value.trim();
             const infoBox = document.getElementById('eksemplar_info');
 
-            if (!value) {
-                infoBox.innerHTML = `<span class="text-red-500">RFID atau No Induk tidak boleh kosong</span>`;
+            if (!input) {
+                infoBox.innerHTML = `<span class="text-red-500">Input tidak boleh kosong</span>`;
                 return;
             }
 
-            let url = `{{ secure_url('api/eksemplar') }}`;
-
-            if (/^\d+$/.test(value)) {
-                url += `?no_induk=${encodeURIComponent(value)}`;
-            } else if (/^CRS-\w+$/i.test(value)) {
-                url += `?no_rfid=${encodeURIComponent(value)}`;
-            } else {
-                infoBox.innerHTML = `<span class="text-red-500">Format input tidak valid</span>`;
-                return;
-            }
-
-            fetch(url)
-                .then(res => {
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    return res.json();
-                })
+            fetch(`{{ url('/api/eksemplar') }}/${input}`)
+                .then(res => res.json())
                 .then(data => {
                     if (data.judul_buku) {
-                        infoBox.innerHTML = `
-                    📚 Judul: <strong>${data.judul_buku}</strong><br>
-                    🔖 RFID: ${data.no_rfid ?? '-'}<br>
-                    🆔 No Induk: ${data.no_induk ?? '-'}
-                `;
+                        infoBox.innerHTML = `📚 Judul: <strong>${data.judul_buku}</strong>`;
                     } else {
                         infoBox.innerHTML =
                             `<span class="text-red-500">${data.error ?? 'Eksemplar tidak ditemukan'}</span>`;
                     }
                 })
-                .catch(err => {
-                    console.error("Fetch error:", err);
+                .catch(() => {
                     infoBox.innerHTML = `<span class="text-red-500">Gagal mengambil data</span>`;
                 });
         }
