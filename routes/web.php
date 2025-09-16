@@ -355,7 +355,12 @@ Route::get('/api/anggota/{nisn}', function ($nisn) {
 //     ]);
 // });
 
-Route::get('/api/eksemplar/', function (Request $request) {
+Route::get('/api/eksemplar', function (Request $request) {
+    // kalau dua-duanya kosong, balikin error
+    if (!$request->filled('no_rfid') && !$request->filled('no_induk')) {
+        return response()->json(['error' => 'Harus isi No RFID atau No Induk'], 400);
+    }
+
     $query = \App\Models\Eksemplar::with('inventori');
 
     if ($request->filled('no_rfid')) {

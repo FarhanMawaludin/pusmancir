@@ -405,14 +405,11 @@
                 return;
             }
 
-            let url = `{{ url('/api/eksemplar/') }}`;
+            let url = `{{ url('/api/eksemplar') }}`;
 
-            // Jika semua angka → No Induk
             if (/^\d+$/.test(value)) {
                 url += `?no_induk=${encodeURIComponent(value)}`;
-            }
-            // Jika format CRS-xxxx → RFID
-            else if (/^CRS-\w+$/i.test(value)) {
+            } else if (/^CRS-\w+$/i.test(value)) {
                 url += `?no_rfid=${encodeURIComponent(value)}`;
             } else {
                 infoBox.innerHTML = `<span class="text-red-500">Format input tidak valid</span>`;
@@ -420,7 +417,10 @@
             }
 
             fetch(url)
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.json();
+                })
                 .then(data => {
                     if (data.judul_buku) {
                         infoBox.innerHTML = `
@@ -433,7 +433,8 @@
                             `<span class="text-red-500">${data.error ?? 'Eksemplar tidak ditemukan'}</span>`;
                     }
                 })
-                .catch(() => {
+                .catch(err => {
+                    console.error("Fetch error:", err);
                     infoBox.innerHTML = `<span class="text-red-500">Gagal mengambil data</span>`;
                 });
         }
