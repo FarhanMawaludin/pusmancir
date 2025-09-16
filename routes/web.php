@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Http\Request;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\DashboardPustakawanController;
 use App\Http\Controllers\DashboardAnggotaController;
@@ -355,16 +355,15 @@ Route::get('/api/anggota/{nisn}', function ($nisn) {
 //     ]);
 // });
 
-Route::get('/api/eksemplar/{no_rfid?}/{no_induk?}', function ($no_rfid = null, $no_induk = null) {
+Route::get('/api/eksemplar', function (Request $request) {
     $query = \App\Models\Eksemplar::with('inventori');
 
-    // Abaikan string "null" atau nilai kosong
-    if (!empty($no_rfid) && $no_rfid !== 'null') {
-        $query->where('no_rfid', $no_rfid);
+    if ($request->filled('no_rfid')) {
+        $query->where('no_rfid', $request->no_rfid);
     }
 
-    if (!empty($no_induk) && $no_induk !== 'null') {
-        $query->where('no_induk', $no_induk);
+    if ($request->filled('no_induk')) {
+        $query->where('no_induk', $request->no_induk);
     }
 
     $eksemplar = $query->first();

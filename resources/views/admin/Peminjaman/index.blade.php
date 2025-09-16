@@ -405,27 +405,28 @@
                 return;
             }
 
-            let url;
+            let url = `{{ url('/api/eksemplar') }}`;
 
-            // Jika semua angka → anggap sebagai No Induk
+            // Jika semua angka → No Induk
             if (/^\d+$/.test(value)) {
-                url = `{{ url('/api/eksemplar') }}/null/${encodeURIComponent(value)}`;
+                url += `?no_induk=${encodeURIComponent(value)}`;
             }
-            // Jika format CRS-xxxx → anggap sebagai RFID
+            // Jika format CRS-xxxx → RFID
             else if (/^CRS-\w+$/i.test(value)) {
-                url = `{{ url('/api/eksemplar') }}/${encodeURIComponent(value)}`;
+                url += `?no_rfid=${encodeURIComponent(value)}`;
             } else {
                 infoBox.innerHTML = `<span class="text-red-500">Format input tidak valid</span>`;
                 return;
             }
 
-            // Universal fetch untuk RFID maupun No Induk
             fetch(url)
                 .then(res => res.json())
                 .then(data => {
                     if (data.judul_buku) {
                         infoBox.innerHTML = `
                     📚 Judul: <strong>${data.judul_buku}</strong><br>
+                    🔖 RFID: ${data.no_rfid ?? '-'}<br>
+                    🆔 No Induk: ${data.no_induk ?? '-'}
                 `;
                     } else {
                         infoBox.innerHTML =
