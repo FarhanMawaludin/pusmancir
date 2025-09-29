@@ -115,17 +115,20 @@ class PeminjamanController extends Controller
     {
         $request->validate([
             'anggota_id'      => 'required|exists:anggota,nisn',
-            'eksemplar_id'    => 'required|string|exists:eksemplar,no_rfid',
+            'eksemplar_id'    => 'required|string',
             'tanggal_pinjam'  => 'required|date',
             'tanggal_kembali' => 'required|date|after_or_equal:tanggal_pinjam',
         ]);
 
-        // ── Lookup awal ───────────────────────
+        // ── Lookup anggota ──
         $anggota = \App\Models\Anggota::where('nisn', $request->anggota_id)
-            ->where('status', 'aktif') // hanya anggota aktif yang boleh meminjam
+            ->where('status', 'aktif')
             ->first();
 
-        $eksemplar = \App\Models\Eksemplar::where('no_rfid', trim($request->eksemplar_id))->first();
+        // ── Lookup eksemplar berdasarkan no_rfid atau no_induk ──
+        $eksemplar = \App\Models\Eksemplar::where('no_rfid', trim($request->eksemplar_id))
+            ->orWhere('no_induk', trim($request->eksemplar_id))
+            ->first();
 
         if (!$anggota || !$eksemplar) {
             return back()->withInput()
@@ -134,23 +137,23 @@ class PeminjamanController extends Controller
 
         if ($eksemplar->status === 'dipinjam') {
             return back()->withInput()
-                ->with('warning', "Buku dengan RFID '{$request->eksemplar_id}' sedang dipinjam.");
+                ->with('warning', "Buku dengan input '{$request->eksemplar_id}' sedang dipinjam.");
         }
 
-        // ── Tentukan status awal berdasarkan role ─
         $role   = Auth::user()->role;
         $status = in_array($role, ['admin', 'pustakawan']) ? 'berhasil' : 'menunggu';
 
         DB::beginTransaction();
         try {
             $peminjaman = \App\Models\Peminjaman::create([
-                'anggota_id'     => $anggota->id,
-                'user_id'        => Auth::id(),
-                'tanggal_pinjam' => $request->tanggal_pinjam,
+                'anggota_id'      => $anggota->id,
+                'user_id'         => Auth::id(),
+                'tanggal_pinjam'  => $request->tanggal_pinjam,
                 'tanggal_kembali' => $request->tanggal_kembali,
-                'status'         => $status,
+                'status'          => $status,
             ]);
 
+            // ── Simpan detail dengan eksemplar_id (id asli) ──
             \App\Models\DetailPeminjaman::create([
                 'peminjaman_id' => $peminjaman->id,
                 'eksemplar_id'  => $eksemplar->id,
@@ -169,6 +172,7 @@ class PeminjamanController extends Controller
                 ->with('error', 'Gagal menyimpan data: ' . $th->getMessage());
         }
     }
+
 
 
     public function updateStatus(Request $request, $id)
@@ -407,6 +411,4 @@ class PeminjamanController extends Controller
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
-
-    
 }
