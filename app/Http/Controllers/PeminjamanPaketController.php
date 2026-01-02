@@ -266,6 +266,12 @@ class PeminjamanPaketController extends Controller
         $row = $startRow + 1;
         $no = 1;
         foreach ($data as $item) {
+            $status = $item->peminjamanPaket->status ?? '-';
+
+            $tanggalKembali = $status === 'selesai'
+                ? $item->peminjamanPaket->updated_at->format('Y-m-d')
+                : '-';
+
             $sheet->fromArray([
                 $no++,
                 $item->peminjamanPaket->anggota->user->name ?? '-',
@@ -273,13 +279,14 @@ class PeminjamanPaketController extends Controller
                 $item->peminjamanPaket->anggota->kelas->nama_kelas ?? '-',
                 $item->paketBuku->nama_paket ?? '-',
                 $item->peminjamanPaket->created_at->format('Y-m-d'),
-                $item->peminjamanPaket->status ?? '-',
-                $item->peminjamanPaket->updated_at->format('Y-m-d'), // Tanggal Kembali sama dengan created_at
+                $status,
+                $tanggalKembali,
             ], null, "A{$row}");
 
             $sheet->getStyle("A{$row}:H{$row}")->applyFromArray($cellStyle);
             $row++;
         }
+
 
         // Auto width
         foreach (range('A', 'H') as $col) {
