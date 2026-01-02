@@ -153,13 +153,19 @@ class PeminjamanPaketController extends Controller
         $tanggalMulai = $request->input('tanggal_mulai');
         $tanggalSelesai = $request->input('tanggal_selesai');
 
+        // Ambil data dengan relasi
         $query = DetailPeminjamanPaket::with([
             'paketBuku',
             'peminjamanPaket.anggota.user',
             'peminjamanPaket.anggota.kelas'
         ])
             ->whereHas('peminjamanPaket', function ($q) use ($tanggalMulai, $tanggalSelesai) {
-                $q->where('status', 'selesai');
+                $q->where(function ($sub) {
+                    $sub->where('status', 'selesai')
+                        ->orWhere('status', 'berhasil')
+                        ->orWhere('status', 'tolak');
+                });
+
                 if ($tanggalMulai && $tanggalSelesai) {
                     $q->whereBetween('created_at', [
                         $tanggalMulai . ' 00:00:00',
@@ -221,8 +227,8 @@ class PeminjamanPaketController extends Controller
             ],
         ]);
 
-        // Header tabel
-        $headers = ['No', 'Nama Peminjam', 'NISN', 'Kelas', 'Paket Buku', 'Tanggal'];
+        // Header tabel (ditambah Status dan Tanggal Kembali)
+        $headers = ['No', 'Nama Peminjam', 'NISN', 'Kelas', 'Paket Buku', 'Tanggal Pinjam', 'Status', 'Tanggal Kembali'];
         $startRow = 10;
         $sheet->fromArray($headers, null, "A{$startRow}");
 
@@ -241,7 +247,7 @@ class PeminjamanPaketController extends Controller
                 'allBorders' => ['borderStyle' => Border::BORDER_THIN],
             ],
         ];
-        $sheet->getStyle("A{$startRow}:F{$startRow}")->applyFromArray($headerStyle);
+        $sheet->getStyle("A{$startRow}:H{$startRow}")->applyFromArray($headerStyle);
 
         // Isi Data
         $cellStyle = [
@@ -266,14 +272,16 @@ class PeminjamanPaketController extends Controller
                 $item->peminjamanPaket->anggota->kelas->nama_kelas ?? '-',
                 $item->paketBuku->nama_paket ?? '-',
                 $item->peminjamanPaket->created_at->format('Y-m-d'),
+                $item->peminjamanPaket->status ?? '-',
+                $item->peminjamanPaket->updated_at->format('Y-m-d'), // Tanggal Kembali sama dengan created_at
             ], null, "A{$row}");
 
-            $sheet->getStyle("A{$row}:F{$row}")->applyFromArray($cellStyle);
+            $sheet->getStyle("A{$row}:H{$row}")->applyFromArray($cellStyle);
             $row++;
         }
 
         // Auto width
-        foreach (range('A', 'F') as $col) {
+        foreach (range('A', 'H') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
