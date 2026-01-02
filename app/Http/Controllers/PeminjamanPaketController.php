@@ -163,7 +163,8 @@ class PeminjamanPaketController extends Controller
                 $q->where(function ($sub) {
                     $sub->where('status', 'selesai')
                         ->orWhere('status', 'berhasil')
-                        ->orWhere('status', 'tolak');
+                        ->orWhere('status', 'tolak')
+                        ->orWhere('status', 'menunggu');
                 });
 
                 if ($tanggalMulai && $tanggalSelesai) {
