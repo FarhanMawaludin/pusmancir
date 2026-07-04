@@ -431,9 +431,8 @@ Nomor Panggil: [nomor_panggil]";
         $judul = $request->input('judul');
         $pengarang = $request->input('pengarang');
 
-        $prompt = "Berikan satu nomor ISBN (ISBN-10 atau ISBN-13) yang valid dan pasti tersedia di database Google Books untuk buku berjudul \"$judul\" karya \"$pengarang\". 
-Tulis hanya nomor ISBN tersebut, tanpa penjelasan, tanpa teks tambahan, dan hanya menggunakan angka serta tanda hubung. 
-Pastikan ISBN tersebut benar-benar ada dan dapat digunakan untuk mencari cover buku di Google Books API.";
+        $prompt = "Berikan satu nomor ISBN (ISBN-10 atau ISBN-13) resmi yang valid untuk buku berjudul \"$judul\" karya \"$pengarang\" berdasarkan data dari Google Books, Gramedia, Goodreads, Perpustakaan Nasional (Perpusnas), atau situs web tepercaya lainnya. 
+Tulis HANYA nomor ISBN tersebut saja, tanpa penjelasan, tanpa teks tambahan, tanpa spasi di awal/akhir, dan hanya menggunakan angka serta tanda hubung (contoh: 978-602-06-3851-0).";
 
         $aiResult = $this->askAI($prompt);
 
