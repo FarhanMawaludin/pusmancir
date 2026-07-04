@@ -113,7 +113,7 @@
                             <button type="button" id="btn-cari-cover-ai-gramedia"
                                 class="inline-flex items-center px-3 py-2 text-white rounded text-xs font-semibold"
                                 style="background-color: #be185d;">
-                                Cari Cover di AI Gramedia
+                                Cari Cover di database Gramedia (Ai Support)
                             </button>
                         </div>
 
@@ -492,7 +492,7 @@
                 return;
             }
 
-            const labelSource = source === 'gramedia' ? 'AI Gramedia' : 'Gemini AI';
+            const labelSource = source === 'gramedia' ? 'database Gramedia (Ai Support)' : 'Gemini AI';
             status.innerHTML = `
                             <svg class="w-6 h-6 text-blue-700 inline-block animate-spin mr-2"
                                 aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
