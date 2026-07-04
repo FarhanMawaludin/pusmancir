@@ -1,7 +1,7 @@
 @extends('layouts.admin-app')
 
 @section('content')
-    <form method="POST" action="{{ route('admin.katalog.update', $katalog->id) }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('admin.katalog.update', ['id' => $katalog->id, 'page' => request('page'), 'sort' => request('sort'), 'search' => request('search'), 'category' => request('category')]) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -212,7 +212,7 @@
 
                 <!-- Tombol Aksi -->
                 <div class="mt-6 flex items-center justify-start gap-x-4">
-                    <a href="{{ route('admin.katalog.index') }}"
+                    <a href="{{ route('admin.katalog.index', ['page' => request('page'), 'sort' => request('sort'), 'search' => request('search'), 'category' => request('category')]) }}"
                         class="text-sm font-semibold text-text hover:text-text hover:border border-gray-900 rounded-md px-3 py-2 pointer">
                         Batal
                     </a>
@@ -253,7 +253,7 @@
                 if (data.success) {
                     document.getElementById('isbn').value = data.isbn;
                 } else {
-                    alert("Gagal generate ISBN.");
+                    alert("Gagal generate ISBN: " + (data.error || "Unknown error."));
                 }
             } catch (error) {
                 console.error(error);
@@ -295,7 +295,7 @@
                 if (data.success) {
                     document.getElementById('ringkasan_buku').value = data.ringkasan;
                 } else {
-                    alert("Gagal generate ringkasan.");
+                    alert("Gagal generate ringkasan: " + (data.error || "Unknown error."));
                 }
             } catch (error) {
                 console.error(error);

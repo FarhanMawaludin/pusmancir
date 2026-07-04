@@ -6,9 +6,9 @@
         <h1 class="text-2xl font-bold text-text">Data Katalog</h1>
     </div>
 
-    <div class="flex justify-between items-center mb-4">
-        <form method="GET" action="{{ route('admin.katalog.index') }}" class="flex w-full max-w-lg">
-            <div class="flex w-full relative">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+        <form method="GET" action="{{ route('admin.katalog.index') }}" class="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-stretch sm:items-center">
+            <div class="flex w-full sm:w-80 md:w-96 relative">
                 <!-- Hidden input untuk kategori -->
                 <input type="hidden" name="category" id="selected-category" value="{{ $category }}">
 
@@ -82,6 +82,16 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Filter Sort -->
+            <div class="flex items-center gap-2 shrink-0">
+                <label for="sort" class="text-sm font-medium text-text">Urutan:</label>
+                <select name="sort" id="sort" onchange="this.form.submit()"
+                    class="bg-gray-50 border border-gray-300 text-text text-sm rounded focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="desc" {{ $sort === 'desc' ? 'selected' : '' }}>Terbaru ke Terlama</option>
+                    <option value="asc" {{ $sort === 'asc' ? 'selected' : '' }}>Terlama ke Terbaru</option>
+                </select>
+            </div>
         </form>
     </div>
 
@@ -127,7 +137,7 @@
                             <div
                                 class="flex flex-row space-x-1 md:flex-row md:space-y-0 md:space-x-1 items-start md:items-center">
                                 <!-- Edit -->
-                                <a href="{{ route('admin.katalog.edit', $katalogItem->id) }}"
+                                <a href="{{ route('admin.katalog.edit', ['id' => $katalogItem->id, 'page' => $katalog->currentPage(), 'sort' => $sort, 'search' => $search, 'category' => $category]) }}"
                                     class="inline-flex items-center bg-orange-500 text-white px-3 py-2 rounded hover:bg-orange-700 transition">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:mr-1" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
