@@ -579,12 +579,21 @@ Pastikan ISBN tersebut benar-benar ada dan dapat digunakan untuk mencari cover b
 
             // 4. Unduh & simpan gambar langsung ke public/cover_buku
             $thumbnail = str_replace('http://', 'https://', $thumbnail);
-            $imageContent = file_get_contents($thumbnail);
+            
+            $opts = [
+                "http" => [
+                    "method" => "GET",
+                    "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3\r\n",
+                    "timeout" => 7.0
+                ]
+            ];
+            $context = stream_context_create($opts);
+            $imageContent = @file_get_contents($thumbnail, false, $context);
 
             if (!$imageContent) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal mengunduh gambar dari URL.'
+                    'message' => 'Gagal mengunduh gambar cover dari URL sumber. Kemungkinan link tidak valid atau diblokir.'
                 ]);
             }
 
@@ -669,16 +678,17 @@ Pastikan URL tersebut langsung mengarah ke file gambar (format .jpg, .jpeg, .png
             $opts = [
                 "http" => [
                     "method" => "GET",
-                    "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3\r\n"
+                    "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3\r\n",
+                    "timeout" => 7.0
                 ]
             ];
             $context = stream_context_create($opts);
-            $imageContent = file_get_contents($url, false, $context);
+            $imageContent = @file_get_contents($url, false, $context);
 
             if (!$imageContent) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal mengunduh gambar dari URL yang dihasilkan AI.'
+                    'message' => 'Gagal mengunduh gambar cover. URL dari AI tidak dapat diakses atau gambar tidak tersedia.'
                 ]);
             }
 
