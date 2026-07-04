@@ -384,11 +384,15 @@ class KatalogController extends Controller
         $pengarang = $request->input('pengarang');
 
         $prompt = "Tentukan Kode DDC dan Nomor Panggil untuk buku berjudul \"$judul\" karya \"$pengarang\". 
-Nomor Panggil harus mengikuti standar penulisan perpustakaan: dimulai dengan kode DDC, diikuti garis miring (/), lalu tiga huruf pertama dari nama belakang pengarang, semua tanpa penjelasan tambahan. 
+Format Nomor Panggil harus mengikuti aturan penulisan berikut:
+[Kode DDC] [Tiga huruf pertama nama belakang pengarang, harus HURUF KAPITAL] [Satu huruf pertama dari judul buku, harus HURUF KECIL].
+Semua bagian dipisahkan oleh spasi (tanpa menggunakan garis miring).
+Contoh penulisan: 302.224 NUR d
+
 Tampilkan hasil akhir hanya seperti ini:
 
 Kode DDC: [kode]
-Nomor Panggil: [kode_ddc]/[3huruf_nama_belakang_pengarang]";
+Nomor Panggil: [nomor_panggil]";
 
         $aiResult = $this->askAI($prompt, 0.3);
 

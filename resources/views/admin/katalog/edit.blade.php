@@ -115,6 +115,18 @@
                         <div class="mt-2 space-y-2" id="cover_buku_feedback">
                             <small id="cover_buku_status" class="text-sm text-gray-600 block"></small>
                             <img id="cover_preview" src="" class="w-24 h-auto rounded border hidden">
+                            
+                            <!-- Tombol Terima / Tolak Cover -->
+                            <div id="cover_action_buttons" class="hidden flex gap-2 mt-2">
+                                <button type="button" id="btn-terima-cover"
+                                    class="inline-flex items-center px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-semibold">
+                                    Terima Cover
+                                </button>
+                                <button type="button" id="btn-tolak-cover"
+                                    class="inline-flex items-center px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-semibold">
+                                    Tolak Cover
+                                </button>
+                            </div>
                         </div>
 
                         {{-- @if ($katalog->cover_buku)
@@ -387,6 +399,7 @@
             const status = document.getElementById('cover_buku_status');
             const hiddenInput = document.getElementById('cover_buku_url');
             const preview = document.getElementById('cover_preview');
+            const actionButtons = document.getElementById('cover_action_buttons');
 
             if (!isbn) {
                 status.textContent = "❌ ISBN tidak boleh kosong.";
@@ -405,6 +418,8 @@
 
             hiddenInput.value = "";
             preview.classList.add('hidden');
+            preview.removeAttribute('data-temp-path');
+            actionButtons.classList.add('hidden');
 
             const judul = document.getElementById('judul_buku_display').value.trim();
             const pengarang = document.getElementById('pengarang_display').value.trim();
@@ -420,12 +435,13 @@
                                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="m8.032 12 1.984 1.984 4.96-4.96m4.55 5.272.893-.893a1.984 1.984 0 0 0 0-2.806l-.893-.893a1.984 1.984 0 0 1-.581-1.403V7.04a1.984 1.984 0 0 0-1.984-1.984h-1.262a1.983 1.983 0 0 1-1.403-.581l-.893-.893a1.984 1.984 0 0 0-2.806 0l-.893.893a1.984 1.984 0 0 1-1.403.581H7.04A1.984 1.984 0 0 0 5.055 7.04v1.262c0 .527-.209 1.031-.581 1.403l-.893.893a1.984 1.984 0 0 0 0 2.806l.893.893c.372.372.581.876.581 1.403v1.262a1.984 1.984 0 0 0 1.984 1.984h1.262c.527 0 1.031.209 1.403.581l.893.893a1.984 1.984 0 0 0 2.806 0l.893-.893a1.985 1.985 0 0 1 1.403-.581h1.262a1.984 1.984 0 0 0 1.984-1.984V15.7c0-.527.209-1.031.581-1.403Z"/>
                                         </svg>
-                                        <span class="align-middle">Cover ditemukan dan disimpan.</span>
+                                        <span class="align-middle">Cover ditemukan di Google Books/Open Library! Apakah Anda ingin menerimanya?</span>
                                         `;
 
-                    hiddenInput.value = data.path;
+                    preview.dataset.tempPath = data.path;
                     preview.src = data.cover_url;
                     preview.classList.remove('hidden');
+                    actionButtons.classList.remove('hidden');
                 } else {
                     status.innerHTML = `
                         <svg class="w-5 h-5 text-yellow-500 inline-block mr-2"
@@ -460,6 +476,7 @@
             const status = document.getElementById('cover_buku_status');
             const hiddenInput = document.getElementById('cover_buku_url');
             const preview = document.getElementById('cover_preview');
+            const actionButtons = document.getElementById('cover_action_buttons');
 
             if (!judul || !pengarang) {
                 status.textContent = "❌ Judul dan Pengarang tidak boleh kosong untuk mencari via AI.";
@@ -478,6 +495,8 @@
 
             hiddenInput.value = "";
             preview.classList.add('hidden');
+            preview.removeAttribute('data-temp-path');
+            actionButtons.classList.add('hidden');
 
             try {
                 const res = await fetch("{{ route('admin.katalog.fetch-cover-ai') }}", {
@@ -497,12 +516,13 @@
                                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="m8.032 12 1.984 1.984 4.96-4.96m4.55 5.272.893-.893a1.984 1.984 0 0 0 0-2.806l-.893-.893a1.984 1.984 0 0 1-.581-1.403V7.04a1.984 1.984 0 0 0-1.984-1.984h-1.262a1.983 1.983 0 0 1-1.403-.581l-.893-.893a1.984 1.984 0 0 0-2.806 0l-.893.893a1.984 1.984 0 0 1-1.403.581H7.04A1.984 1.984 0 0 0 5.055 7.04v1.262c0 .527-.209 1.031-.581 1.403l-.893.893a1.984 1.984 0 0 0 0 2.806l.893.893c.372.372.581.876.581 1.403v1.262a1.984 1.984 0 0 0 1.984 1.984h1.262c.527 0 1.031.209 1.403.581l.893.893a1.984 1.984 0 0 0 2.806 0l.893-.893a1.985 1.985 0 0 1 1.403-.581h1.262a1.984 1.984 0 0 0 1.984-1.984V15.7c0-.527.209-1.031.581-1.403Z"/>
                                         </svg>
-                                        <span class="align-middle">Cover ditemukan oleh AI dan disimpan.</span>
+                                        <span class="align-middle">Cover ditemukan oleh AI! Apakah Anda ingin menerimanya?</span>
                                         `;
 
-                    hiddenInput.value = data.path;
+                    preview.dataset.tempPath = data.path;
                     preview.src = data.cover_url;
                     preview.classList.remove('hidden');
+                    actionButtons.classList.remove('hidden');
                 } else {
                     status.innerHTML = `
                         <svg class="w-5 h-5 text-yellow-500 inline-block mr-2"
@@ -526,6 +546,52 @@
                     <span class="align-middle">Gagal menghubungi server untuk pencarian AI.</span>
                     `;
             }
+        });
+    </script>
+
+    <script>
+        document.getElementById('btn-terima-cover').addEventListener('click', function() {
+            const preview = document.getElementById('cover_preview');
+            const hiddenInput = document.getElementById('cover_buku_url');
+            const status = document.getElementById('cover_buku_status');
+            const actionButtons = document.getElementById('cover_action_buttons');
+
+            if (preview.dataset.tempPath) {
+                hiddenInput.value = preview.dataset.tempPath;
+                status.innerHTML = `
+                                    <svg class="w-6 h-6 text-green-600 inline-block mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                        width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="m8.032 12 1.984 1.984 4.96-4.96m4.55 5.272.893-.893a1.984 1.984 0 0 0 0-2.806l-.893-.893a1.984 1.984 0 0 1-.581-1.403V7.04a1.984 1.984 0 0 0-1.984-1.984h-1.262a1.983 1.983 0 0 1-1.403-.581l-.893-.893a1.984 1.984 0 0 0-2.806 0l-.893.893a1.984 1.984 0 0 1-1.403.581H7.04A1.984 1.984 0 0 0 5.055 7.04v1.262c0 .527-.209 1.031-.581 1.403l-.893.893a1.984 1.984 0 0 0 0 2.806l.893.893c.372.372.581.876.581 1.403v1.262a1.984 1.984 0 0 0 1.984 1.984h1.262c.527 0 1.031.209 1.403.581l.893.893a1.984 1.984 0 0 0 2.806 0l.893-.893a1.985 1.985 0 0 1 1.403-.581h1.262a1.984 1.984 0 0 0 1.984-1.984V15.7c0-.527.209-1.031.581-1.403Z"/>
+                                    </svg>
+                                    <span class="align-middle text-green-600 font-semibold">Cover berhasil diterima dan siap disimpan!</span>
+                                    `;
+                actionButtons.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('btn-tolak-cover').addEventListener('click', function() {
+            const preview = document.getElementById('cover_preview');
+            const hiddenInput = document.getElementById('cover_buku_url');
+            const status = document.getElementById('cover_buku_status');
+            const actionButtons = document.getElementById('cover_action_buttons');
+
+            // Clear values
+            preview.src = "";
+            preview.classList.add('hidden');
+            preview.removeAttribute('data-temp-path');
+            hiddenInput.value = "";
+
+            status.innerHTML = `
+                                <svg class="w-5 h-5 text-red-500 inline-block mr-2"
+                                    aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                    width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18 17.94 6M18 18 6.06 6"/>
+                                </svg>
+                                <span class="align-middle text-red-500 font-semibold">Cover ditolak. Silakan cari menggunakan sumber lain.</span>
+                                `;
+            actionButtons.classList.add('hidden');
         });
     </script>
 @endsection
