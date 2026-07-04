@@ -269,8 +269,24 @@
             button.disabled = true;
             button.classList.add('opacity-50', 'cursor-not-allowed');
 
-            // Update spinner text secara progresif
-            spinnerText.textContent = 'Mencari ISBN di Google Books...';
+            // Urutan label sesuai urutan pencarian di backend:
+            // Gramedia → Google Books → Open Library → AI Gemini
+            const searchSteps = [
+                '🔍 Mencari ISBN di database Gramedia...',
+                '🔍 Mencari ISBN di Google Books...',
+                '🔍 Mencari ISBN di Open Library...',
+                '🤖 Mencari via AI Gemini (fallback)...',
+            ];
+            let stepIndex = 0;
+            spinnerText.textContent = searchSteps[0];
+
+            // Rotasi teks spinner setiap 3 detik agar pengguna tahu progress
+            const spinnerInterval = setInterval(() => {
+                stepIndex++;
+                if (stepIndex < searchSteps.length) {
+                    spinnerText.textContent = searchSteps[stepIndex];
+                }
+            }, 3000);
 
             try {
                 const res = await fetch("{{ route('admin.katalog.generate-isbn') }}", {
@@ -279,18 +295,14 @@
                         "Content-Type": "application/json",
                         "X-CSRF-TOKEN": "{{ csrf_token() }}"
                     },
-                    body: JSON.stringify({
-                        judul,
-                        pengarang,
-                        penerbit
-                    })
+                    body: JSON.stringify({ judul, pengarang, penerbit })
                 });
 
                 const data = await res.json();
                 if (data.success) {
                     document.getElementById('isbn').value = data.isbn;
 
-                    // Tampilkan info sumber ISBN
+                    // Tampilkan badge sumber ISBN
                     if (isbnSourceInfo) {
                         const source = data.source || 'Unknown';
                         const confidence = data.confidence || 'low';
@@ -324,12 +336,15 @@
                 console.error(error);
                 alert("Terjadi kesalahan saat menghubungi server.");
             } finally {
+                clearInterval(spinnerInterval);
                 spinner.classList.add('hidden');
                 button.disabled = false;
                 button.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         });
     </script>
+
+
 
     <script>
         document.getElementById('generate-ringkasan').addEventListener('click', async function() {
