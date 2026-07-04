@@ -45,6 +45,14 @@ use Illuminate\Support\Facades\Http;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
+Route::get('/clear-opcache', function() {
+    if (function_exists('opcache_reset')) {
+        opcache_reset();
+        return "OPcache cleared successfully!";
+    }
+    return "OPcache is not enabled or function does not exist.";
+});
+
 Route::get('/dashboard', function () {
     if (auth()->check()) {
         if (in_array(auth()->user()->role, ['admin', 'pustakawan'])) {
