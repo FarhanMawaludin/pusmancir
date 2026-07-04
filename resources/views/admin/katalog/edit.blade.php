@@ -401,8 +401,11 @@
             hiddenInput.value = "";
             preview.classList.add('hidden');
 
+            const judul = document.getElementById('judul_buku_display').value.trim();
+            const pengarang = document.getElementById('pengarang_display').value.trim();
+
             try {
-                const res = await fetch(`/admin/katalog/fetch-cover/${isbn}`);
+                const res = await fetch(`/admin/katalog/fetch-cover/${isbn}?judul=${encodeURIComponent(judul)}&pengarang=${encodeURIComponent(pengarang)}`);
                 const data = await res.json();
 
                 if (data.success) {

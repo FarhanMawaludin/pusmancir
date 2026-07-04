@@ -540,11 +540,36 @@ Pastikan ISBN tersebut benar-benar ada dan dapat digunakan untuk mencari cover b
                 }
             }
 
-            // 3. Jika tetap tidak ada cover
+            // 3. Fallback: Jika pencarian lewat ISBN gagal, coba cari lewat Judul + Pengarang
+            if (!$thumbnail && request('judul') && request('pengarang')) {
+                $judul = request('judul');
+                $pengarang = request('pengarang');
+                
+                $query = urlencode("intitle:{$judul} inauthor:{$pengarang}");
+                $resFallback = Http::get("https://www.googleapis.com/books/v1/volumes?q={$query}");
+                
+                if ($resFallback->ok() && isset($resFallback['items'])) {
+                    foreach ($resFallback['items'] as $item) {
+                        if (isset($item['volumeInfo']['imageLinks'])) {
+                            $links = $item['volumeInfo']['imageLinks'];
+                            $thumbnail = $links['large'] ??
+                                $links['medium'] ??
+                                $links['small'] ??
+                                $links['thumbnail'] ??
+                                $links['smallThumbnail'] ?? null;
+                            if ($thumbnail) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 4. Jika tetap tidak ada cover
             if (!$thumbnail) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Cover tidak tersedia untuk ISBN ini.'
+                    'message' => 'Cover tidak tersedia untuk ISBN atau Judul buku ini.'
                 ]);
             }
 
