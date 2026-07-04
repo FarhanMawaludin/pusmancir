@@ -67,9 +67,13 @@
                                 class="inline-flex items-center px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-semibold">
                                 Cari di API Google Book
                             </button>
-                            <button type="button" id="btn-cari-cover-ai"
+                            <button type="button" id="btn-cari-cover-ai-gemini"
                                 class="inline-flex items-center px-3 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 text-xs font-semibold">
-                                Cari di AI
+                                Cari di AI Gemini
+                            </button>
+                            <button type="button" id="btn-cari-cover-ai-gramedia"
+                                class="inline-flex items-center px-3 py-2 bg-pink-700 text-white rounded hover:bg-pink-800 text-xs font-semibold">
+                                Cari di AI Gramedia
                             </button>
                         </div>
 
@@ -470,7 +474,7 @@
     </script>
 
     <script>
-        document.getElementById('btn-cari-cover-ai').addEventListener('click', async function() {
+        async function cariCoverAI(source) {
             const judul = document.getElementById('judul_buku_display').value.trim();
             const pengarang = document.getElementById('pengarang_display').value.trim();
             const status = document.getElementById('cover_buku_status');
@@ -483,6 +487,7 @@
                 return;
             }
 
+            const labelSource = source === 'gramedia' ? 'AI Gramedia' : 'Gemini AI';
             status.innerHTML = `
                             <svg class="w-6 h-6 text-blue-700 inline-block animate-spin mr-2"
                                 aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -490,7 +495,7 @@
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
                             </svg>
-                            <span class="align-middle">Mencari cover menggunakan Gemini AI…</span>
+                            <span class="align-middle">Mencari cover menggunakan ${labelSource}…</span>
                             `;
 
             hiddenInput.value = "";
@@ -505,7 +510,7 @@
                         "Content-Type": "application/json",
                         "X-CSRF-TOKEN": "{{ csrf_token() }}"
                     },
-                    body: JSON.stringify({ judul, pengarang })
+                    body: JSON.stringify({ judul, pengarang, source })
                 });
                 const data = await res.json();
 
@@ -516,7 +521,7 @@
                                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="m8.032 12 1.984 1.984 4.96-4.96m4.55 5.272.893-.893a1.984 1.984 0 0 0 0-2.806l-.893-.893a1.984 1.984 0 0 1-.581-1.403V7.04a1.984 1.984 0 0 0-1.984-1.984h-1.262a1.983 1.983 0 0 1-1.403-.581l-.893-.893a1.984 1.984 0 0 0-2.806 0l-.893.893a1.984 1.984 0 0 1-1.403.581H7.04A1.984 1.984 0 0 0 5.055 7.04v1.262c0 .527-.209 1.031-.581 1.403l-.893.893a1.984 1.984 0 0 0 0 2.806l.893.893c.372.372.581.876.581 1.403v1.262a1.984 1.984 0 0 0 1.984 1.984h1.262c.527 0 1.031.209 1.403.581l.893.893a1.984 1.984 0 0 0 2.806 0l.893-.893a1.985 1.985 0 0 1 1.403-.581h1.262a1.984 1.984 0 0 0 1.984-1.984V15.7c0-.527.209-1.031.581-1.403Z"/>
                                         </svg>
-                                        <span class="align-middle">Cover ditemukan oleh AI! Apakah Anda ingin menerimanya?</span>
+                                        <span class="align-middle">Cover ditemukan oleh ${labelSource}! Apakah Anda ingin menerimanya?</span>
                                         `;
 
                     preview.dataset.tempPath = data.path;
@@ -546,7 +551,10 @@
                     <span class="align-middle">Gagal menghubungi server untuk pencarian AI.</span>
                     `;
             }
-        });
+        }
+
+        document.getElementById('btn-cari-cover-ai-gemini').addEventListener('click', () => cariCoverAI('gemini'));
+        document.getElementById('btn-cari-cover-ai-gramedia').addEventListener('click', () => cariCoverAI('gramedia'));
     </script>
 
     <script>
