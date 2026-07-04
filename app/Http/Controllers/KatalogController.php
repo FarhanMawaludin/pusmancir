@@ -622,10 +622,11 @@ Pastikan ISBN tersebut benar-benar ada dan dapat digunakan untuk mencari cover b
             ]);
         }
 
-        // Prompt Gemini to find a direct public image URL of the book cover
-        $prompt = "Berikan satu URL gambar cover buku yang valid dan dapat diakses publik untuk buku berjudul \"$judul\" karya \"$pengarang\". 
+        // Prompt Gemini to find a direct public image URL of the book cover, prioritizing Gramedia
+        $prompt = "Berikan satu URL gambar cover buku yang valid, langsung, dan dapat diakses publik untuk buku berjudul \"$judul\" karya \"$pengarang\". 
+Prioritaskan mencari URL gambar cover dari situs Gramedia (gramedia.com) atau CDN Gramedia (cdn.gramedia.com). Jika tidak ada di Gramedia, Anda boleh mengambil dari sumber tepercaya lain seperti Goodreads atau Wikipedia.
 Respons HANYA berupa URL gambar tersebut saja, tanpa penjelasan, tanpa format markdown, tanpa tanda kutip, dan tanpa teks tambahan lainnya. 
-Pastikan URL tersebut langsung mengarah ke file gambar (seperti format .jpg, .png, atau .webp) dari situs tepercaya seperti Goodreads, Wikipedia, atau toko buku.";
+Pastikan URL tersebut langsung mengarah ke file gambar (format .jpg, .jpeg, .png, atau .webp).";
 
         $aiResult = $this->askAI($prompt);
 
