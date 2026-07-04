@@ -72,9 +72,12 @@
                                     <path class="opacity-75" fill="currentColor"
                                         d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z" />
                                 </svg>
-                                Sedang menghasilkan ISBN...
+                                <span id="spinner-isbn-text">Mencari ISBN di Google Books...</span>
                             </div>
                         </div>
+
+                        <!-- Info Sumber ISBN -->
+                        <div id="isbn-source-info" class="mt-2 hidden"></div>
 
                         @error('isbn')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -255,12 +258,19 @@
         document.getElementById('generate-isbn').addEventListener('click', async function() {
             const judul = document.getElementById('judul_buku_display').value;
             const pengarang = document.getElementById('pengarang_display').value;
+            const penerbit = document.getElementById('penerbit_display').value;
             const spinner = document.getElementById('spinner-isbn');
+            const spinnerText = document.getElementById('spinner-isbn-text');
+            const isbnSourceInfo = document.getElementById('isbn-source-info');
             const button = this;
 
             spinner.classList.remove('hidden');
+            if (isbnSourceInfo) isbnSourceInfo.classList.add('hidden');
             button.disabled = true;
             button.classList.add('opacity-50', 'cursor-not-allowed');
+
+            // Update spinner text secara progresif
+            spinnerText.textContent = 'Mencari ISBN di Google Books...';
 
             try {
                 const res = await fetch("{{ route('admin.katalog.generate-isbn') }}", {
@@ -271,15 +281,44 @@
                     },
                     body: JSON.stringify({
                         judul,
-                        pengarang
+                        pengarang,
+                        penerbit
                     })
                 });
 
                 const data = await res.json();
                 if (data.success) {
                     document.getElementById('isbn').value = data.isbn;
+
+                    // Tampilkan info sumber ISBN
+                    if (isbnSourceInfo) {
+                        const source = data.source || 'Unknown';
+                        const confidence = data.confidence || 'low';
+
+                        let badgeColor, badgeIcon, badgeText;
+                        if (confidence === 'high') {
+                            badgeColor = 'bg-green-100 text-green-800 border-green-300';
+                            badgeIcon = `<svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>`;
+                            badgeText = `Ditemukan dari <strong>${source}</strong> — ISBN terverifikasi`;
+                        } else {
+                            badgeColor = 'bg-yellow-100 text-yellow-800 border-yellow-300';
+                            badgeIcon = `<svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>`;
+                            badgeText = `Dihasilkan oleh <strong>${source}</strong> — <span class="text-red-600 font-semibold">perlu verifikasi manual!</span>`;
+                        }
+
+                        isbnSourceInfo.innerHTML = `
+                            <div class="inline-flex items-center px-3 py-1.5 rounded-md border text-xs ${badgeColor}">
+                                ${badgeIcon} ${badgeText}
+                            </div>
+                        `;
+                        isbnSourceInfo.classList.remove('hidden');
+                    }
                 } else {
-                    alert("Gagal generate ISBN: " + (data.error || "Unknown error."));
+                    alert("Gagal mencari ISBN: " + (data.error || "Unknown error."));
                 }
             } catch (error) {
                 console.error(error);

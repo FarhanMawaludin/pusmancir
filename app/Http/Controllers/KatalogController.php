@@ -430,22 +430,185 @@ Nomor Panggil: [nomor_panggil]";
     {
         $judul = $request->input('judul');
         $pengarang = $request->input('pengarang');
+        $penerbit = $request->input('penerbit', '');
 
-        $prompt = "Berikan satu nomor ISBN (ISBN-10 atau ISBN-13) resmi yang valid untuk buku berjudul \"$judul\" karya \"$pengarang\" berdasarkan data dari Google Books, Gramedia, Goodreads, Perpustakaan Nasional (Perpusnas), atau situs web tepercaya lainnya. 
-Tulis HANYA nomor ISBN tersebut saja, tanpa penjelasan, tanpa teks tambahan, tanpa spasi di awal/akhir, dan hanya menggunakan angka serta tanda hubung (contoh: 978-602-06-3851-0).";
+        // ====================================================================
+        // LAYER 1: Google Books API (sumber paling reliable, gratis)
+        // ====================================================================
+        try {
+            $query = urlencode("intitle:{$judul} inauthor:{$pengarang}");
+            $res = Http::timeout(10)->get("https://www.googleapis.com/books/v1/volumes?q={$query}&maxResults=5");
 
-        $aiResult = $this->askAI($prompt);
+            if ($res->ok() && isset($res['items'])) {
+                foreach ($res['items'] as $item) {
+                    $volumeInfo = $item['volumeInfo'] ?? [];
+                    $identifiers = $volumeInfo['industryIdentifiers'] ?? [];
+
+                    // Cek kecocokan judul (minimal 60% mirip)
+                    $titleFromApi = strtolower($volumeInfo['title'] ?? '');
+                    $titleInput = strtolower($judul);
+                    similar_text($titleFromApi, $titleInput, $titlePercent);
+
+                    if ($titlePercent < 60) {
+                        continue; // Skip jika judul tidak cukup mirip
+                    }
+
+                    // Prioritaskan ISBN-13
+                    $isbn13 = null;
+                    $isbn10 = null;
+                    foreach ($identifiers as $id) {
+                        if ($id['type'] === 'ISBN_13') {
+                            $isbn13 = $id['identifier'];
+                        } elseif ($id['type'] === 'ISBN_10') {
+                            $isbn10 = $id['identifier'];
+                        }
+                    }
+
+                    $isbn = $isbn13 ?? $isbn10;
+                    if ($isbn) {
+                        return response()->json([
+                            'success' => true,
+                            'isbn' => $isbn,
+                            'source' => 'Google Books',
+                            'confidence' => 'high'
+                        ]);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('ISBN Lookup - Google Books gagal: ' . $e->getMessage());
+        }
+
+        // ====================================================================
+        // LAYER 2: Open Library API (database open source, banyak buku)
+        // ====================================================================
+        try {
+            $res = Http::timeout(10)->get("https://openlibrary.org/search.json", [
+                'title' => $judul,
+                'author' => $pengarang,
+                'limit' => 5,
+                'fields' => 'title,author_name,isbn,publisher'
+            ]);
+
+            if ($res->ok()) {
+                $docs = $res->json('docs') ?? [];
+                foreach ($docs as $doc) {
+                    // Cek kecocokan judul
+                    $titleFromApi = strtolower($doc['title'] ?? '');
+                    $titleInput = strtolower($judul);
+                    similar_text($titleFromApi, $titleInput, $titlePercent);
+
+                    if ($titlePercent < 60) {
+                        continue;
+                    }
+
+                    $isbns = $doc['isbn'] ?? [];
+                    if (!empty($isbns)) {
+                        // Prioritaskan ISBN-13 (yang dimulai dengan 978 atau 979)
+                        $isbn13 = null;
+                        $isbn10 = null;
+                        foreach ($isbns as $isbn) {
+                            $clean = preg_replace('/[^0-9X]/', '', strtoupper($isbn));
+                            if (strlen($clean) === 13) {
+                                $isbn13 = $clean;
+                                break;
+                            } elseif (strlen($clean) === 10 && !$isbn10) {
+                                $isbn10 = $clean;
+                            }
+                        }
+
+                        $isbn = $isbn13 ?? $isbn10;
+                        if ($isbn) {
+                            return response()->json([
+                                'success' => true,
+                                'isbn' => $isbn,
+                                'source' => 'Open Library',
+                                'confidence' => 'high'
+                            ]);
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('ISBN Lookup - Open Library gagal: ' . $e->getMessage());
+        }
+
+        // ====================================================================
+        // LAYER 3: Gramedia.com Web Scraping (khusus buku Indonesia)
+        // ====================================================================
+        try {
+            // Generate slug dari judul buku
+            $slug = Str::slug($judul);
+
+            $res = Http::timeout(10)->withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language' => 'id-ID,id;q=0.9,en;q=0.8',
+            ])->get("https://www.gramedia.com/products/{$slug}");
+
+            if ($res->ok()) {
+                $html = $res->body();
+
+                // Cari ISBN dari halaman Gramedia — biasanya dalam format 13 digit
+                // Pattern: ISBN diikuti angka 13 digit (ISBN-13)
+                if (preg_match('/ISBN\s*[:\s]*\s*(\d{13})/i', $html, $match)) {
+                    return response()->json([
+                        'success' => true,
+                        'isbn' => $match[1],
+                        'source' => 'Gramedia',
+                        'confidence' => 'high'
+                    ]);
+                }
+
+                // Fallback: cari pola angka 13 digit yang dimulai dengan 978/979
+                if (preg_match('/\b(97[89]\d{10})\b/', $html, $match)) {
+                    return response()->json([
+                        'success' => true,
+                        'isbn' => $match[1],
+                        'source' => 'Gramedia',
+                        'confidence' => 'high'
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('ISBN Lookup - Gramedia scraping gagal: ' . $e->getMessage());
+        }
+
+        // ====================================================================
+        // LAYER 4: AI Fallback (Gemini) — terakhir, confidence rendah
+        // ====================================================================
+        $penerbitInfo = $penerbit ? " diterbitkan oleh \"{$penerbit}\"" : "";
+        $prompt = "Berikan satu nomor ISBN (ISBN-10 atau ISBN-13) yang paling mungkin valid untuk buku berjudul \"{$judul}\" karya \"{$pengarang}\"{$penerbitInfo}.
+Jika kamu tidak yakin dengan ISBN-nya, jawab dengan teks: TIDAK_DITEMUKAN
+Jika kamu yakin, tulis HANYA nomor ISBN tersebut saja, tanpa penjelasan, tanpa teks tambahan, hanya angka (contoh: 9786231342355).";
+
+        $aiResult = $this->askAI($prompt, 0.1); // Temperature rendah untuk hasil lebih deterministik
 
         if (!$aiResult['success']) {
             return response()->json([
                 'success' => false,
-                'error' => $aiResult['error']
+                'error' => 'ISBN tidak ditemukan di Google Books, Open Library, maupun Gramedia. AI juga gagal: ' . $aiResult['error']
             ]);
         }
 
+        $aiIsbn = trim($aiResult['text']);
+
+        // Jika AI menjawab tidak ditemukan
+        if (stripos($aiIsbn, 'TIDAK_DITEMUKAN') !== false || strlen(preg_replace('/[^0-9]/', '', $aiIsbn)) < 10) {
+            return response()->json([
+                'success' => false,
+                'error' => 'ISBN tidak ditemukan di semua sumber (Google Books, Open Library, Gramedia, dan AI). Silakan masukkan ISBN secara manual.'
+            ]);
+        }
+
+        // Bersihkan: hanya ambil angka
+        $cleanIsbn = preg_replace('/[^0-9]/', '', $aiIsbn);
+
         return response()->json([
             'success' => true,
-            'isbn' => $aiResult['text']
+            'isbn' => $cleanIsbn,
+            'source' => 'AI (Gemini)',
+            'confidence' => 'low'
         ]);
     }
 
