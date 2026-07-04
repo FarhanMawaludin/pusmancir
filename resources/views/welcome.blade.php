@@ -82,10 +82,24 @@
 
                     <!-- Tombol Masuk + Burger (mobile only) -->
                     <div class="flex items-center space-x-2">
-                        <button type="button" onclick="location.href='{{ route('login') }}'"
-                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2 text-center">
-                            Masuk
-                        </button>
+                        @auth
+                            @if(in_array(auth()->user()->role, ['admin', 'pustakawan']))
+                                <button type="button" onclick="location.href='{{ route('admin.dashboard.index') }}'"
+                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2 text-center">
+                                    Dashboard
+                                </button>
+                            @else
+                                <button type="button" onclick="location.href='{{ route('anggota.dashboard.index') }}'"
+                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2 text-center">
+                                    Dashboard
+                                </button>
+                            @endif
+                        @else
+                            <button type="button" onclick="location.href='{{ route('login') }}'"
+                                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2 text-center">
+                                Masuk
+                            </button>
+                        @endauth
                         <button data-collapse-toggle="navbar-sticky" type="button"
                             class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
                             aria-controls="navbar-sticky" aria-expanded="false">
@@ -118,10 +132,24 @@
                 <!-- Kanan (tombol masuk - desktop only) -->
                 <div
                     class="hidden md:flex items-center justify-end w-full md:w-60 md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-                    <button type="button" onclick="location.href='{{ route('login') }}'"
-                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2 text-center">
-                        Masuk
-                    </button>
+                    @auth
+                        @if(in_array(auth()->user()->role, ['admin', 'pustakawan']))
+                            <button type="button" onclick="location.href='{{ route('admin.dashboard.index') }}'"
+                                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2 text-center">
+                                Dashboard
+                            </button>
+                        @else
+                            <button type="button" onclick="location.href='{{ route('anggota.dashboard.index') }}'"
+                                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2 text-center">
+                                Dashboard
+                            </button>
+                        @endif
+                    @else
+                        <button type="button" onclick="location.href='{{ route('login') }}'"
+                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2 text-center">
+                            Masuk
+                        </button>
+                    @endauth
                 </div>
 
                 <!-- Navbar Link (Tengah) -->

@@ -45,6 +45,16 @@ use Illuminate\Support\Facades\Http;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
+Route::get('/dashboard', function () {
+    if (auth()->check()) {
+        if (in_array(auth()->user()->role, ['admin', 'pustakawan'])) {
+            return redirect()->route('admin.dashboard.index');
+        }
+        return redirect()->route('anggota.dashboard.index');
+    }
+    return redirect()->route('login');
+})->middleware('auth')->name('dashboard');
+
 Route::get('/katalog/{id}', [WelcomeController::class, 'show'])->name('detail-buku');
 
 Route::get('/ebook/{id}', [WelcomeController::class, 'showEbook'])->name('detail-buku-elektronik');
