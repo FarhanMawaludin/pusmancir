@@ -57,25 +57,11 @@
                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                         </div>
 
-                        <!-- Tombol Aksi Terkait Cover/ISBN -->
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            <button type="button" id="generate-isbn"
-                                class="inline-flex items-center px-3 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 text-xs font-semibold">
-                                Generate ISBN
-                            </button>
-                            <button type="button" id="btn-cek-cover"
-                                class="inline-flex items-center px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-semibold">
-                                Cari di API Google Book
-                            </button>
-                            <button type="button" id="btn-cari-cover-ai-gemini"
-                                class="inline-flex items-center px-3 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 text-xs font-semibold">
-                                Cari di AI Gemini
-                            </button>
-                            <button type="button" id="btn-cari-cover-ai-gramedia"
-                                class="inline-flex items-center px-3 py-2 bg-pink-700 text-white rounded hover:bg-pink-800 text-xs font-semibold">
-                                Cari di AI Gramedia
-                            </button>
-                        </div>
+                        <!-- Tombol Generate ISBN -->
+                        <button type="button" id="generate-isbn"
+                            class="mt-2 inline-flex items-center px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 text-sm font-semibold">
+                            Generate ISBN
+                        </button>
 
                         <!-- Spinner -->
                         <div id="spinner-isbn" class="mt-3 hidden">
@@ -101,7 +87,7 @@
                         <label class="block text-sm font-medium text-text mb-2">Cover Buku</label>
 
                         <label for="cover_buku"
-                            class="flex items-center cursor-pointer rounded-md overflow-hidden border border-gray-300 bg-white">
+                            class="flex items-center cursor-pointer rounded-md overflow-hidden border border-gray-300 bg-white mb-2">
 
                             <span class="bg-gray-800 text-white text-sm font-semibold px-4 py-2">
                                 Pilih File
@@ -111,6 +97,22 @@
                                 Tidak ada file dipilih
                             </span>
                         </label>
+
+                        <!-- Tombol Pencarian Cover -->
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            <button type="button" id="btn-cek-cover"
+                                class="inline-flex items-center px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-semibold">
+                                Cari Cover di API Google Book
+                            </button>
+                            <button type="button" id="btn-cari-cover-ai-gemini"
+                                class="inline-flex items-center px-3 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 text-xs font-semibold">
+                                Cari Cover di AI Gemini
+                            </button>
+                            <button type="button" id="btn-cari-cover-ai-gramedia"
+                                class="inline-flex items-center px-3 py-2 bg-pink-700 text-white rounded hover:bg-pink-800 text-xs font-semibold">
+                                Cari Cover di AI Gramedia
+                            </button>
+                        </div>
 
                         <input type="file" name="cover_buku" id="cover_buku" accept="image/*" class="hidden">
 
