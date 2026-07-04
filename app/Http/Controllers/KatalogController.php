@@ -609,4 +609,93 @@ Pastikan ISBN tersebut benar-benar ada dan dapat digunakan untuk mencari cover b
             ]);
         }
     }
+
+    public function fetchCoverByAI(Request $request)
+    {
+        $judul = $request->input('judul');
+        $pengarang = $request->input('pengarang');
+
+        if (!$judul || !$pengarang) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Judul dan pengarang harus diisi untuk mencari cover via AI.'
+            ]);
+        }
+
+        // Prompt Gemini to find a direct public image URL of the book cover
+        $prompt = "Berikan satu URL gambar cover buku yang valid dan dapat diakses publik untuk buku berjudul \"$judul\" karya \"$pengarang\". 
+Respons HANYA berupa URL gambar tersebut saja, tanpa penjelasan, tanpa format markdown, tanpa tanda kutip, dan tanpa teks tambahan lainnya. 
+Pastikan URL tersebut langsung mengarah ke file gambar (seperti format .jpg, .png, atau .webp) dari situs tepercaya seperti Goodreads, Wikipedia, atau toko buku.";
+
+        $aiResult = $this->askAI($prompt);
+
+        if (!$aiResult['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $aiResult['error']
+            ]);
+        }
+
+        $url = trim($aiResult['text']);
+        
+        // Clean markdown formatting if AI returned it (e.g. `url` or [text](url))
+        if (preg_match('/https?:\/\/[^\s\)\`\]]+/i', $url, $matches)) {
+            $url = $matches[0];
+        }
+
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'AI menghasilkan URL yang tidak valid: ' . substr($url, 0, 100)
+            ]);
+        }
+
+        try {
+            // Unduh & simpan gambar
+            $url = str_replace('http://', 'https://', $url);
+            
+            // Set User-Agent so we don't get blocked by security checks
+            $opts = [
+                "http" => [
+                    "method" => "GET",
+                    "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3\r\n"
+                ]
+            ];
+            $context = stream_context_create($opts);
+            $imageContent = file_get_contents($url, false, $context);
+
+            if (!$imageContent) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengunduh gambar dari URL yang dihasilkan AI.'
+                ]);
+            }
+
+            // Generate filename based on title
+            $safeTitle = Str::slug($judul);
+            $filename = 'cover_ai_' . $safeTitle . '_' . Str::random(5) . '.jpg';
+            $folderPath = public_path('cover_buku');
+
+            // Pastikan folder ada
+            if (!file_exists($folderPath)) {
+                mkdir($folderPath, 0755, true);
+            }
+
+            $filePath = $folderPath . DIRECTORY_SEPARATOR . $filename;
+
+            // Simpan file
+            file_put_contents($filePath, $imageContent);
+
+            return response()->json([
+                'success' => true,
+                'cover_url' => asset('cover_buku/' . $filename),
+                'path' => 'cover_buku/' . $filename
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memproses gambar dari AI: ' . $e->getMessage()
+            ]);
+        }
+    }
 }

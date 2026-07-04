@@ -204,6 +204,7 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     Route::post('/generate-ddc', [KatalogController::class, 'generateKodeDDC'])->name('katalog.generate-ddc');
     Route::post('/generate-isbn', [KatalogController::class, 'generateISBN'])->name('katalog.generate-isbn');
     Route::get('/katalog/fetch-cover/{isbn}', [KatalogController::class, 'fetchCoverByIsbn'])->name('katalog.fetch-cover');
+    Route::post('/katalog/fetch-cover-ai', [KatalogController::class, 'fetchCoverByAI'])->name('katalog.fetch-cover-ai');
 
 
     //Katalog-Paket Buku

@@ -55,18 +55,23 @@
                                 class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
                                        border border-gray-300 placeholder:text-gray-400
                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
-
-                            <button type="button" id="btn-cek-cover"
-                                class="px-4 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
-                                Cek
-                            </button>
                         </div>
 
-                        <!-- Tombol Generate ISBN -->
-                        <button type="button" id="generate-isbn"
-                            class="mt-2 inline-flex items-center px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 text-sm">
-                            Generate ISBN
-                        </button>
+                        <!-- Tombol Aksi Terkait Cover/ISBN -->
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <button type="button" id="generate-isbn"
+                                class="inline-flex items-center px-3 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 text-xs font-semibold">
+                                Generate ISBN
+                            </button>
+                            <button type="button" id="btn-cek-cover"
+                                class="inline-flex items-center px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-semibold">
+                                Cari di API Google Book
+                            </button>
+                            <button type="button" id="btn-cari-cover-ai"
+                                class="inline-flex items-center px-3 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 text-xs font-semibold">
+                                Cari di AI
+                            </button>
+                        </div>
 
                         <!-- Spinner -->
                         <div id="spinner-isbn" class="mt-3 hidden">
@@ -444,6 +449,82 @@
                     <span class="align-middle">Gagal mengambil data dari Google Books.</span>
                     `;
 
+            }
+        });
+    </script>
+
+    <script>
+        document.getElementById('btn-cari-cover-ai').addEventListener('click', async function() {
+            const judul = document.getElementById('judul_buku_display').value.trim();
+            const pengarang = document.getElementById('pengarang_display').value.trim();
+            const status = document.getElementById('cover_buku_status');
+            const hiddenInput = document.getElementById('cover_buku_url');
+            const preview = document.getElementById('cover_preview');
+
+            if (!judul || !pengarang) {
+                status.textContent = "❌ Judul dan Pengarang tidak boleh kosong untuk mencari via AI.";
+                return;
+            }
+
+            status.innerHTML = `
+                            <svg class="w-6 h-6 text-blue-700 inline-block animate-spin mr-2"
+                                aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
+                            </svg>
+                            <span class="align-middle">Mencari cover menggunakan Gemini AI…</span>
+                            `;
+
+            hiddenInput.value = "";
+            preview.classList.add('hidden');
+
+            try {
+                const res = await fetch("{{ route('admin.katalog.fetch-cover-ai') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({ judul, pengarang })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    status.innerHTML = `
+                                        <svg class="w-6 h-6 text-green-600 inline-block mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                            width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="m8.032 12 1.984 1.984 4.96-4.96m4.55 5.272.893-.893a1.984 1.984 0 0 0 0-2.806l-.893-.893a1.984 1.984 0 0 1-.581-1.403V7.04a1.984 1.984 0 0 0-1.984-1.984h-1.262a1.983 1.983 0 0 1-1.403-.581l-.893-.893a1.984 1.984 0 0 0-2.806 0l-.893.893a1.984 1.984 0 0 1-1.403.581H7.04A1.984 1.984 0 0 0 5.055 7.04v1.262c0 .527-.209 1.031-.581 1.403l-.893.893a1.984 1.984 0 0 0 0 2.806l.893.893c.372.372.581.876.581 1.403v1.262a1.984 1.984 0 0 0 1.984 1.984h1.262c.527 0 1.031.209 1.403.581l.893.893a1.984 1.984 0 0 0 2.806 0l.893-.893a1.985 1.985 0 0 1 1.403-.581h1.262a1.984 1.984 0 0 0 1.984-1.984V15.7c0-.527.209-1.031.581-1.403Z"/>
+                                        </svg>
+                                        <span class="align-middle">Cover ditemukan oleh AI dan disimpan.</span>
+                                        `;
+
+                    hiddenInput.value = data.path;
+                    preview.src = data.cover_url;
+                    preview.classList.remove('hidden');
+                } else {
+                    status.innerHTML = `
+                        <svg class="w-5 h-5 text-yellow-500 inline-block mr-2"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a1.5 1.5 0 0 0 1.29 2.25h17.78a1.5 1.5 0 0 0 1.29-2.25L13.71 3.86a1.5 1.5 0 0 0-2.42 0Z"/>
+                        </svg>
+                        <span class="align-middle">${data.message}</span>
+                        `;
+                }
+            } catch (err) {
+                console.error(err);
+                status.innerHTML = `
+                    <svg class="w-6 h-6 text-red-600 inline-block mr-2"
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                        width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18 17.94 6M18 18 6.06 6"/>
+                    </svg>
+                    <span class="align-middle">Gagal menghubungi server untuk pencarian AI.</span>
+                    `;
             }
         });
     </script>
