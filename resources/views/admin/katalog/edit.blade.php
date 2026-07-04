@@ -101,15 +101,18 @@
                         <!-- Tombol Pencarian Cover -->
                         <div class="flex flex-wrap gap-2 mb-2">
                             <button type="button" id="btn-cek-cover"
-                                class="inline-flex items-center px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-semibold">
+                                class="inline-flex items-center px-3 py-2 text-white rounded text-xs font-semibold"
+                                style="background-color: #16a34a;">
                                 Cari Cover di API Google Book
                             </button>
                             <button type="button" id="btn-cari-cover-ai-gemini"
-                                class="inline-flex items-center px-3 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 text-xs font-semibold">
+                                class="inline-flex items-center px-3 py-2 text-white rounded text-xs font-semibold"
+                                style="background-color: #7e22ce;">
                                 Cari Cover di AI Gemini
                             </button>
                             <button type="button" id="btn-cari-cover-ai-gramedia"
-                                class="inline-flex items-center px-3 py-2 bg-pink-700 text-white rounded hover:bg-pink-800 text-xs font-semibold">
+                                class="inline-flex items-center px-3 py-2 text-white rounded text-xs font-semibold"
+                                style="background-color: #be185d;">
                                 Cari Cover di AI Gramedia
                             </button>
                         </div>
