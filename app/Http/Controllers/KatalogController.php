@@ -794,54 +794,111 @@ Jika kamu yakin, tulis HANYA nomor ISBN tersebut saja, tanpa penjelasan, tanpa t
         if (!$judul || !$pengarang) {
             return response()->json([
                 'success' => false,
-                'message' => 'Judul dan pengarang harus diisi untuk mencari cover via AI.'
+                'message' => 'Judul dan pengarang harus diisi untuk mencari cover.'
             ]);
         }
 
+        $url = null;
+
+        // ================================================================
+        // SOURCE: GRAMEDIA — Web Scraping langsung (tanpa AI)
+        // ================================================================
         if ($source === 'gramedia') {
-            // Prompt Gemini to find a direct public image URL specifically from Gramedia
-            $prompt = "Berikan satu URL gambar cover buku yang valid, langsung, dan dapat diakses dari situs gramedia.com atau CDN-nya untuk buku berjudul \"$judul\" karya \"$pengarang\". 
-Respons HANYA berupa URL gambar tersebut saja, tanpa penjelasan, tanpa markdown, tanpa tanda kutip, dan tanpa teks tambahan.";
-        } else {
-            // Prompt Gemini to find a direct public image URL generally
+            try {
+                // Generate slug dari judul buku: "Inyik Balang" → "inyik-balang"
+                $slug = Str::slug($judul);
+
+                $res = Http::timeout(10)->withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language' => 'id-ID,id;q=0.9,en;q=0.8',
+                ])->get("https://www.gramedia.com/products/{$slug}");
+
+                if ($res->ok()) {
+                    $html = $res->body();
+
+                    // Strategi 1: Ambil dari meta tag og:image (paling reliable)
+                    // Pattern: <meta property="og:image" ... content="https://cdn.gramedia.com/uploads/products/xxx.jpg" />
+                    if (preg_match('/<meta\s+property=["\']og:image["\']\s+[^>]*content=["\']([^"\']+)["\']/i', $html, $match)) {
+                        $url = $match[1];
+                    }
+                    // Variasi: content sebelum property
+                    if (!$url && preg_match('/<meta\s+content=["\']([^"\']+)["\']\s+[^>]*property=["\']og:image["\']/i', $html, $match)) {
+                        $url = $match[1];
+                    }
+
+                    // Strategi 2: Cari URL CDN Gramedia langsung dari HTML
+                    // Pattern: https://cdn.gramedia.com/uploads/products/xxx.jpg
+                    if (!$url && preg_match('/https?:\/\/cdn\.gramedia\.com\/uploads\/products\/[a-zA-Z0-9_\-]+\.(jpg|jpeg|png|webp)/i', $html, $match)) {
+                        $url = $match[0];
+                    }
+
+                    // Strategi 3: Cari dari image.gramedia.net (CDN resize service)
+                    // Pattern: https://image.gramedia.net/rs:fit:0:0/plain/https://cdn.gramedia.com/uploads/products/xxx.jpg
+                    if (!$url && preg_match('/https?:\/\/image\.gramedia\.net\/[^"\']+\/plain\/(https?:\/\/cdn\.gramedia\.com\/uploads\/products\/[a-zA-Z0-9_\-]+\.(jpg|jpeg|png|webp))/i', $html, $match)) {
+                        $url = $match[1]; // Ambil URL asli dari CDN, bukan yang di-resize
+                    }
+                }
+
+                if (!$url) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Cover tidak ditemukan di Gramedia.com untuk buku \"{$judul}\". Pastikan judul buku sesuai dengan yang ada di gramedia.com/products/{$slug}"
+                    ]);
+                }
+
+            } catch (\Exception $e) {
+                Log::warning('Gramedia cover scraping gagal: ' . $e->getMessage());
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengakses Gramedia.com: ' . $e->getMessage()
+                ]);
+            }
+        }
+
+        // ================================================================
+        // SOURCE: GEMINI — AI mencari URL cover dari web
+        // ================================================================
+        if ($source !== 'gramedia') {
             $prompt = "Berikan satu URL gambar cover buku yang valid, langsung, dan dapat diakses publik untuk buku berjudul \"$judul\" karya \"$pengarang\". 
 Respons HANYA berupa URL gambar tersebut saja, tanpa penjelasan, tanpa format markdown, tanpa tanda kutip, dan tanpa teks tambahan lainnya. 
 Pastikan URL tersebut langsung mengarah ke file gambar (format .jpg, .jpeg, .png, atau .webp) dari situs tepercaya seperti Goodreads atau Wikipedia.";
+
+            $aiResult = $this->askAI($prompt);
+
+            if (!$aiResult['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $aiResult['error']
+                ]);
+            }
+
+            $url = trim($aiResult['text']);
+
+            // Clean markdown formatting if AI returned it (e.g. `url` or [text](url))
+            if (preg_match('/https?:\/\/[^\s\)\`\]]+/i', $url, $matches)) {
+                $url = $matches[0];
+            }
+
+            if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'AI menghasilkan URL yang tidak valid: ' . substr($url, 0, 100)
+                ]);
+            }
         }
 
-        $aiResult = $this->askAI($prompt);
-
-        if (!$aiResult['success']) {
-            return response()->json([
-                'success' => false,
-                'message' => $aiResult['error']
-            ]);
-        }
-
-        $url = trim($aiResult['text']);
-        
-        // Clean markdown formatting if AI returned it (e.g. `url` or [text](url))
-        if (preg_match('/https?:\/\/[^\s\)\`\]]+/i', $url, $matches)) {
-            $url = $matches[0];
-        }
-
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'AI menghasilkan URL yang tidak valid: ' . substr($url, 0, 100)
-            ]);
-        }
-
+        // ================================================================
+        // DOWNLOAD & SIMPAN GAMBAR COVER
+        // ================================================================
         try {
-            // Unduh & simpan gambar
             $url = str_replace('http://', 'https://', $url);
-            
-            // Set User-Agent so we don't get blocked by security checks
+
             $opts = [
                 "http" => [
                     "method" => "GET",
-                    "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3\r\n",
-                    "timeout" => 7.0
+                    "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\r\n",
+                    "timeout" => 10.0
                 ]
             ];
             $context = stream_context_create($opts);
@@ -850,13 +907,14 @@ Pastikan URL tersebut langsung mengarah ke file gambar (format .jpg, .jpeg, .png
             if (!$imageContent) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal mengunduh gambar cover. URL dari AI tidak dapat diakses atau gambar tidak tersedia.'
+                    'message' => 'Gagal mengunduh gambar cover dari URL: ' . substr($url, 0, 100)
                 ]);
             }
 
             // Generate filename based on title
             $safeTitle = Str::slug($judul);
-            $filename = 'cover_ai_' . $safeTitle . '_' . Str::random(5) . '.jpg';
+            $sourceLabel = $source === 'gramedia' ? 'gramedia' : 'ai';
+            $filename = "cover_{$sourceLabel}_{$safeTitle}_" . Str::random(5) . '.jpg';
             $folderPath = public_path('cover_buku');
 
             // Pastikan folder ada
@@ -877,7 +935,7 @@ Pastikan URL tersebut langsung mengarah ke file gambar (format .jpg, .jpeg, .png
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memproses gambar dari AI: ' . $e->getMessage()
+                'message' => 'Gagal memproses gambar: ' . $e->getMessage()
             ]);
         }
     }
