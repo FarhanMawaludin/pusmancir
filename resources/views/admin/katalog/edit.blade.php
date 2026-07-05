@@ -361,11 +361,11 @@
                         isbnSourceInfo.classList.remove('hidden');
                     }
                 } else {
-                    alert("Gagal mencari ISBN: " + (data.error || "Unknown error."));
+                    alert("❌ DATA TIDAK DITEMUKAN.\n\nISBN tidak dapat ditemukan untuk buku ini. Silakan coba lagi atau masukkan ISBN secara manual.");
                 }
             } catch (error) {
                 console.error(error);
-                alert("Terjadi kesalahan saat menghubungi server.");
+                alert("❌ DATA TIDAK DITEMUKAN.\n\nTerjadi kesalahan koneksi ke server. Silakan coba lagi.");
             } finally {
                 clearInterval(spinnerInterval);
                 spinner.classList.add('hidden');
@@ -415,11 +415,11 @@
                 if (data.success) {
                     document.getElementById('ringkasan_buku').value = data.ringkasan;
                 } else {
-                    alert("Gagal generate ringkasan: " + (data.error || "Unknown error."));
+                    alert("❌ DATA TIDAK DITEMUKAN.\n\nRingkasan tidak dapat dihasilkan untuk buku ini. Silakan coba lagi.");
                 }
             } catch (error) {
                 console.error(error);
-                alert("Terjadi kesalahan saat menghubungi server.");
+                alert("❌ DATA TIDAK DITEMUKAN.\n\nTerjadi kesalahan koneksi ke server. Silakan coba lagi.");
             } finally {
                 spinner.classList.add('hidden');
                 [btnRingkasan, btnRingkasanOr].forEach(btn => {
@@ -494,11 +494,11 @@
                     document.getElementById('kode_ddc').value = data.kode_ddc;
                     document.getElementById('no_panggil').value = data.no_panggil;
                 } else {
-                    alert("Gagal generate kode DDC: " + (data.error || "Unknown error."));
+                    alert("❌ DATA TIDAK DITEMUKAN.\n\nKode DDC dan Nomor Panggil tidak dapat dihasilkan untuk buku ini. Silakan coba lagi.");
                 }
             } catch (error) {
                 console.error(error);
-                alert("Terjadi kesalahan saat menghubungi server.");
+                alert("❌ DATA TIDAK DITEMUKAN.\n\nTerjadi kesalahan koneksi ke server. Silakan coba lagi.");
             } finally {
                 spinner.classList.add('hidden');
                 [btnDdc, btnDdcOr].forEach(btn => {
