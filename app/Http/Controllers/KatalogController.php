@@ -654,7 +654,7 @@ Nomor Panggil: [nomor_panggil]";
         // LAYER 4: AI Fallback (Gemini/OpenRouter) — terakhir, confidence rendah
         // ====================================================================
         $penerbitInfo = $penerbit ? " diterbitkan oleh \"{$penerbit}\"" : '';
-        $prompt = "Berikan satu nomor ISBN (ISBN-10 atau ISBN-13) yang paling mungkin valid untuk buku berjudul \"{$judul}\" karya \"{$pengarang}\"{$penerbitInfo}.
+        $prompt = "Berikan satu nomor ISBN (ISBN-10 atau ISBN-13) yang paling sering muncul di internet untuk buku berjudul \"{$judul}\" karya \"{$pengarang}\"{$penerbitInfo}.
 Jika kamu tidak yakin dengan ISBN-nya, jawab dengan teks: TIDAK_DITEMUKAN
 Jika kamu yakin, tulis HANYA nomor ISBN tersebut saja, tanpa penjelasan, tanpa teks tambahan, hanya angka (contoh: 9786231342355).";
 
