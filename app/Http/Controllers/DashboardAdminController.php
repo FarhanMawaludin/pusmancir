@@ -218,10 +218,15 @@ class DashboardAdminController extends Controller
         $totalJudulBuku = Inventori::count();
         $totalEksemplar = Eksemplar::count();
 
+        $isSqlite = DB::getDriverName() === 'sqlite';
+        $yearSql = $isSqlite ? "strftime('%Y', created_at)" : "YEAR(created_at)";
+        $monthSql = $isSqlite ? "(strftime('%m', created_at) + 0)" : "MONTH(created_at)";
+        $daySql = $isSqlite ? "(strftime('%d', created_at) + 0)" : "DAY(created_at)";
+
         // Ambil data tahun untuk filter (gabungkan tahun dari 2 tabel)
         $years = collect(array_unique(array_merge(
-            Peminjaman::selectRaw('YEAR(created_at) as year')->distinct()->pluck('year')->toArray(),
-            BukuTamu::selectRaw('YEAR(created_at) as year')->distinct()->pluck('year')->toArray()
+            Peminjaman::selectRaw("{$yearSql} as year")->distinct()->pluck('year')->toArray(),
+            BukuTamu::selectRaw("{$yearSql} as year")->distinct()->pluck('year')->toArray()
         )))->sortDesc()->values();
 
         $selectedYear = $request->input('year', 'all');
@@ -247,7 +252,7 @@ class DashboardAdminController extends Controller
 
         if ($selectedYear === 'all') {
             // Grafik Peminjaman dan Buku Tamu per Tahun
-            $peminjamanData = Peminjaman::selectRaw('YEAR(created_at) as year, COUNT(*) as total')
+            $peminjamanData = Peminjaman::selectRaw("{$yearSql} as year, COUNT(*) as total")
                 ->whereIn('status', ['berhasil', 'selesai'])
                 ->groupBy('year')
                 ->orderBy('year')
@@ -257,7 +262,7 @@ class DashboardAdminController extends Controller
             $monthlyPeminjaman = array_values($peminjamanData);
             $peminjamanLabels = array_keys($peminjamanData);
 
-            $pengunjungData = BukuTamu::selectRaw('YEAR(created_at) as year, COUNT(*) as total')
+            $pengunjungData = BukuTamu::selectRaw("{$yearSql} as year, COUNT(*) as total")
                 ->groupBy('year')
                 ->orderBy('year')
                 ->pluck('total', 'year')
@@ -267,7 +272,7 @@ class DashboardAdminController extends Controller
             $pengunjungLabels = array_keys($pengunjungData);
 
             // Pengunjung Website per Tahun
-            $webVisitRaw = WebVisit::selectRaw('YEAR(created_at) as year, COUNT(DISTINCT ip) as total')
+            $webVisitRaw = WebVisit::selectRaw("{$yearSql} as year, COUNT(DISTINCT ip) as total")
                 ->groupBy('year')
                 ->orderBy('year')
                 ->pluck('total', 'year')
@@ -277,7 +282,7 @@ class DashboardAdminController extends Controller
             $webVisitLabels = array_keys($webVisitRaw);
         } elseif ($selectedMonth === 'all') {
             // Grafik Peminjaman dan Buku Tamu per Bulan
-            $peminjamanRaw = Peminjaman::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+            $peminjamanRaw = Peminjaman::selectRaw("{$monthSql} as month, COUNT(*) as total")
                 ->whereYear('created_at', $selectedYear)
                 ->whereIn('status', ['berhasil', 'selesai'])
                 ->groupBy('month')
@@ -291,7 +296,7 @@ class DashboardAdminController extends Controller
             }
             $peminjamanLabels = array_values($months);
 
-            $pengunjungRaw = BukuTamu::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+            $pengunjungRaw = BukuTamu::selectRaw("{$monthSql} as month, COUNT(*) as total")
                 ->whereYear('created_at', $selectedYear)
                 ->groupBy('month')
                 ->orderBy('month')
@@ -305,7 +310,7 @@ class DashboardAdminController extends Controller
             $pengunjungLabels = array_values($months);
 
             // Pengunjung Website per Bulan
-            $webVisitRaw = WebVisit::selectRaw('MONTH(created_at) as month, COUNT(DISTINCT ip) as total')
+            $webVisitRaw = WebVisit::selectRaw("{$monthSql} as month, COUNT(DISTINCT ip) as total")
                 ->whereYear('created_at', $selectedYear)
                 ->groupBy('month')
                 ->orderBy('month')
@@ -322,7 +327,7 @@ class DashboardAdminController extends Controller
             $totalDays = cal_days_in_month(CAL_GREGORIAN, $selectedMonth, $selectedYear);
             $days = range(1, $totalDays);
 
-            $peminjamanRaw = Peminjaman::selectRaw('DAY(created_at) as day, COUNT(*) as total')
+            $peminjamanRaw = Peminjaman::selectRaw("{$daySql} as day, COUNT(*) as total")
                 ->whereYear('created_at', $selectedYear)
                 ->whereMonth('created_at', $selectedMonth)
                 ->whereIn('status', ['berhasil', 'selesai'])
@@ -337,7 +342,7 @@ class DashboardAdminController extends Controller
             }
             $peminjamanLabels = $days;
 
-            $pengunjungRaw = BukuTamu::selectRaw('DAY(created_at) as day, COUNT(*) as total')
+            $pengunjungRaw = BukuTamu::selectRaw("{$daySql} as day, COUNT(*) as total")
                 ->whereYear('created_at', $selectedYear)
                 ->whereMonth('created_at', $selectedMonth)
                 ->groupBy('day')
@@ -352,7 +357,7 @@ class DashboardAdminController extends Controller
             $pengunjungLabels = $days;
 
             // Pengunjung Website per Hari
-            $webVisitRaw = WebVisit::selectRaw('DAY(created_at) as day, COUNT(DISTINCT ip) as total')
+            $webVisitRaw = WebVisit::selectRaw("{$daySql} as day, COUNT(DISTINCT ip) as total")
                 ->whereYear('created_at', $selectedYear)
                 ->whereMonth('created_at', $selectedMonth)
                 ->groupBy('day')

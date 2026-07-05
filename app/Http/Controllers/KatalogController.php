@@ -145,7 +145,7 @@ class KatalogController extends Controller
 
 
 
-    private function askAI($prompt, $temperature = null, $provider = null)
+    private function askAI($prompt, $temperature = null, $provider = null, $useSearch = false)
     {
         $geminiApiKey = env('GEMINI_API_KEY');
         $grokApiKey = env('GROK_API_KEY') ?: env('XAI_API_KEY');
@@ -181,14 +181,14 @@ class KatalogController extends Controller
                     'error' => 'API Key Gemini belum dikonfigurasi di file .env.'
                 ];
             }
-            return $this->executeGemini($prompt, $temperature, $geminiApiKey);
+            return $this->executeGemini($prompt, $temperature, $geminiApiKey, $useSearch);
         }
 
         // ====================================================================
         // DEFAULT FLOW (No Provider Specified)
         // ====================================================================
         if ($geminiApiKey) {
-            $geminiRes = $this->executeGemini($prompt, $temperature, $geminiApiKey);
+            $geminiRes = $this->executeGemini($prompt, $temperature, $geminiApiKey, $useSearch);
             if ($geminiRes['success']) {
                 return $geminiRes;
             }
@@ -218,7 +218,7 @@ class KatalogController extends Controller
         ];
     }
 
-    private function executeGemini($prompt, $temperature, $apiKey)
+    private function executeGemini($prompt, $temperature, $apiKey, $useSearch = false)
     {
         try {
             $model = env('GEMINI_MODEL', 'gemini-2.5-flash');
@@ -233,13 +233,19 @@ class KatalogController extends Controller
                 ]
             ];
 
+            if ($useSearch) {
+                $payload['tools'] = [
+                    ['google_search' => new \stdClass()]
+                ];
+            }
+
             if ($temperature !== null) {
                 $payload['generationConfig'] = [
                     'temperature' => $temperature
                 ];
             }
 
-            $response = Http::withHeaders([
+            $response = Http::timeout(60)->connectTimeout(15)->withHeaders([
                 'Content-Type' => 'application/json',
                 'x-goog-api-key' => $apiKey,
             ])->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent", $payload);
@@ -277,6 +283,12 @@ class KatalogController extends Controller
                 'success' => true,
                 'text' => trim($text)
             ];
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            logger()->error('Gemini API Connection Timeout:', ['error' => $e->getMessage()]);
+            return [
+                'success' => false,
+                'error' => 'Koneksi ke Gemini API timeout. Koneksi internet terganggu atau server Google sedang sibuk.'
+            ];
         } catch (\Exception $e) {
             logger()->error('Gemini API Error:', ['error' => $e->getMessage()]);
             return [
@@ -290,9 +302,14 @@ class KatalogController extends Controller
     {
         try {
             $model = env('OPENROUTER_MODEL', 'openrouter/free');
-            $response = Http::withHeaders([
+            
+            logger()->info('OpenRouter: Memulai request', ['model' => $model, 'prompt_length' => strlen($prompt)]);
+
+            $response = Http::timeout(120)->connectTimeout(15)->withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $apiKey,
+                'HTTP-Referer' => config('app.url', 'http://localhost'),
+                'X-Title' => config('app.name', 'PUSMANCIR'),
             ])->post('https://openrouter.ai/api/v1/chat/completions', [
                 'model' => $model,
                 'messages' => [
@@ -300,6 +317,8 @@ class KatalogController extends Controller
                 ],
                 'temperature' => $temperature !== null ? $temperature : 1.0
             ]);
+
+            logger()->info('OpenRouter: Response diterima', ['status' => $response->status()]);
 
             if (!$response->successful()) {
                 $status = $response->status();
@@ -332,15 +351,24 @@ class KatalogController extends Controller
             $text = $data['choices'][0]['message']['content'] ?? null;
 
             if (!$text) {
+                logger()->warning('OpenRouter: Respon kosong', ['response_data' => json_encode($data)]);
                 return [
                     'success' => false,
                     'error' => 'Respon tidak tersedia dari OpenRouter.'
                 ];
             }
 
+            logger()->info('OpenRouter: Berhasil mendapat respon', ['text_length' => strlen($text)]);
+
             return [
                 'success' => true,
                 'text' => trim($text)
+            ];
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            logger()->error('OpenRouter Connection Timeout:', ['error' => $e->getMessage()]);
+            return [
+                'success' => false,
+                'error' => 'Koneksi ke OpenRouter timeout. Server AI sedang sibuk, silakan coba lagi.'
             ];
         } catch (\Exception $e) {
             logger()->error('OpenRouter Error:', ['error' => $e->getMessage()]);
@@ -423,7 +451,7 @@ class KatalogController extends Controller
         $prompt = "Tuliskan sinopsis singkat dan langsung ke inti cerita dari buku berjudul \"$judul\" karya \"$pengarang\". 
                     Hindari penjelasan tambahan seperti kata 'Sinopsis', 'Inti Cerita', atau heading lainnya. Langsung tuliskan ringkasannya saja dalam paragraf yang rapi dan natural.";
 
-        $aiResult = $this->askAI($prompt, null, $provider);
+        $aiResult = $this->askAI($prompt, null, $provider, true);
 
         if (!$aiResult['success']) {
             return response()->json([
@@ -455,7 +483,7 @@ Tampilkan hasil akhir hanya seperti ini:
 Kode DDC: [kode]
 Nomor Panggil: [nomor_panggil]";
 
-        $aiResult = $this->askAI($prompt, 0.3, $provider);
+        $aiResult = $this->askAI($prompt, 0.3, $provider, true);
 
         if (!$aiResult['success']) {
             return response()->json([
@@ -495,16 +523,18 @@ Nomor Panggil: [nomor_panggil]";
         $provider  = $request->input('provider'); // 'gemini' atau 'openrouter'
 
         $penerbitInfo = $penerbit ? " diterbitkan oleh \"{$penerbit}\"" : '';
-        $prompt = "Berikan satu nomor ISBN (ISBN-10 atau ISBN-13) yang paling sering muncul di internet untuk buku berjudul \"{$judul}\" karya \"{$pengarang}\"{$penerbitInfo}.
-Jika kamu tidak yakin dengan ISBN-nya, jawab dengan teks: TIDAK_DITEMUKAN
-Jika kamu yakin, tulis HANYA nomor ISBN tersebut saja, tanpa penjelasan, tanpa teks tambahan, hanya angka (contoh: 9786231342355).";
+        $prompt = "Lakukan penelusuran Google Search untuk mencari buku berjudul \"{$judul}\" karya \"{$pengarang}\"{$penerbitInfo}.
+Temukan nomor ISBN (13 digit) yang terdaftar resmi untuk buku ini. 
+PENTING: Pastikan Anda membaca digit terakhir (check digit) dengan sangat teliti dari hasil pencarian web. JANGAN menebak atau mengubah angka belakangnya. 
+Respons HANYA berupa 13 digit nomor ISBN tersebut saja (contoh: 9786231342355), tanpa penjelasan, tanpa format markdown, tanpa tanda kutip, dan tanpa teks tambahan lainnya. 
+Jika tidak yakin atau tidak ditemukan, jawab dengan: TIDAK_DITEMUKAN";
 
-        $aiResult = $this->askAI($prompt, 0.1, $provider);
+        $aiResult = $this->askAI($prompt, 0.0, $provider, true);
 
         if (!$aiResult['success']) {
             return response()->json([
                 'success' => false,
-                'error'   => 'AI gagal merespon. Silakan coba lagi.',
+                'error'   => $aiResult['error'],
             ]);
         }
 
@@ -590,122 +620,12 @@ Jika kamu yakin, tulis HANYA nomor ISBN tersebut saja, tanpa penjelasan, tanpa t
     //     } catch (\Exception $e) {
     //         return response()->json([
     //             'success' => false,
-    //             'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-    //         ]);
-    //     }
-    // }
-
-    public function fetchCoverByIsbn($isbn)
-    {
-        try {
-            // 1. Coba ambil dari Google Books
-            $res = Http::get("https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn");
-
-            $thumbnail = null;
-
-            if ($res->ok() && isset($res['items'][0]['volumeInfo']['imageLinks'])) {
-                $links = $res['items'][0]['volumeInfo']['imageLinks'];
-                $thumbnail = $links['large'] ??
-                    $links['medium'] ??
-                    $links['small'] ??
-                    $links['thumbnail'] ??
-                    $links['smallThumbnail'] ?? null;
-            }
-
-            // 2. Jika Google Books tidak punya, coba dari Open Library
-            if (!$thumbnail) {
-                $openLibUrl = "https://covers.openlibrary.org/b/isbn/{$isbn}-L.jpg"; // L = large size
-                // Cek apakah gambarnya valid
-                $checkImage = @getimagesize($openLibUrl);
-                if ($checkImage !== false) {
-                    $thumbnail = $openLibUrl;
-                }
-            }
-
-            // 3. Fallback: Jika pencarian lewat ISBN gagal, coba cari lewat Judul + Pengarang
-            if (!$thumbnail && request('judul') && request('pengarang')) {
-                $judul = request('judul');
-                $pengarang = request('pengarang');
-                
-                $query = urlencode("intitle:{$judul} inauthor:{$pengarang}");
-                $resFallback = Http::get("https://www.googleapis.com/books/v1/volumes?q={$query}");
-                
-                if ($resFallback->ok() && isset($resFallback['items'])) {
-                    foreach ($resFallback['items'] as $item) {
-                        if (isset($item['volumeInfo']['imageLinks'])) {
-                            $links = $item['volumeInfo']['imageLinks'];
-                            $thumbnail = $links['large'] ??
-                                $links['medium'] ??
-                                $links['small'] ??
-                                $links['thumbnail'] ??
-                                $links['smallThumbnail'] ?? null;
-                            if ($thumbnail) {
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 4. Jika tetap tidak ada cover
-            if (!$thumbnail) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Cover tidak tersedia untuk ISBN atau Judul buku ini.'
-                ]);
-            }
-
-            // 4. Unduh & simpan gambar langsung ke public/cover_buku
-            $thumbnail = str_replace('http://', 'https://', $thumbnail);
-            
-            $opts = [
-                "http" => [
-                    "method" => "GET",
-                    "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3\r\n",
-                    "timeout" => 7.0
-                ]
-            ];
-            $context = stream_context_create($opts);
-            $imageContent = @file_get_contents($thumbnail, false, $context);
-
-            if (!$imageContent) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal mengunduh gambar cover dari URL sumber. Kemungkinan link tidak valid atau diblokir.'
-                ]);
-            }
-
-            $filename = 'cover_' . $isbn . '_' . Str::random(5) . '.jpg';
-            $folderPath = public_path('cover_buku');
-
-            // Pastikan folder ada
-            if (!file_exists($folderPath)) {
-                mkdir($folderPath, 0755, true);
-            }
-
-            $filePath = $folderPath . DIRECTORY_SEPARATOR . $filename;
-
-            // Simpan file
-            file_put_contents($filePath, $imageContent);
-
-            return response()->json([
-                'success' => true,
-                'cover_url' => asset('cover_buku/' . $filename),
-                'path' => 'cover_buku/' . $filename
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-            ]);
-        }
-    }
-
     public function fetchCoverByAI(Request $request)
     {
         $judul = $request->input('judul');
         $pengarang = $request->input('pengarang');
         $source = $request->input('source', 'gemini');
+        $isbn = $request->input('isbn', '');
 
         if (!$judul || !$pengarang) {
             return response()->json([
@@ -776,11 +696,15 @@ Jika kamu yakin, tulis HANYA nomor ISBN tersebut saja, tanpa penjelasan, tanpa t
         // SOURCE: GEMINI — AI mencari URL cover dari web
         // ================================================================
         if ($source !== 'gramedia') {
-            $prompt = "Berikan satu URL gambar cover buku yang valid, langsung, dan dapat diakses publik untuk buku berjudul \"$judul\" karya \"$pengarang\". 
-Respons HANYA berupa URL gambar tersebut saja, tanpa penjelasan, tanpa format markdown, tanpa tanda kutip, dan tanpa teks tambahan lainnya. 
-Pastikan URL tersebut langsung mengarah ke file gambar (format .jpg, .jpeg, .png, atau .webp) dari situs tepercaya seperti Goodreads atau Wikipedia.";
+            $prompt = "Cari buku berjudul \"$judul\" karya \"$pengarang\" di Google Books atau internet. 
+Temukan nomor ISBN (10 atau 13 digit) untuk buku tersebut. 
+Respons HANYA berupa URL gambar cover dari Google Books dengan format berikut:
+https://books.google.com/books/content?vid=ISBN[NOMOR_ISBN_TANPA_SPASI_DAN_STRIP]&printsec=frontcover&img=1&zoom=1
+JANGAN berikan teks lain, penjelasan, markdown, atau kutip. Hanya URL tersebut saja. Contoh format: https://books.google.com/books/content?vid=ISBN9786231342355&printsec=frontcover&img=1&zoom=1";
 
-            $aiResult = $this->askAI($prompt);
+            // Teruskan source sebagai provider agar OpenRouter/Gemini sesuai pilihan user
+            $provider = ($source === 'openrouter') ? 'openrouter' : 'gemini';
+            $aiResult = $this->askAI($prompt, 0.0, $provider, true);
 
             if (!$aiResult['success']) {
                 return response()->json([
@@ -808,22 +732,84 @@ Pastikan URL tersebut langsung mengarah ke file gambar (format .jpg, .jpeg, .png
         // DOWNLOAD & SIMPAN GAMBAR COVER
         // ================================================================
         try {
-            $url = str_replace('http://', 'https://', $url);
+            $imageContent = null;
 
-            $opts = [
-                "http" => [
-                    "method" => "GET",
-                    "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\r\n",
-                    "timeout" => 10.0
-                ]
-            ];
-            $context = stream_context_create($opts);
-            $imageContent = @file_get_contents($url, false, $context);
+            if ($url) {
+                $url = str_replace('http://', 'https://', $url);
+                try {
+                    $imgResponse = Http::timeout(15)->withoutVerifying()->withHeaders([
+                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    ])->get($url);
+                    if ($imgResponse->successful()) {
+                        $imageContent = $imgResponse->body();
+                    }
+                } catch (\Exception $e) {
+                    logger()->error('Gagal mengunduh cover via HTTP: ' . $e->getMessage());
+                }
+            }
 
-            if (!$imageContent) {
+            // Fallback 1: Coba dengan Gramedia Web Scraper jika Google Books mengembalikan gambar kosong / gagal
+            if (!$imageContent || strlen($imageContent) < 2000) {
+                try {
+                    $slug = Str::slug($judul);
+                    $gramediaRes = Http::timeout(10)->withHeaders([
+                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Accept-Language' => 'id-ID,id;q=0.9,en;q=0.8',
+                    ])->get("https://www.gramedia.com/products/{$slug}");
+
+                    if ($gramediaRes->ok()) {
+                        $html = $gramediaRes->body();
+                        $gramediaUrl = null;
+
+                        if (preg_match('/<meta\s+property=["\']og:image["\']\s+[^>]*content=["\']([^"\']+)["\']/i', $html, $match)) {
+                            $gramediaUrl = $match[1];
+                        }
+                        if (!$gramediaUrl && preg_match('/<meta\s+content=["\']([^"\']+)["\']\s+[^>]*property=["\']og:image["\']/i', $html, $match)) {
+                            $gramediaUrl = $match[1];
+                        }
+                        if (!$gramediaUrl && preg_match('/https?:\/\/cdn\.gramedia\.com\/uploads\/products\/[a-zA-Z0-9_\-]+\.(jpg|jpeg|png|webp)/i', $html, $match)) {
+                            $gramediaUrl = $match[0];
+                        }
+                        if (!$gramediaUrl && preg_match('/https?:\/\/image\.gramedia\.net\/[^"\']+\/plain\/(https?:\/\/cdn\.gramedia\.com\/uploads\/products\/[a-zA-Z0-9_\-]+\.(jpg|jpeg|png|webp))/i', $html, $match)) {
+                            $gramediaUrl = $match[1];
+                        }
+
+                        if ($gramediaUrl) {
+                            $gramediaUrl = str_replace('http://', 'https://', $gramediaUrl);
+                            $imgResponse = Http::timeout(15)->withoutVerifying()->get($gramediaUrl);
+                            if ($imgResponse->successful() && strlen($imgResponse->body()) > 2000) {
+                                $imageContent = $imgResponse->body();
+                                $url = $gramediaUrl; // Update URL untuk penamaan file
+                            }
+                        }
+                    }
+                } catch (\Exception $ex) {
+                    Log::warning('Gramedia fallback scraping gagal: ' . $ex->getMessage());
+                }
+            }
+
+            // Fallback 2: Coba cari dari Open Library (jika ISBN tersedia)
+            if ((!$imageContent || strlen($imageContent) < 2000) && !empty($isbn)) {
+                try {
+                    $openLibUrl = "https://covers.openlibrary.org/b/isbn/{$isbn}-L.jpg";
+                    $checkImage = @getimagesize($openLibUrl);
+                    if ($checkImage !== false) {
+                        $imgResponse = Http::timeout(15)->withoutVerifying()->get($openLibUrl);
+                        if ($imgResponse->successful() && strlen($imgResponse->body()) > 2000) {
+                            $imageContent = $imgResponse->body();
+                            $url = $openLibUrl;
+                        }
+                    }
+                } catch (\Exception $ex) {
+                    Log::warning('Open Library fallback gagal: ' . $ex->getMessage());
+                }
+            }
+
+            if (!$imageContent || strlen($imageContent) < 2000) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal mengunduh gambar cover dari URL: ' . substr($url, 0, 100)
+                    'message' => 'Gagal mengunduh cover dari semua sumber (Google Books, Gramedia Scraper, dan Open Library).'
                 ]);
             }
 

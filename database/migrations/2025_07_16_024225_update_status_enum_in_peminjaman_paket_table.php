@@ -10,6 +10,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
         // Menambahkan enum baru 'selesai'
         DB::statement("ALTER TABLE peminjaman_paket MODIFY status ENUM('menunggu', 'berhasil', 'tolak', 'selesai') DEFAULT 'menunggu'");
     }
@@ -19,6 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
         // Rollback ke enum sebelumnya tanpa 'selesai'
         DB::statement("ALTER TABLE peminjaman_paket MODIFY status ENUM('menunggu', 'berhasil', 'tolak') DEFAULT 'menunggu'");
     }

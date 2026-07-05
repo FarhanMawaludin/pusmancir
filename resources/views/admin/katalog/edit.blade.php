@@ -108,20 +108,10 @@
 
                         <!-- Tombol Pencarian Cover -->
                         <div class="flex flex-wrap gap-2 mb-2">
-                            <button type="button" id="btn-cek-cover"
-                                class="inline-flex items-center px-3 py-2 text-white rounded text-xs font-semibold"
-                                style="background-color: #16a34a;">
-                                Cari Cover di API Google Book
-                            </button>
                             <button type="button" id="btn-cari-cover-ai-gemini"
                                 class="inline-flex items-center px-3 py-2 text-white rounded text-xs font-semibold"
                                 style="background-color: #7e22ce;">
                                 Cari Cover di AI Gemini
-                            </button>
-                            <button type="button" id="btn-cari-cover-ai-openrouter"
-                                class="inline-flex items-center px-3 py-2 text-white rounded text-xs font-semibold"
-                                style="background-color: #4f46e5;">
-                                Cari Cover di OpenRouter
                             </button>
                             <button type="button" id="btn-cari-cover-ai-gramedia"
                                 class="inline-flex items-center px-3 py-2 text-white rounded text-xs font-semibold"
@@ -343,11 +333,11 @@
                         isbnSourceInfo.classList.remove('hidden');
                     }
                 } else {
-                    alert("❌ DATA TIDAK DITEMUKAN.\n\nISBN tidak dapat ditemukan untuk buku ini. Silakan coba lagi atau masukkan ISBN secara manual.");
+                    alert("❌ Gagal Generate ISBN.\n\n" + (data.error || 'ISBN tidak dapat ditemukan untuk buku ini. Silakan coba lagi atau masukkan ISBN secara manual.'));
                 }
             } catch (error) {
                 console.error(error);
-                alert("❌ DATA TIDAK DITEMUKAN.\n\nTerjadi kesalahan koneksi ke server. Silakan coba lagi.");
+                alert("❌ Gagal Generate ISBN.\n\nTerjadi kesalahan koneksi ke server: " + error.message);
             } finally {
                 spinner.classList.add('hidden');
                 [btnIsbn, btnIsbnOr].forEach(btn => {
@@ -396,11 +386,11 @@
                 if (data.success) {
                     document.getElementById('ringkasan_buku').value = data.ringkasan;
                 } else {
-                    alert("❌ DATA TIDAK DITEMUKAN.\n\nRingkasan tidak dapat dihasilkan untuk buku ini. Silakan coba lagi.");
+                    alert("❌ Gagal Generate Ringkasan.\n\n" + (data.error || 'Ringkasan tidak dapat dihasilkan untuk buku ini. Silakan coba lagi.'));
                 }
             } catch (error) {
                 console.error(error);
-                alert("❌ DATA TIDAK DITEMUKAN.\n\nTerjadi kesalahan koneksi ke server. Silakan coba lagi.");
+                alert("❌ Gagal Generate Ringkasan.\n\nTerjadi kesalahan koneksi ke server: " + error.message);
             } finally {
                 spinner.classList.add('hidden');
                 [btnRingkasan, btnRingkasanOr].forEach(btn => {
@@ -475,11 +465,11 @@
                     document.getElementById('kode_ddc').value = data.kode_ddc;
                     document.getElementById('no_panggil').value = data.no_panggil;
                 } else {
-                    alert("❌ DATA TIDAK DITEMUKAN.\n\nKode DDC dan Nomor Panggil tidak dapat dihasilkan untuk buku ini. Silakan coba lagi.");
+                    alert("❌ Gagal Generate DDC.\n\n" + (data.error || 'Kode DDC dan Nomor Panggil tidak dapat dihasilkan untuk buku ini. Silakan coba lagi.'));
                 }
             } catch (error) {
                 console.error(error);
-                alert("❌ DATA TIDAK DITEMUKAN.\n\nTerjadi kesalahan koneksi ke server. Silakan coba lagi.");
+                alert("❌ Gagal Generate DDC.\n\nTerjadi kesalahan koneksi ke server: " + error.message);
             } finally {
                 spinner.classList.add('hidden');
                 [btnDdc, btnDdcOr].forEach(btn => {
@@ -500,85 +490,11 @@
 
 
     <script>
-        document.getElementById('btn-cek-cover').addEventListener('click', async function() {
-            const isbn = document.getElementById('isbn').value.trim();
-            const status = document.getElementById('cover_buku_status');
-            const hiddenInput = document.getElementById('cover_buku_url');
-            const preview = document.getElementById('cover_preview');
-            const actionButtons = document.getElementById('cover_action_buttons');
-
-            if (!isbn) {
-                status.textContent = "❌ ISBN tidak boleh kosong.";
-                return;
-            }
-
-            status.innerHTML = `
-                            <svg class="w-6 h-6 text-blue-700 inline-block animate-spin mr-2"
-                                aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
-                            </svg>
-                            <span class="align-middle">Mencari cover dari Google Books…</span>
-                            `;
-
-            hiddenInput.value = "";
-            preview.classList.add('hidden');
-            preview.removeAttribute('data-temp-path');
-            actionButtons.classList.add('hidden');
-
-            const judul = document.getElementById('judul_buku_display').value.trim();
-            const pengarang = document.getElementById('pengarang_display').value.trim();
-
-            try {
-                const res = await fetch(`/admin/katalog/fetch-cover/${isbn}?judul=${encodeURIComponent(judul)}&pengarang=${encodeURIComponent(pengarang)}`);
-                const data = await res.json();
-
-                if (data.success) {
-                    status.innerHTML = `
-                                        <svg class="w-6 h-6 text-green-600 inline-block mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                            width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="m8.032 12 1.984 1.984 4.96-4.96m4.55 5.272.893-.893a1.984 1.984 0 0 0 0-2.806l-.893-.893a1.984 1.984 0 0 1-.581-1.403V7.04a1.984 1.984 0 0 0-1.984-1.984h-1.262a1.983 1.983 0 0 1-1.403-.581l-.893-.893a1.984 1.984 0 0 0-2.806 0l-.893.893a1.984 1.984 0 0 1-1.403.581H7.04A1.984 1.984 0 0 0 5.055 7.04v1.262c0 .527-.209 1.031-.581 1.403l-.893.893a1.984 1.984 0 0 0 0 2.806l.893.893c.372.372.581.876.581 1.403v1.262a1.984 1.984 0 0 0 1.984 1.984h1.262c.527 0 1.031.209 1.403.581l.893.893a1.984 1.984 0 0 0 2.806 0l.893-.893a1.985 1.985 0 0 1 1.403-.581h1.262a1.984 1.984 0 0 0 1.984-1.984V15.7c0-.527.209-1.031.581-1.403Z"/>
-                                        </svg>
-                                        <span class="align-middle">Cover ditemukan di Google Books/Open Library! Apakah Anda ingin menerimanya?</span>
-                                        `;
-
-                    preview.dataset.tempPath = data.path;
-                    preview.src = data.cover_url;
-                    preview.classList.remove('hidden');
-                    actionButtons.classList.remove('hidden');
-                } else {
-                    status.innerHTML = `
-                        <svg class="w-5 h-5 text-yellow-500 inline-block mr-2"
-                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                            width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a1.5 1.5 0 0 0 1.29 2.25h17.78a1.5 1.5 0 0 0 1.29-2.25L13.71 3.86a1.5 1.5 0 0 0-2.42 0Z"/>
-                        </svg>
-                        <span class="align-middle">${data.message}</span>
-                        `;
-                }
-            } catch (err) {
-                console.error(err);
-                status.innerHTML = `
-                    <svg class="w-6 h-6 text-red-600 inline-block mr-2"
-                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                        width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18 17.94 6M18 18 6.06 6"/>
-                    </svg>
-                    <span class="align-middle">Gagal mengambil data dari Google Books.</span>
-                    `;
-
-            }
-        });
-    </script>
-
-    <script>
         async function cariCoverAI(source) {
             const judul = document.getElementById('judul_buku_display').value.trim();
             const pengarang = document.getElementById('pengarang_display').value.trim();
+            const isbnElement = document.getElementById('isbn');
+            const isbn = isbnElement ? isbnElement.value.trim() : '';
             const status = document.getElementById('cover_buku_status');
             const hiddenInput = document.getElementById('cover_buku_url');
             const preview = document.getElementById('cover_preview');
@@ -618,7 +534,7 @@
                         "Content-Type": "application/json",
                         "X-CSRF-TOKEN": "{{ csrf_token() }}"
                     },
-                    body: JSON.stringify({ judul, pengarang, source })
+                    body: JSON.stringify({ judul, pengarang, source, isbn })
                 });
                 const data = await res.json();
 
@@ -662,10 +578,6 @@
         }
 
         document.getElementById('btn-cari-cover-ai-gemini').addEventListener('click', () => cariCoverAI('gemini'));
-        const btnCoverOr = document.getElementById('btn-cari-cover-ai-openrouter');
-        if (btnCoverOr) {
-            btnCoverOr.addEventListener('click', () => cariCoverAI('openrouter'));
-        }
         document.getElementById('btn-cari-cover-ai-gramedia').addEventListener('click', () => cariCoverAI('gramedia'));
     </script>
 
