@@ -276,7 +276,7 @@ class KatalogController extends Controller
     private function executeOpenRouter($prompt, $temperature, $apiKey)
     {
         try {
-            $model = env('OPENROUTER_MODEL', 'meta-llama/llama-3.1-8b-instruct:free');
+            $model = env('OPENROUTER_MODEL', 'google/gemma-2-9b-it:free');
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $apiKey,
