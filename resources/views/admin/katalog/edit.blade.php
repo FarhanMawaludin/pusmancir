@@ -296,29 +296,11 @@
                 }
             });
 
-            // Urutan label sesuai urutan pencarian di backend
-            const searchSteps = provider === 'openrouter' 
-                ? [
-                    '🔍 Mencari ISBN di database Gramedia...',
-                    '🔍 Mencari ISBN di Google Books...',
-                    '🔍 Mencari ISBN di Open Library...',
-                    '🤖 Mencari via AI OpenRouter (fallback)...'
-                  ]
-                : [
-                    '🔍 Mencari ISBN di database Gramedia...',
-                    '🔍 Mencari ISBN di Google Books...',
-                    '🔍 Mencari ISBN di Open Library...',
-                    '🤖 Mencari via AI Gemini (fallback)...'
-                  ];
-            let stepIndex = 0;
-            spinnerText.textContent = searchSteps[0];
-
-            const spinnerInterval = setInterval(() => {
-                stepIndex++;
-                if (stepIndex < searchSteps.length) {
-                    spinnerText.textContent = searchSteps[stepIndex];
-                }
-            }, 3000);
+            // Label spinner sesuai provider
+            const spinnerLabel = provider === 'openrouter' 
+                ? '🤖 Mencari ISBN via AI OpenRouter...'
+                : '🤖 Mencari ISBN via AI Gemini...';
+            spinnerText.textContent = spinnerLabel;
 
             try {
                 const res = await fetch("{{ route('admin.katalog.generate-isbn') }}", {
@@ -367,7 +349,6 @@
                 console.error(error);
                 alert("❌ DATA TIDAK DITEMUKAN.\n\nTerjadi kesalahan koneksi ke server. Silakan coba lagi.");
             } finally {
-                clearInterval(spinnerInterval);
                 spinner.classList.add('hidden');
                 [btnIsbn, btnIsbnOr].forEach(btn => {
                     if (btn) {
