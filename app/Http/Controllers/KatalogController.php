@@ -172,7 +172,20 @@ class KatalogController extends Controller
         }
 
         // ====================================================================
-        // FORCED PROVIDER: GEMINI (Default / Fallback)
+        // FORCED PROVIDER: GEMINI
+        // ====================================================================
+        if ($provider === 'gemini') {
+            if (!$geminiApiKey) {
+                return [
+                    'success' => false,
+                    'error' => 'API Key Gemini belum dikonfigurasi di file .env.'
+                ];
+            }
+            return $this->executeGemini($prompt, $temperature, $geminiApiKey);
+        }
+
+        // ====================================================================
+        // DEFAULT FLOW (No Provider Specified)
         // ====================================================================
         if ($geminiApiKey) {
             $geminiRes = $this->executeGemini($prompt, $temperature, $geminiApiKey);
@@ -276,7 +289,7 @@ class KatalogController extends Controller
     private function executeOpenRouter($prompt, $temperature, $apiKey)
     {
         try {
-            $model = env('OPENROUTER_MODEL', 'google/gemma-2-9b-it:free');
+            $model = env('OPENROUTER_MODEL', 'openrouter/free');
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $apiKey,
