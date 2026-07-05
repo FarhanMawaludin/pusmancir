@@ -161,7 +161,7 @@ class KatalogController extends Controller
         // 1. Prioritas Utama: Google Gemini
         if ($geminiApiKey) {
             try {
-                $model = env('GEMINI_MODEL', 'gemini-2.5-flash');
+                $model = env('GEMINI_MODEL', 'gemini-1.5-flash');
                 
                 $payload = [
                     'contents' => [
