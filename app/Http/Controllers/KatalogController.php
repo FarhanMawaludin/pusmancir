@@ -145,7 +145,7 @@ class KatalogController extends Controller
 
 
 
-    private function askAI($prompt, $temperature = null)
+    private function askAI($prompt, $temperature = null, $provider = null)
     {
         $geminiApiKey = env('GEMINI_API_KEY');
         $grokApiKey = env('GROK_API_KEY') ?: env('XAI_API_KEY');
@@ -154,204 +154,250 @@ class KatalogController extends Controller
         if (!$geminiApiKey && !$grokApiKey && !$openrouterApiKey) {
             return [
                 'success' => false,
-                'error' => 'API Key belum dikonfigurasi. Silakan tambahkan GEMINI_API_KEY di file .env Anda.'
+                'error' => 'API Key belum dikonfigurasi. Silakan tambahkan API key di file .env Anda.'
             ];
         }
 
-        // 1. Prioritas Utama: Google Gemini
+        // ====================================================================
+        // FORCED PROVIDER: OPENROUTER
+        // ====================================================================
+        if ($provider === 'openrouter') {
+            if (!$openrouterApiKey) {
+                return [
+                    'success' => false,
+                    'error' => 'API Key OpenRouter belum dikonfigurasi di file .env.'
+                ];
+            }
+            return $this->executeOpenRouter($prompt, $temperature, $openrouterApiKey);
+        }
+
+        // ====================================================================
+        // FORCED PROVIDER: GEMINI (Default / Fallback)
+        // ====================================================================
         if ($geminiApiKey) {
-            try {
-                $model = env('GEMINI_MODEL', 'gemini-2.5-flash');
-                
-                $payload = [
-                    'contents' => [
-                        [
-                            'parts' => [
-                                ['text' => $prompt]
-                            ]
+            $geminiRes = $this->executeGemini($prompt, $temperature, $geminiApiKey);
+            if ($geminiRes['success']) {
+                return $geminiRes;
+            }
+            
+            // Jika Gemini gagal, dan OpenRouter tersedia, kita otomatis coba fallback ke OpenRouter
+            if ($openrouterApiKey) {
+                logger()->info('Gemini gagal, mencoba fallback ke OpenRouter...');
+                return $this->executeOpenRouter($prompt, $temperature, $openrouterApiKey);
+            }
+            
+            return $geminiRes;
+        }
+
+        // Fallback jika Gemini API Key tidak ada tetapi OpenRouter ada
+        if ($openrouterApiKey) {
+            return $this->executeOpenRouter($prompt, $temperature, $openrouterApiKey);
+        }
+
+        // Fallback jika hanya Grok yang ada
+        if ($grokApiKey) {
+            return $this->executeGrok($prompt, $temperature, $grokApiKey);
+        }
+
+        return [
+            'success' => false,
+            'error' => 'Tidak ada penyedia AI yang valid dikonfigurasi.'
+        ];
+    }
+
+    private function executeGemini($prompt, $temperature, $apiKey)
+    {
+        try {
+            $model = env('GEMINI_MODEL', 'gemini-2.5-flash');
+            
+            $payload = [
+                'contents' => [
+                    [
+                        'parts' => [
+                            ['text' => $prompt]
                         ]
                     ]
-                ];
+                ]
+            ];
 
-                if ($temperature !== null) {
-                    $payload['generationConfig'] = [
-                        'temperature' => $temperature
-                    ];
-                }
-
-                $response = Http::withHeaders([
-                    'Content-Type' => 'application/json',
-                    'x-goog-api-key' => $geminiApiKey,
-                ])->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent", $payload);
-
-                if (!$response->successful()) {
-                    $status = $response->status();
-                    $errorDetails = 'API Gemini gagal merespon dengan benar.';
-                    try {
-                        $body = $response->json();
-                        if (isset($body['error']['message'])) {
-                            $errorDetails = $body['error']['message'];
-                        }
-                    } catch (\Exception $e) {
-                        $errorDetails = $response->body() ?: 'Gagal merespon';
-                    }
-
-                    logger()->error('Gagal panggil API Gemini', ['status' => $status, 'body' => $response->body()]);
-                    return [
-                        'success' => false,
-                        'error' => $errorDetails . ' (Status: ' . $status . ')'
-                    ];
-                }
-
-                $data = $response->json();
-                $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
-
-                if (!$text) {
-                    return [
-                        'success' => false,
-                        'error' => 'Respon tidak tersedia dari Gemini API.'
-                    ];
-                }
-
-                return [
-                    'success' => true,
-                    'text' => trim($text)
-                ];
-            } catch (\Exception $e) {
-                logger()->error('Gemini API Error:', ['error' => $e->getMessage()]);
-                return [
-                    'success' => false,
-                    'error' => 'Terjadi kesalahan saat memanggil Gemini API: ' . $e->getMessage()
+            if ($temperature !== null) {
+                $payload['generationConfig'] = [
+                    'temperature' => $temperature
                 ];
             }
-        }
 
-        // 2. Prioritas Kedua: OpenRouter
-        if ($openrouterApiKey) {
-            try {
-                $model = env('OPENROUTER_MODEL', 'google/gemma-4-31b-it:free');
-                $response = Http::withHeaders([
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $openrouterApiKey,
-                ])->post('https://openrouter.ai/api/v1/chat/completions', [
-                    'model' => $model,
-                    'messages' => [
-                        ['role' => 'user', 'content' => $prompt]
-                    ],
-                    'temperature' => $temperature !== null ? $temperature : 1.0
-                ]);
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'x-goog-api-key' => $apiKey,
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent", $payload);
 
-                if (!$response->successful()) {
-                    $status = $response->status();
-                    
-                    if ($status === 429) {
-                        return [
-                            'success' => false,
-                            'error' => 'Limit penggunaan model gratis OpenRouter sudah habis. Silakan coba lagi nanti atau gunakan direct Gemini API.'
-                        ];
+            if (!$response->successful()) {
+                $status = $response->status();
+                $errorDetails = 'API Gemini gagal merespon dengan benar.';
+                try {
+                    $body = $response->json();
+                    if (isset($body['error']['message'])) {
+                        $errorDetails = $body['error']['message'];
                     }
-
-                    $errorDetails = 'API OpenRouter gagal merespon dengan benar.';
-                    try {
-                        $body = $response->json();
-                        if (isset($body['error']['message'])) {
-                            $errorDetails = $body['error']['message'];
-                        }
-                    } catch (\Exception $e) {
-                        $errorDetails = $response->body() ?: 'Gagal merespon';
-                    }
-
-                    logger()->error('Gagal panggil API OpenRouter', ['status' => $status, 'body' => $response->body()]);
-                    return [
-                        'success' => false,
-                        'error' => $errorDetails . ' (Status: ' . $status . ')'
-                    ];
+                } catch (\Exception $e) {
+                    $errorDetails = $response->body() ?: 'Gagal merespon';
                 }
 
-                $data = $response->json();
-                $text = $data['choices'][0]['message']['content'] ?? null;
-
-                if (!$text) {
-                    return [
-                        'success' => false,
-                        'error' => 'Respon tidak tersedia dari OpenRouter.'
-                    ];
-                }
-
-                return [
-                    'success' => true,
-                    'text' => trim($text)
-                ];
-            } catch (\Exception $e) {
-                logger()->error('OpenRouter Error:', ['error' => $e->getMessage()]);
+                logger()->error('Gagal panggil API Gemini', ['status' => $status, 'body' => $response->body()]);
                 return [
                     'success' => false,
-                    'error' => 'Terjadi kesalahan saat memanggil OpenRouter: ' . $e->getMessage()
+                    'error' => $errorDetails . ' (Status: ' . $status . ')'
                 ];
             }
-        }
 
-        // 3. Prioritas Ketiga: xAI Grok
-        if ($grokApiKey) {
-            try {
-                $model = env('GROK_MODEL', 'grok-2-1212');
+            $data = $response->json();
+            $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
+
+            if (!$text) {
+                return [
+                    'success' => false,
+                    'error' => 'Respon tidak tersedia dari Gemini API.'
+                ];
+            }
+
+            return [
+                'success' => true,
+                'text' => trim($text)
+            ];
+        } catch (\Exception $e) {
+            logger()->error('Gemini API Error:', ['error' => $e->getMessage()]);
+            return [
+                'success' => false,
+                'error' => 'Terjadi kesalahan saat memanggil Gemini API: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    private function executeOpenRouter($prompt, $temperature, $apiKey)
+    {
+        try {
+            $model = env('OPENROUTER_MODEL', 'meta-llama/llama-3.1-8b-instruct:free');
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $apiKey,
+            ])->post('https://openrouter.ai/api/v1/chat/completions', [
+                'model' => $model,
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt]
+                ],
+                'temperature' => $temperature !== null ? $temperature : 1.0
+            ]);
+
+            if (!$response->successful()) {
+                $status = $response->status();
                 
-                $payload = [
-                    'model' => $model,
-                    'messages' => [
-                        ['role' => 'user', 'content' => $prompt]
-                    ]
-                ];
-
-                if ($temperature !== null) {
-                    $payload['temperature'] = $temperature;
+                if ($status === 429) {
+                    return [
+                        'success' => false,
+                        'error' => 'Limit penggunaan model gratis OpenRouter sudah habis. Silakan coba lagi nanti atau gunakan direct Gemini API.'
+                    ];
                 }
 
-                $response = Http::withHeaders([
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $grokApiKey,
-                ])->post('https://api.x.ai/v1/chat/completions', $payload);
-
-                if (!$response->successful()) {
-                    $status = $response->status();
-                    $errorDetails = 'API Grok gagal merespon dengan benar.';
-                    try {
-                        $body = $response->json();
-                        if (isset($body['error']['message'])) {
-                            $errorDetails = $body['error']['message'];
-                        }
-                    } catch (\Exception $e) {
-                        $errorDetails = $response->body() ?: 'Gagal merespon';
+                $errorDetails = 'API OpenRouter gagal merespon dengan benar.';
+                try {
+                    $body = $response->json();
+                    if (isset($body['error']['message'])) {
+                        $errorDetails = $body['error']['message'];
                     }
-
-                    logger()->error('Gagal panggil API Grok', ['status' => $status, 'body' => $response->body()]);
-                    return [
-                        'success' => false,
-                        'error' => $errorDetails . ' (Status: ' . $status . ')'
-                    ];
+                } catch (\Exception $e) {
+                    $errorDetails = $response->body() ?: 'Gagal merespon';
                 }
 
-                $data = $response->json();
-                $text = $data['choices'][0]['message']['content'] ?? null;
-
-                if (!$text) {
-                    return [
-                        'success' => false,
-                        'error' => 'Respon tidak tersedia dari Grok API.'
-                    ];
-                }
-
-                return [
-                    'success' => true,
-                    'text' => trim($text)
-                ];
-            } catch (\Exception $e) {
-                logger()->error('Grok API Error:', ['error' => $e->getMessage()]);
+                logger()->error('Gagal panggil API OpenRouter', ['status' => $status, 'body' => $response->body()]);
                 return [
                     'success' => false,
-                    'error' => 'Terjadi kesalahan saat memanggil Grok API: ' . $e->getMessage()
+                    'error' => $errorDetails . ' (Status: ' . $status . ')'
                 ];
             }
+
+            $data = $response->json();
+            $text = $data['choices'][0]['message']['content'] ?? null;
+
+            if (!$text) {
+                return [
+                    'success' => false,
+                    'error' => 'Respon tidak tersedia dari OpenRouter.'
+                ];
+            }
+
+            return [
+                'success' => true,
+                'text' => trim($text)
+            ];
+        } catch (\Exception $e) {
+            logger()->error('OpenRouter Error:', ['error' => $e->getMessage()]);
+            return [
+                'success' => false,
+                'error' => 'Terjadi kesalahan saat memanggil OpenRouter: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    private function executeGrok($prompt, $temperature, $apiKey)
+    {
+        try {
+            $model = env('GROK_MODEL', 'grok-2-1212');
+            
+            $payload = [
+                'model' => $model,
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt]
+                ]
+            ];
+
+            if ($temperature !== null) {
+                $payload['temperature'] = $temperature;
+            }
+
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $apiKey,
+            ])->post('https://api.x.ai/v1/chat/completions', $payload);
+
+            if (!$response->successful()) {
+                $status = $response->status();
+                $errorDetails = 'API Grok gagal merespon dengan benar.';
+                try {
+                    $body = $response->json();
+                    if (isset($body['error']['message'])) {
+                        $errorDetails = $body['error']['message'];
+                    }
+                } catch (\Exception $e) {
+                    $errorDetails = $response->body() ?: 'Gagal merespon';
+                }
+
+                logger()->error('Gagal panggil API Grok', ['status' => $status, 'body' => $response->body()]);
+                return [
+                    'success' => false,
+                    'error' => $errorDetails . ' (Status: ' . $status . ')'
+                ];
+            }
+
+            $data = $response->json();
+            $text = $data['choices'][0]['message']['content'] ?? null;
+
+            if (!$text) {
+                return [
+                    'success' => false,
+                    'error' => 'Respon tidak tersedia dari Grok API.'
+                ];
+            }
+
+            return [
+                'success' => true,
+                'text' => trim($text)
+            ];
+        } catch (\Exception $e) {
+            logger()->error('Grok API Error:', ['error' => $e->getMessage()]);
+            return [
+                'success' => false,
+                'error' => 'Terjadi kesalahan saat memanggil Grok API: ' . $e->getMessage()
+            ];
         }
     }
 
@@ -359,11 +405,12 @@ class KatalogController extends Controller
     {
         $judul = $request->input('judul');
         $pengarang = $request->input('pengarang');
+        $provider = $request->input('provider'); // 'gemini' atau 'openrouter'
 
         $prompt = "Tuliskan sinopsis singkat dan langsung ke inti cerita dari buku berjudul \"$judul\" karya \"$pengarang\". 
                     Hindari penjelasan tambahan seperti kata 'Sinopsis', 'Inti Cerita', atau heading lainnya. Langsung tuliskan ringkasannya saja dalam paragraf yang rapi dan natural.";
 
-        $aiResult = $this->askAI($prompt);
+        $aiResult = $this->askAI($prompt, null, $provider);
 
         if (!$aiResult['success']) {
             return response()->json([
@@ -382,11 +429,12 @@ class KatalogController extends Controller
     {
         $judul = $request->input('judul');
         $pengarang = $request->input('pengarang');
+        $provider = $request->input('provider'); // 'gemini' atau 'openrouter'
 
         $prompt = "Tentukan Kode DDC dan Nomor Panggil untuk buku berjudul \"$judul\" karya \"$pengarang\". 
 Format Nomor Panggil harus mengikuti aturan penulisan berikut:
 [Kode DDC] [Tiga huruf pertama nama belakang pengarang, harus HURUF KAPITAL] [Satu huruf pertama dari judul buku, harus HURUF KECIL].
-Semua bagian dipisahkan oleh spasi (tanpa menggunakan garis miring).
+Semba bagian dipisahkan oleh spasi (tanpa menggunakan garis miring).
 Contoh penulisan: 302.224 NUR d
 
 Tampilkan hasil akhir hanya seperti ini:
@@ -394,7 +442,7 @@ Tampilkan hasil akhir hanya seperti ini:
 Kode DDC: [kode]
 Nomor Panggil: [nomor_panggil]";
 
-        $aiResult = $this->askAI($prompt, 0.3);
+        $aiResult = $this->askAI($prompt, 0.3, $provider);
 
         if (!$aiResult['success']) {
             return response()->json([
@@ -431,6 +479,7 @@ Nomor Panggil: [nomor_panggil]";
         $judul    = $request->input('judul');
         $pengarang = $request->input('pengarang');
         $penerbit  = $request->input('penerbit', '');
+        $provider  = $request->input('provider'); // 'gemini' atau 'openrouter'
 
         // ====================================================================
         // LAYER 1: Gramedia.com Web Scraping (prioritas utama — buku Indonesia)
@@ -602,14 +651,14 @@ Nomor Panggil: [nomor_panggil]";
         }
 
         // ====================================================================
-        // LAYER 4: AI Fallback (Gemini) — terakhir, confidence rendah
+        // LAYER 4: AI Fallback (Gemini/OpenRouter) — terakhir, confidence rendah
         // ====================================================================
         $penerbitInfo = $penerbit ? " diterbitkan oleh \"{$penerbit}\"" : '';
         $prompt = "Berikan satu nomor ISBN (ISBN-10 atau ISBN-13) yang paling mungkin valid untuk buku berjudul \"{$judul}\" karya \"{$pengarang}\"{$penerbitInfo}.
 Jika kamu tidak yakin dengan ISBN-nya, jawab dengan teks: TIDAK_DITEMUKAN
 Jika kamu yakin, tulis HANYA nomor ISBN tersebut saja, tanpa penjelasan, tanpa teks tambahan, hanya angka (contoh: 9786231342355).";
 
-        $aiResult = $this->askAI($prompt, 0.1);
+        $aiResult = $this->askAI($prompt, 0.1, $provider);
 
         if (!$aiResult['success']) {
             return response()->json([
@@ -628,10 +677,12 @@ Jika kamu yakin, tulis HANYA nomor ISBN tersebut saja, tanpa penjelasan, tanpa t
             ]);
         }
 
+        $sourceLabel = $provider === 'openrouter' ? 'AI (OpenRouter)' : 'AI (Gemini)';
+
         return response()->json([
             'success'    => true,
             'isbn'       => $cleanAI,
-            'source'     => 'AI (Gemini)',
+            'source'     => $sourceLabel,
             'confidence' => 'low',
         ]);
     }

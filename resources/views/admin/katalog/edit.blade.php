@@ -62,6 +62,10 @@
                             class="mt-2 inline-flex items-center px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 text-sm font-semibold">
                             Generate ISBN
                         </button>
+                        <button type="button" id="generate-isbn-openrouter"
+                            class="mt-2 inline-flex items-center px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 text-sm font-semibold ml-2">
+                            Generate ISBN (OpenRouter)
+                        </button>
 
                         <!-- Spinner -->
                         <div id="spinner-isbn" class="mt-3 hidden">
@@ -112,6 +116,11 @@
                                 class="inline-flex items-center px-3 py-2 text-white rounded text-xs font-semibold"
                                 style="background-color: #7e22ce;">
                                 Cari Cover di AI Gemini
+                            </button>
+                            <button type="button" id="btn-cari-cover-ai-openrouter"
+                                class="inline-flex items-center px-3 py-2 text-white rounded text-xs font-semibold"
+                                style="background-color: #4f46e5;">
+                                Cari Cover di OpenRouter
                             </button>
                             <button type="button" id="btn-cari-cover-ai-gramedia"
                                 class="inline-flex items-center px-3 py-2 text-white rounded text-xs font-semibold"
@@ -177,6 +186,10 @@
                             class="mt-2 inline-flex items-center px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800">
                             Generate Ringkasan
                         </button>
+                        <button type="button" id="generate-ringkasan-openrouter"
+                            class="mt-2 inline-flex items-center px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 ml-2">
+                            Generate Ringkasan (OpenRouter)
+                        </button>
 
                         <!-- Spinner -->
                         <div id="spinner-ringkasan" class="mt-3 hidden">
@@ -224,6 +237,10 @@
                         class="mt-2 inline-flex items-center px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800">
                         Generate Kode DDC & Nomor Panggil
                     </button>
+                    <button type="button" id="generate-ddc-openrouter"
+                        class="mt-2 inline-flex items-center px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 ml-2">
+                        Generate DDC & Nomor Panggil (OpenRouter)
+                    </button>
 
                     <!-- Spinner (diletakkan setelah tombol) -->
                     <div id="spinner-ddc" class="mt-3 hidden">
@@ -255,32 +272,44 @@
     </form>
 
     <script>
-        document.getElementById('generate-isbn').addEventListener('click', async function() {
+        // --- FEATURE: GENERATE ISBN ---
+        async function runGenerateISBN(provider) {
             const judul = document.getElementById('judul_buku_display').value;
             const pengarang = document.getElementById('pengarang_display').value;
             const penerbit = document.getElementById('penerbit_display').value;
             const spinner = document.getElementById('spinner-isbn');
             const spinnerText = document.getElementById('spinner-isbn-text');
             const isbnSourceInfo = document.getElementById('isbn-source-info');
-            const button = this;
 
             spinner.classList.remove('hidden');
             if (isbnSourceInfo) isbnSourceInfo.classList.add('hidden');
-            button.disabled = true;
-            button.classList.add('opacity-50', 'cursor-not-allowed');
 
-            // Urutan label sesuai urutan pencarian di backend:
-            // Gramedia → Google Books → Open Library → AI Gemini
-            const searchSteps = [
-                '🔍 Mencari ISBN di database Gramedia...',
-                '🔍 Mencari ISBN di Google Books...',
-                '🔍 Mencari ISBN di Open Library...',
-                '🤖 Mencari via AI Gemini (fallback)...',
-            ];
+            const btnIsbn = document.getElementById('generate-isbn');
+            const btnIsbnOr = document.getElementById('generate-isbn-openrouter');
+            [btnIsbn, btnIsbnOr].forEach(btn => {
+                if (btn) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            });
+
+            // Urutan label sesuai urutan pencarian di backend
+            const searchSteps = provider === 'openrouter' 
+                ? [
+                    '🔍 Mencari ISBN di database Gramedia...',
+                    '🔍 Mencari ISBN di Google Books...',
+                    '🔍 Mencari ISBN di Open Library...',
+                    '🤖 Mencari via AI OpenRouter (fallback)...'
+                  ]
+                : [
+                    '🔍 Mencari ISBN di database Gramedia...',
+                    '🔍 Mencari ISBN di Google Books...',
+                    '🔍 Mencari ISBN di Open Library...',
+                    '🤖 Mencari via AI Gemini (fallback)...'
+                  ];
             let stepIndex = 0;
             spinnerText.textContent = searchSteps[0];
 
-            // Rotasi teks spinner setiap 3 detik agar pengguna tahu progress
             const spinnerInterval = setInterval(() => {
                 stepIndex++;
                 if (stepIndex < searchSteps.length) {
@@ -295,14 +324,13 @@
                         "Content-Type": "application/json",
                         "X-CSRF-TOKEN": "{{ csrf_token() }}"
                     },
-                    body: JSON.stringify({ judul, pengarang, penerbit })
+                    body: JSON.stringify({ judul, pengarang, penerbit, provider })
                 });
 
                 const data = await res.json();
                 if (data.success) {
                     document.getElementById('isbn').value = data.isbn;
 
-                    // Tampilkan badge sumber ISBN
                     if (isbnSourceInfo) {
                         const source = data.source || 'Unknown';
                         const confidence = data.confidence || 'low';
@@ -338,25 +366,37 @@
             } finally {
                 clearInterval(spinnerInterval);
                 spinner.classList.add('hidden');
-                button.disabled = false;
-                button.classList.remove('opacity-50', 'cursor-not-allowed');
+                [btnIsbn, btnIsbnOr].forEach(btn => {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                });
             }
-        });
-    </script>
+        }
 
+        document.getElementById('generate-isbn').addEventListener('click', () => runGenerateISBN('gemini'));
+        const btnIsbnOr = document.getElementById('generate-isbn-openrouter');
+        if (btnIsbnOr) {
+            btnIsbnOr.addEventListener('click', () => runGenerateISBN('openrouter'));
+        }
 
-
-    <script>
-        document.getElementById('generate-ringkasan').addEventListener('click', async function() {
+        // --- FEATURE: GENERATE RINGKASAN ---
+        async function runGenerateRingkasan(provider) {
             const judul = document.getElementById('judul_buku_display').value;
             const pengarang = document.getElementById('pengarang_display').value;
             const spinner = document.getElementById('spinner-ringkasan');
-            const button = this;
+            
+            const btnRingkasan = document.getElementById('generate-ringkasan');
+            const btnRingkasanOr = document.getElementById('generate-ringkasan-openrouter');
 
-            // Tampilkan spinner & disable tombol
             spinner.classList.remove('hidden');
-            button.disabled = true;
-            button.classList.add('opacity-50', 'cursor-not-allowed');
+            [btnRingkasan, btnRingkasanOr].forEach(btn => {
+                if (btn) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            });
 
             try {
                 const res = await fetch("{{ route('admin.katalog.generate-ringkasan') }}", {
@@ -365,10 +405,7 @@
                         "Content-Type": "application/json",
                         "X-CSRF-TOKEN": "{{ csrf_token() }}"
                     },
-                    body: JSON.stringify({
-                        judul,
-                        pengarang
-                    })
+                    body: JSON.stringify({ judul, pengarang, provider })
                 });
 
                 const data = await res.json();
@@ -381,12 +418,21 @@
                 console.error(error);
                 alert("Terjadi kesalahan saat menghubungi server.");
             } finally {
-                // Sembunyikan spinner & aktifkan tombol kembali
                 spinner.classList.add('hidden');
-                button.disabled = false;
-                button.classList.remove('opacity-50', 'cursor-not-allowed');
+                [btnRingkasan, btnRingkasanOr].forEach(btn => {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                });
             }
-        });
+        }
+
+        document.getElementById('generate-ringkasan').addEventListener('click', () => runGenerateRingkasan('gemini'));
+        const btnRingkasanOr = document.getElementById('generate-ringkasan-openrouter');
+        if (btnRingkasanOr) {
+            btnRingkasanOr.addEventListener('click', () => runGenerateRingkasan('openrouter'));
+        }
     </script>
 
 
@@ -408,11 +454,13 @@
     </script>
 
     <script>
-        document.getElementById('generate-ddc').addEventListener('click', async function() {
+        async function runGenerateDDC(provider) {
             const judul = document.getElementById('judul_buku_display').value.trim();
             const pengarang = document.getElementById('pengarang_display').value.trim();
             const spinner = document.getElementById('spinner-ddc');
-            const button = this;
+            
+            const btnDdc = document.getElementById('generate-ddc');
+            const btnDdcOr = document.getElementById('generate-ddc-openrouter');
 
             if (!judul || !pengarang) {
                 alert("Judul dan pengarang harus diisi.");
@@ -421,8 +469,12 @@
 
             // Tampilkan spinner & disable tombol
             spinner.classList.remove('hidden');
-            button.disabled = true;
-            button.classList.add('opacity-50', 'cursor-not-allowed');
+            [btnDdc, btnDdcOr].forEach(btn => {
+                if (btn) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            });
 
             try {
                 const res = await fetch("{{ route('admin.katalog.generate-ddc') }}", {
@@ -431,10 +483,7 @@
                         "Content-Type": "application/json",
                         "X-CSRF-TOKEN": "{{ csrf_token() }}"
                     },
-                    body: JSON.stringify({
-                        judul,
-                        pengarang
-                    })
+                    body: JSON.stringify({ judul, pengarang, provider })
                 });
 
                 const data = await res.json();
@@ -449,10 +498,20 @@
                 alert("Terjadi kesalahan saat menghubungi server.");
             } finally {
                 spinner.classList.add('hidden');
-                button.disabled = false;
-                button.classList.remove('opacity-50', 'cursor-not-allowed');
+                [btnDdc, btnDdcOr].forEach(btn => {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                });
             }
-        });
+        }
+
+        document.getElementById('generate-ddc').addEventListener('click', () => runGenerateDDC('gemini'));
+        const btnDdcOr = document.getElementById('generate-ddc-openrouter');
+        if (btnDdcOr) {
+            btnDdcOr.addEventListener('click', () => runGenerateDDC('openrouter'));
+        }
     </script>
 
 
@@ -546,7 +605,13 @@
                 return;
             }
 
-            const labelSource = source === 'gramedia' ? 'database Gramedia (Ai Support)' : 'Gemini AI';
+            let labelSource = 'Gemini AI';
+            if (source === 'gramedia') {
+                labelSource = 'database Gramedia (Ai Support)';
+            } else if (source === 'openrouter') {
+                labelSource = 'OpenRouter AI';
+            }
+
             status.innerHTML = `
                             <svg class="w-6 h-6 text-blue-700 inline-block animate-spin mr-2"
                                 aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -613,6 +678,10 @@
         }
 
         document.getElementById('btn-cari-cover-ai-gemini').addEventListener('click', () => cariCoverAI('gemini'));
+        const btnCoverOr = document.getElementById('btn-cari-cover-ai-openrouter');
+        if (btnCoverOr) {
+            btnCoverOr.addEventListener('click', () => cariCoverAI('openrouter'));
+        }
         document.getElementById('btn-cari-cover-ai-gramedia').addEventListener('click', () => cariCoverAI('gramedia'));
     </script>
 
