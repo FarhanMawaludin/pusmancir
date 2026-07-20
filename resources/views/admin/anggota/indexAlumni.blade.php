@@ -5,9 +5,9 @@
         <h1 class="text-2xl font-bold text-text">Daftar Anggota</h1>
     </div>
 
-    <div class="flex justify-between items-center mb-4">
-        <form method="GET" action="{{ route('admin.anggota.index') }}" class="flex w-full max-w-lg">
-            <div class="flex w-full relative">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+        <form method="GET" action="{{ route('admin.anggota.indexAlumni') }}" class="flex flex-wrap items-center gap-4 w-full">
+            <div class="flex w-full max-w-lg relative grow">
                 <!-- Hidden input untuk kategori -->
                 <input type="hidden" name="category" id="selected-category" value="{{ $category }}">
 
@@ -69,6 +69,29 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Filter Sort Kelas -->
+            <div class="flex items-center gap-2 shrink-0">
+                <label for="sort_kelas" class="text-sm font-medium text-text">Urutan Kelas:</label>
+                <select name="sort_kelas" id="sort_kelas" onchange="this.form.submit()"
+                    class="bg-gray-50 border border-gray-300 text-text text-sm rounded focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option value="" {{ empty($sort_kelas) ? 'selected' : '' }}>Default</option>
+                    <option value="asc" {{ ($sort_kelas ?? '') === 'asc' ? 'selected' : '' }}>Kelas A - Z</option>
+                    <option value="desc" {{ ($sort_kelas ?? '') === 'desc' ? 'selected' : '' }}>Kelas Z - A</option>
+                </select>
+            </div>
+
+            <!-- Filter Limit Tampilan -->
+            <div class="flex items-center gap-2 shrink-0">
+                <label for="limit" class="text-sm font-medium text-text">Lihat Data:</label>
+                <select name="limit" id="limit" onchange="this.form.submit()"
+                    class="bg-gray-50 border border-gray-300 text-text text-sm rounded focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option value="10" {{ ($limit ?? 10) == 10 ? 'selected' : '' }}>10</option>
+                    <option value="50" {{ ($limit ?? 10) == 50 ? 'selected' : '' }}>50</option>
+                    <option value="100" {{ ($limit ?? 10) == 100 ? 'selected' : '' }}>100</option>
+                    <option value="all" {{ ($limit ?? 10) === 'all' ? 'selected' : '' }}>Semua</option>
+                </select>
+            </div>
         </form>
     </div>
 
@@ -96,7 +119,18 @@
                         <th scope="col" class="px-6 py-3 w-4 md:w-10">No</th>
                         <th scope="col" class="px-6 py-3">Pengguna</th>
                         <th scope="col" class="px-6 py-3">NISN</th>
-                        <th scope="col" class="px-6 py-3">Kelas</th>
+                        <th scope="col" class="px-6 py-3">
+                            <a href="{{ route('admin.anggota.indexAlumni', array_merge(request()->query(), ['sort_kelas' => request('sort_kelas') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center gap-1 hover:text-blue-700 transition">
+                                Kelas
+                                @if(request('sort_kelas') == 'asc')
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                                @elseif(request('sort_kelas') == 'desc')
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                @else
+                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
+                                @endif
+                            </a>
+                        </th>
                         <th scope="col" class="px-6 py-3">Email</th>
                         <th scope="col" class="px-6 py-3">Nomor Telepon</th>
                         <th scope="col" class="px-6 py-3">Status</th>

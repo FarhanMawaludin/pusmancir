@@ -16,38 +16,63 @@ class AnggotaController extends Controller
 
         $search = $request->input('search');
         $category = $request->input('category', 'name');
+        $sort_kelas = $request->input('sort_kelas');
+        $limit = $request->input('limit', 10);
 
         $allowedCategories = ['name', 'nisn', 'kelas'];
         $category = in_array($category, $allowedCategories) ? $category : 'name';
 
-        $query = User::with(['anggota.kelas'])
-            ->where('role', 'anggota')
+        $query = User::select('users.*')
+            ->with(['anggota.kelas'])
+            ->where('users.role', 'anggota')
             ->whereHas('anggota', function ($q) {
                 $q->where('status', 'aktif');
-            })
-            ->when($search, function ($q) use ($search, $category) {
-                if ($category === 'name') {
-                    $q->where('name', 'like', "%{$search}%");
-                } elseif ($category === 'nisn') {
-                    $q->whereHas('anggota', function ($q2) use ($search) {
-                        $q2->where('nisn', 'like', "%{$search}%")
-                            ->where('status', 'aktif'); // Pastikan tetap filter aktif di pencarian
-                    });
-                } elseif ($category === 'kelas') {
-                    $q->whereHas('anggota.kelas', function ($q2) use ($search) {
-                        $q2->where('nama_kelas', 'like', "%{$search}%");
-                    })->whereHas('anggota', function ($q3) {
-                        $q3->where('status', 'aktif');
-                    });
-                }
             });
 
-        $users = $query->paginate(10)->appends([
+        // Apply sort berdasarkan kelas
+        if ($sort_kelas === 'asc' || $sort_kelas === 'desc') {
+            $query->join('anggota', 'anggota.user_id', '=', 'users.id')
+                ->leftJoin('kelas', 'kelas.id', '=', 'anggota.kelas_id')
+                ->orderBy('kelas.nama_kelas', $sort_kelas);
+        }
+
+        // Apply search filter
+        $query->when($search, function ($q) use ($search, $category) {
+            if ($category === 'name') {
+                $q->where('users.name', 'like', "%{$search}%");
+            } elseif ($category === 'nisn') {
+                $q->whereHas('anggota', function ($q2) use ($search) {
+                    $q2->where('nisn', 'like', "%{$search}%")
+                        ->where('status', 'aktif'); // Pastikan tetap filter aktif di pencarian
+                });
+            } elseif ($category === 'kelas') {
+                $q->whereHas('anggota.kelas', function ($q2) use ($search) {
+                    $q2->where('nama_kelas', 'like', "%{$search}%");
+                })->whereHas('anggota', function ($q3) {
+                    $q3->where('status', 'aktif');
+                });
+            }
+        });
+
+        // Determine per page limit
+        if ($limit === 'all') {
+            $count = (clone $query)->count();
+            $perPage = $count > 0 ? $count : 10;
+        } else {
+            $perPage = (int)$limit;
+            if (!in_array($perPage, [10, 50, 100])) {
+                $perPage = 10;
+            }
+        }
+
+        $users = $query->paginate($perPage)->appends([
             'search' => $search,
             'category' => $category,
+            'sort_kelas' => $sort_kelas,
+            'limit' => $limit,
         ]);
 
-        return view('admin.anggota.index', compact('users', 'search', 'category', 'activeMenu'));
+        return view('admin.anggota.index', compact('users', 'search', 'category', 'sort_kelas', 'limit', 'activeMenu'));
     }
 
 
@@ -74,38 +99,63 @@ class AnggotaController extends Controller
 
         $search = $request->input('search');
         $category = $request->input('category', 'name');
+        $sort_kelas = $request->input('sort_kelas');
+        $limit = $request->input('limit', 10);
 
         $allowedCategories = ['name', 'nisn', 'kelas'];
         $category = in_array($category, $allowedCategories) ? $category : 'name';
 
-        $query = User::with(['anggota.kelas'])
-            ->where('role', 'anggota')
+        $query = User::select('users.*')
+            ->with(['anggota.kelas'])
+            ->where('users.role', 'anggota')
             ->whereHas('anggota', function ($q) {
                 $q->where('status', 'alumni');
-            })
-            ->when($search, function ($q) use ($search, $category) {
-                if ($category === 'name') {
-                    $q->where('name', 'like', "%{$search}%");
-                } elseif ($category === 'nisn') {
-                    $q->whereHas('anggota', function ($q2) use ($search) {
-                        $q2->where('nisn', 'like', "%{$search}%")
-                            ->where('status', 'alumni'); // Pastikan tetap filter aktif di pencarian
-                    });
-                } elseif ($category === 'kelas') {
-                    $q->whereHas('anggota.kelas', function ($q2) use ($search) {
-                        $q2->where('nama_kelas', 'like', "%{$search}%");
-                    })->whereHas('anggota', function ($q3) {
-                        $q3->where('status', 'alumni');
-                    });
-                }
             });
 
-        $users = $query->paginate(10)->appends([
+        // Apply sort berdasarkan kelas
+        if ($sort_kelas === 'asc' || $sort_kelas === 'desc') {
+            $query->join('anggota', 'anggota.user_id', '=', 'users.id')
+                ->leftJoin('kelas', 'kelas.id', '=', 'anggota.kelas_id')
+                ->orderBy('kelas.nama_kelas', $sort_kelas);
+        }
+
+        // Apply search filter
+        $query->when($search, function ($q) use ($search, $category) {
+            if ($category === 'name') {
+                $q->where('users.name', 'like', "%{$search}%");
+            } elseif ($category === 'nisn') {
+                $q->whereHas('anggota', function ($q2) use ($search) {
+                    $q2->where('nisn', 'like', "%{$search}%")
+                        ->where('status', 'alumni'); // Pastikan tetap filter aktif di pencarian
+                });
+            } elseif ($category === 'kelas') {
+                $q->whereHas('anggota.kelas', function ($q2) use ($search) {
+                    $q2->where('nama_kelas', 'like', "%{$search}%");
+                })->whereHas('anggota', function ($q3) {
+                    $q3->where('status', 'alumni');
+                });
+            }
+        });
+
+        // Determine per page limit
+        if ($limit === 'all') {
+            $count = (clone $query)->count();
+            $perPage = $count > 0 ? $count : 10;
+        } else {
+            $perPage = (int)$limit;
+            if (!in_array($perPage, [10, 50, 100])) {
+                $perPage = 10;
+            }
+        }
+
+        $users = $query->paginate($perPage)->appends([
             'search' => $search,
             'category' => $category,
+            'sort_kelas' => $sort_kelas,
+            'limit' => $limit,
         ]);
 
-        return view('admin.anggota.indexAlumni', compact('users', 'search', 'category', 'activeMenu'));
+        return view('admin.anggota.indexAlumni', compact('users', 'search', 'category', 'sort_kelas', 'limit', 'activeMenu'));
     }
 
     public function setAktif(Request $request)
