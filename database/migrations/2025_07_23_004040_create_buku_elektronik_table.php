@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('buku_elektronik', function (Blueprint $table) {
-            $table->id();
-            $table->string('judul');
-            $table->string('penulis')->nullable();     
-            $table->string('kelas');                     
-            $table->string('kategori');                 
-            $table->string('kurikulum')->nullable();    
-            $table->string('pdf_path')->nullable();      
-            $table->string('cover_image')->nullable();   
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('buku_elektronik')) {
+            Schema::create('buku_elektronik', function (Blueprint $table) {
+                $table->id();
+                $table->string('judul');
+                $table->string('penulis')->nullable();     
+                $table->string('kelas');                     
+                $table->string('kategori');                 
+                $table->string('kurikulum')->nullable();    
+                $table->string('pdf_path')->nullable();      
+                $table->string('cover_image')->nullable();   
+                $table->timestamps();
+            });
+        }
     }
 
     /**
