@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Kelas;
 use Illuminate\Support\Facades\DB;
 
 
@@ -17,6 +18,7 @@ class AnggotaController extends Controller
         $search = $request->input('search');
         $category = $request->input('category', 'name');
         $sort_kelas = $request->input('sort_kelas');
+        $filter_kelas = $request->input('filter_kelas');
         $limit = $request->input('limit', 10);
 
         $allowedCategories = ['name', 'nisn', 'kelas'];
@@ -28,6 +30,13 @@ class AnggotaController extends Controller
             ->whereHas('anggota', function ($q) {
                 $q->where('status', 'aktif');
             });
+
+        // Apply filter berdasarkan kelas jika dipilih
+        if ($filter_kelas) {
+            $query->whereHas('anggota', function ($q) use ($filter_kelas) {
+                $q->where('kelas_id', $filter_kelas);
+            });
+        }
 
         // Apply sort berdasarkan kelas
         if ($sort_kelas === 'asc' || $sort_kelas === 'desc') {
@@ -69,10 +78,13 @@ class AnggotaController extends Controller
             'search' => $search,
             'category' => $category,
             'sort_kelas' => $sort_kelas,
+            'filter_kelas' => $filter_kelas,
             'limit' => $limit,
         ]);
 
-        return view('admin.anggota.index', compact('users', 'search', 'category', 'sort_kelas', 'limit', 'activeMenu'));
+        $list_kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
+
+        return view('admin.anggota.index', compact('users', 'search', 'category', 'sort_kelas', 'filter_kelas', 'list_kelas', 'limit', 'activeMenu'));
     }
 
 
@@ -100,6 +112,7 @@ class AnggotaController extends Controller
         $search = $request->input('search');
         $category = $request->input('category', 'name');
         $sort_kelas = $request->input('sort_kelas');
+        $filter_kelas = $request->input('filter_kelas');
         $limit = $request->input('limit', 10);
 
         $allowedCategories = ['name', 'nisn', 'kelas'];
@@ -111,6 +124,13 @@ class AnggotaController extends Controller
             ->whereHas('anggota', function ($q) {
                 $q->where('status', 'alumni');
             });
+
+        // Apply filter berdasarkan kelas jika dipilih
+        if ($filter_kelas) {
+            $query->whereHas('anggota', function ($q) use ($filter_kelas) {
+                $q->where('kelas_id', $filter_kelas);
+            });
+        }
 
         // Apply sort berdasarkan kelas
         if ($sort_kelas === 'asc' || $sort_kelas === 'desc') {
@@ -152,10 +172,13 @@ class AnggotaController extends Controller
             'search' => $search,
             'category' => $category,
             'sort_kelas' => $sort_kelas,
+            'filter_kelas' => $filter_kelas,
             'limit' => $limit,
         ]);
 
-        return view('admin.anggota.indexAlumni', compact('users', 'search', 'category', 'sort_kelas', 'limit', 'activeMenu'));
+        $list_kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
+
+        return view('admin.anggota.indexAlumni', compact('users', 'search', 'category', 'sort_kelas', 'filter_kelas', 'list_kelas', 'limit', 'activeMenu'));
     }
 
     public function setAktif(Request $request)

@@ -70,6 +70,20 @@
                 </div>
             </div>
 
+            <!-- Filter Kelas -->
+            <div class="flex items-center gap-2 shrink-0">
+                <label for="filter_kelas" class="text-sm font-medium text-text">Filter Kelas:</label>
+                <select name="filter_kelas" id="filter_kelas" onchange="this.form.submit()"
+                    class="bg-gray-50 border border-gray-300 text-text text-sm rounded focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option value="" {{ empty($filter_kelas) ? 'selected' : '' }}>Semua Kelas</option>
+                    @foreach($list_kelas as $kelasItem)
+                        <option value="{{ $kelasItem->id }}" {{ ($filter_kelas ?? '') == $kelasItem->id ? 'selected' : '' }}>
+                            {{ $kelasItem->nama_kelas }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
             <!-- Filter Sort Kelas -->
             <div class="flex items-center gap-2 shrink-0">
                 <label for="sort_kelas" class="text-sm font-medium text-text">Urutan Kelas:</label>
