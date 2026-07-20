@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('berita', function (Blueprint $table) {
-            $table->unsignedBigInteger('views')->default(0);
-        });
+        if (!Schema::hasColumn('berita', 'views')) {
+            Schema::table('berita', function (Blueprint $table) {
+                $table->unsignedBigInteger('views')->default(0);
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('berita', function (Blueprint $table) {
-            $table->dropColumn('views');
-        });
+        if (Schema::hasColumn('berita', 'views')) {
+            Schema::table('berita', function (Blueprint $table) {
+                $table->dropColumn('views');
+            });
+        }
     }
 };

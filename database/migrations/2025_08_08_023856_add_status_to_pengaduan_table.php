@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('pengaduan', function (Blueprint $table) {
-            $table->enum('status', ['belum dibaca', 'telah dibaca'])->default('belum dibaca')->after('isi');
-        });
+        if (!Schema::hasColumn('pengaduan', 'status')) {
+            Schema::table('pengaduan', function (Blueprint $table) {
+                $table->enum('status', ['belum dibaca', 'telah dibaca'])->default('belum dibaca')->after('isi');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('pengaduan', function (Blueprint $table) {
-            $table->dropColumn('status');
-        });
+        if (Schema::hasColumn('pengaduan', 'status')) {
+            Schema::table('pengaduan', function (Blueprint $table) {
+                $table->dropColumn('status');
+            });
+        }
     }
 };

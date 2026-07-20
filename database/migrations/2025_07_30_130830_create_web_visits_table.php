@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('web_visits', function (Blueprint $table) {
-            $table->id();
-            $table->string('ip', 45);
-            $table->text('user_agent')->nullable();
-            $table->string('url')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('web_visits')) {
+            Schema::create('web_visits', function (Blueprint $table) {
+                $table->id();
+                $table->string('ip', 45);
+                $table->text('user_agent')->nullable();
+                $table->string('url')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

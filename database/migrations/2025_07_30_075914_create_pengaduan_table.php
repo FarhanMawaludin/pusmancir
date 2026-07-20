@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pengaduan', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama');
-            $table->string('no_telp');
-            $table->string('email');
-            $table->text('isi');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('pengaduan')) {
+            Schema::create('pengaduan', function (Blueprint $table) {
+                $table->id();
+                $table->string('nama');
+                $table->string('no_telp');
+                $table->string('email');
+                $table->text('isi');
+                $table->timestamps();
+            });
+        }
     }
 
     /**
