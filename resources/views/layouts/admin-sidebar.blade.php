@@ -331,6 +331,11 @@
                             Buku Tamu</a>
                     </li> --}}
                     <li>
+                        <a href="{{ route('admin.buku-tamu.input-manual') }}"
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
+                            Input Manual</a>
+                    </li>
+                    <li>
                         <a href="{{ route('admin.buku-tamu.log-tamu') }}"
                             class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
                             Log Tamu</a>

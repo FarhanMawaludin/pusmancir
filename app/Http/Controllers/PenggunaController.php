@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\Fortify\PasswordValidationRules;
 use App\Models\User;
 use App\Models\Anggota;
+use App\Models\Kelas;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -21,7 +22,7 @@ class PenggunaController extends Controller
         $search = $request->input('search');
         $category = $request->input('category', 'all');
 
-        $query = User::query();
+        $query = User::with('anggota.kelas');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -42,19 +43,24 @@ class PenggunaController extends Controller
             'category' => $category
         ]);
 
+        $list_kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
+
         return view('admin.pengguna.index', [
             'activeMenu' => $activeMenu,
             'user' => $user,
             'category' => $category,
             'search' => $search,
+            'list_kelas' => $list_kelas,
         ]);
     }
 
     public function create()
     {
         $activeMenu = "pengguna";
+        $list_kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         return view('admin.pengguna.create', [
             'activeMenu' => $activeMenu,
+            'list_kelas' => $list_kelas,
         ]);
     }
 
@@ -65,6 +71,7 @@ class PenggunaController extends Controller
             'username' => ['required', 'string', 'max:255', 'unique:users'], // Asumsi username = NISN untuk anggota
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', Rule::in(['admin', 'pustakawan', 'anggota'])],
+            'kelas_id' => ['nullable', 'exists:kelas,id'],
         ], [
             'name.required' => 'Nama tidak boleh kosong.',
             'username.required' => 'Username wajib diisi.',
@@ -74,6 +81,7 @@ class PenggunaController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
             'role.required' => 'Posisi wajib dipilih.',
             'role.in' => 'Posisi yang dipilih tidak valid.',
+            'kelas_id.exists' => 'Kelas yang dipilih tidak valid.',
         ]);
 
         try {
@@ -95,7 +103,7 @@ class PenggunaController extends Controller
                     'user_id' => $user->id,
                     'no_telp' => null,
                     'email' => null,
-                    'kelas_id' => null,
+                    'kelas_id' => $validated['kelas_id'] ?? null,
                     'nisn' => $nisn,
                     'qr_code' => $nisn, // Simpan NISN sebagai QR code
                 ]);
@@ -112,11 +120,13 @@ class PenggunaController extends Controller
 
     public function edit($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::with('anggota.kelas')->findOrFail($id);
         $activeMenu = 'pengguna';
+        $list_kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         return view('admin.pengguna.edit', [
             'activeMenu' => $activeMenu,
-            'user' => $user
+            'user' => $user,
+            'list_kelas' => $list_kelas,
         ]);
     }
 
@@ -127,6 +137,7 @@ class PenggunaController extends Controller
             'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($id)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'role' => ['required', Rule::in(['admin', 'pustakawan', 'anggota'])],
+            'kelas_id' => ['nullable', 'exists:kelas,id'],
         ], [
             'name.required' => 'Nama tidak boleh kosong.',
             'username.required' => 'username wajib diisi.',
@@ -135,6 +146,7 @@ class PenggunaController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
             'role.required' => 'Posisi wajib dipilih.',
             'role.in' => 'Posisi yang dipilih tidak valid.',
+            'kelas_id.exists' => 'Kelas yang dipilih tidak valid.',
         ]);
 
         try {
@@ -151,6 +163,11 @@ class PenggunaController extends Controller
             $user = User::findOrFail($id);
             $user->update($updateData);
 
+            // Update kelas di data anggota jika role anggota
+            if ($user->role === 'anggota' && $user->anggota) {
+                $user->anggota->update(['kelas_id' => $validated['kelas_id'] ?? null]);
+            }
+
             return redirect()->route('admin.pengguna.index')
                 ->with('success', 'Pengguna berhasil diupdate.');
         } catch (\Exception $e) {
@@ -165,7 +182,14 @@ class PenggunaController extends Controller
     public function destroy($id)
     {
         try {
-            User::findOrFail($id)->delete();
+            $user = User::findOrFail($id);
+
+            // Hapus data anggota terkait terlebih dahulu
+            if ($user->anggota) {
+                $user->anggota->delete();
+            }
+
+            $user->delete();
             return redirect()->route('admin.pengguna.index')
                 ->with('success', 'Pengguna berhasil dihapus.');
         } catch (\Exception $e) {
@@ -203,6 +227,7 @@ class PenggunaController extends Controller
             $name = $row[0] ?? null;
             $username = $row[1] ?? null;
             $password = $row[2] ?? null;
+            $kelas_nama = $row[3] ?? null;
 
             // Cek jika ada data penting yang kosong
             if (!$name || !$username || !$password) {
@@ -213,6 +238,15 @@ class PenggunaController extends Controller
             if (User::where('username', $username)->exists()) {
                 $jumlahDuplikat++;
                 continue; // Lewati jika duplikat
+            }
+
+            // Cari kelas berdasarkan nama (jika ada)
+            $kelas_id = null;
+            if ($kelas_nama) {
+                $kelas = Kelas::where('nama_kelas', trim($kelas_nama))->first();
+                if ($kelas) {
+                    $kelas_id = $kelas->id;
+                }
             }
 
             // Buat user baru
@@ -229,7 +263,7 @@ class PenggunaController extends Controller
                 'nisn' => $username,
                 'no_telp' => null,
                 'email' => null,
-                'kelas_id' => null,
+                'kelas_id' => $kelas_id,
             ]);
 
             $jumlahBerhasil++;

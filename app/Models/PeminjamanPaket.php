@@ -15,6 +15,7 @@ class PeminjamanPaket extends Model
         'anggota_id',
         'user_id',
         'status',
+        'keterangan',
     ];
 
     /**

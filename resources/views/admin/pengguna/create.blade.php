@@ -29,9 +29,29 @@
                                         border border-gray-300 placeholder:text-gray-400
                                         focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
                                 <option value="admin">Admin</option>
-                                <option value="pustakwan">Pustakawan</option>
+                                <option value="pustakawan">Pustakawan</option>
                                 <option value="anggota" selected>Anggota</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <div class="sm:col-span-3" id="kelas-field">
+                        <label for="kelas_id" class="block text-sm/6 font-medium text-text">Kelas</label>
+                        <div class="mt-2 grid grid-cols-1">
+                            <select id="kelas_id" name="kelas_id"
+                                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
+                                        border border-gray-300 placeholder:text-gray-400
+                                        focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                                <option value="">-- Pilih Kelas --</option>
+                                @foreach ($list_kelas as $kelas)
+                                    <option value="{{ $kelas->id }}" {{ old('kelas_id') == $kelas->id ? 'selected' : '' }}>
+                                        {{ $kelas->nama_kelas }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('kelas_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -90,4 +110,22 @@
             </div>
         </div>
     </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleSelect = document.getElementById('role');
+            const kelasField = document.getElementById('kelas-field');
+
+            function toggleKelasField() {
+                if (roleSelect.value === 'anggota') {
+                    kelasField.style.display = '';
+                } else {
+                    kelasField.style.display = 'none';
+                }
+            }
+
+            toggleKelasField();
+            roleSelect.addEventListener('change', toggleKelasField);
+        });
+    </script>
 @endsection

@@ -124,6 +124,7 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     Route::get('/anggota/alumni', [AnggotaController::class, 'indexAlumni'])->name('anggota.indexAlumni');
     Route::post('/anggota/set-alumni', [AnggotaController::class, 'setAlumni'])->name('anggota.setAlumni');
     Route::post('/anggota/set-aktif', [AnggotaController::class, 'setAktif'])->name('anggota.setAktif');
+    Route::post('/anggota/naik-kelas', [AnggotaController::class, 'naikKelas'])->name('anggota.naikKelas');
     Route::get('/anggota/{id}', [AnggotaController::class, 'show'])->name('anggota.show');
 
 
@@ -245,11 +246,14 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     //Peminjaman Non Paket
     Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
     Route::post('/peminjaman/store', [PeminjamanController::class, 'store'])->name('peminjaman.store');
+    Route::patch('/peminjaman/bulk-status', [PeminjamanController::class, 'bulkUpdateStatus'])
+        ->name('peminjaman.bulkUpdateStatus');
     Route::patch('/peminjaman/{id}/status', [PeminjamanController::class, 'updateStatus'])
         ->name('peminjaman.updateStatus');
 
     //Pengembalian Non Paket
     Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('pengembalian.index');
+    Route::put('/pengembalian/bulk-update', [PengembalianController::class, 'bulkUpdate'])->name('pengembalian.bulkUpdate');
     Route::put('/pengembalian/update/{id}', [PengembalianController::class, 'update'])->name('pengembalian.update');
     Route::get('/pengembalian/{id}/export-surat-terlambat', [PengembalianController::class, 'exportSuratTerlambat'])
         ->name('pengembalian.export-surat-terlambat');
@@ -259,12 +263,15 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
 
     //Peminjaman Paket
     Route::get('/peminjaman-paket', [PeminjamanPaketController::class, 'index'])->name('peminjaman-paket.index');
+    Route::patch('/peminjaman-paket/bulk-status', [PeminjamanPaketController::class, 'bulkUpdateStatus'])
+        ->name('peminjaman-paket.bulkUpdateStatus');
     Route::patch('/peminjaman-paket/{id}/status', [PeminjamanPaketController::class, 'updateStatus'])
         ->name('peminjaman-paket.updateStatus');
 
 
     //Pengembalian Paket
     Route::get('/pengembalian-paket', [PengembalianPaketController::class, 'index'])->name('pengembalian-paket.index');
+    Route::put('/pengembalian-paket/bulk-update', [PengembalianPaketController::class, 'bulkUpdate'])->name('pengembalian-paket.bulkUpdate');
     Route::put('/pengembalian-paket/update/{id}', [PengembalianPaketController::class, 'update'])->name('pengembalian-paket.update');
 
     //Peminjaman Koleksi
@@ -280,6 +287,8 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     //Buku Tamu
     // Route::get('/buku-tamu', [BukuTamuController::class, 'create'])->name('buku-tamu.form');
     // Route::post('/buku-tamu', [BukuTamuController::class, 'store'])->name('buku-tamu.store');
+    Route::get('/buku-tamu/input-manual', [BukuTamuController::class, 'inputManual'])->name('buku-tamu.input-manual');
+    Route::post('/buku-tamu/store-manual', [BukuTamuController::class, 'storeManual'])->name('buku-tamu.store-manual');
     Route::get('/buku-tamu/log-tamu', [BukuTamuController::class, 'LogTamu'])->name('buku-tamu.log-tamu');
     Route::get('/log-tamu/export', [BukuTamuController::class, 'exportLogTamuExcel'])->name('buku-tamu.export');
 

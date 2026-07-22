@@ -41,10 +41,13 @@ class PengembalianController extends Controller
                 ->limit(1),
         ]);
 
-        // Filter NISN
+        // Filter NISN atau Nama Peminjam
         if ($search) {
             $query->whereHas('peminjaman.anggota', function ($q) use ($search) {
-                $q->where('nisn', 'like', "%{$search}%");
+                $q->where('nisn', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -60,17 +63,64 @@ class PengembalianController extends Controller
             ->orderByRaw("CASE WHEN tanggal_kembali < NOW() THEN 0 ELSE 1 END")
             ->orderBy('tanggal_kembali', 'asc');
 
-        $pengembalian = $query->paginate(10)->appends([
+        $limit = $request->input('limit', 10);
+        $perPage = ($limit === 'all') ? 999999 : (int) $limit;
+
+        $pengembalian = $query->paginate($perPage)->appends([
             'search'   => $search,
             'category' => $category,
+            'limit'    => $limit,
         ]);
 
         return view('admin.pengembalian.index', compact(
             'pengembalian',
             'activeMenu',
             'search',
-            'category'
+            'category',
+            'limit'
         ));
+    }
+
+    public function bulkUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'ids'   => 'required|array|min:1',
+            'ids.*' => 'exists:detail_peminjaman,id',
+        ], [
+            'ids.required' => 'Pilih minimal satu data pengembalian.',
+        ]);
+
+        $detailIds = $validated['ids'];
+        $details = DetailPeminjaman::with(['eksemplar', 'peminjaman'])
+            ->whereIn('id', $detailIds)
+            ->get();
+
+        DB::beginTransaction();
+        try {
+            $count = 0;
+            foreach ($details as $detail) {
+                if ($detail->eksemplar) {
+                    $detail->eksemplar->update(['status' => 'tersedia']);
+                }
+
+                $detail->update([
+                    'tanggal_kembali_asli' => now(),
+                    'user_id'              => Auth::id(),
+                ]);
+
+                if ($detail->peminjaman) {
+                    $detail->peminjaman->update(['status' => 'selesai']);
+                }
+
+                $count++;
+            }
+
+            DB::commit();
+            return back()->with('success', "Berhasil menerima pengembalian $count pengembalian buku.");
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal memproses pengembalian: ' . $th->getMessage());
+        }
     }
 
 

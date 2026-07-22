@@ -35,22 +35,30 @@
                         <td class="px-6 py-4">{{ $pinjam->tanggal_pinjam ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $pinjam->tanggal_kembali ?? '-' }}</td>
                         <td class="px-6 py-4">
-                            <span
-                                class="px-3 py-1 text-sm rounded-full
-                                  @if ($status === 'menunggu') bg-orange-600 text-white
-                                  @elseif ($status === 'berhasil') bg-green-600 text-white
-                                  @elseif ($status === 'tolak') bg-red-600 text-white
-                                  @else bg-gray-100 text-gray-600 @endif">
-                                @if ($status === 'menunggu')
-                                    Ambil Di Perpustakaan
-                                @elseif ($status === 'berhasil')
-                                    Dipinjam
-                                @elseif ($status === 'tolak')
-                                    Ditolak
-                                @else
-                                    Selesai
+                            <div class="space-y-1">
+                                <span
+                                    class="px-3 py-1 text-sm rounded-full inline-block
+                                      @if ($status === 'menunggu') bg-orange-600 text-white
+                                      @elseif ($status === 'berhasil') bg-green-600 text-white
+                                      @elseif ($status === 'tolak') bg-red-600 text-white
+                                      @else bg-gray-100 text-gray-600 @endif">
+                                    @if ($status === 'menunggu')
+                                        Ambil Di Perpustakaan
+                                    @elseif ($status === 'berhasil')
+                                        Dipinjam
+                                    @elseif ($status === 'tolak')
+                                        Ditolak
+                                    @else
+                                        Selesai
+                                    @endif
+                                </span>
+
+                                @if ($status === 'tolak' && !empty($pinjam->keterangan))
+                                    <div class="text-xs text-red-600 italic font-medium bg-red-50 p-1.5 rounded border border-red-100 max-w-xs">
+                                        <strong>Alasan Penolakan:</strong> {{ $pinjam->keterangan }}
+                                    </div>
                                 @endif
-                            </span>
+                            </div>
                         </td>
                         <td class="px-6 py-4">
                             @if ($status === 'menunggu')
@@ -76,6 +84,14 @@
                                         Perpanjang
                                     </button>
                                 </form>
+                            @elseif ($status === 'tolak')
+                                <a href="{{ route('anggota.katalog.index') }}"
+                                    class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    Pinjam Ulang
+                                </a>
                             @else
                                 <span class="text-gray-400 text-xs">-</span>
                             @endif

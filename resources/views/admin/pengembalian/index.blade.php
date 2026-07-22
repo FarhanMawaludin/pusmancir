@@ -41,32 +41,65 @@
         </section>
     </div>
 
-    <div class="flex justify-between paketItems-center">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 my-6">
         <form id="searchForm" method="GET" action="{{ route('admin.pengembalian.index') }}"
-            class="flex w-full max-w-lg my-6">
-            <div class="relative w-full">
+            class="flex flex-wrap items-center gap-4 w-full">
+            <div class="relative w-full max-w-lg">
                 <input type="search" id="search-dropdown" name="search"
                     class="block w-full rounded-md bg-white px-3 py-2 text-base text-text 
-            border border-gray-300 placeholder:text-gray-400
-            focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
-                    placeholder="Cari siswa" value="{{ $search ?? '' }}" />
+                    border border-gray-300 placeholder:text-gray-400
+                    focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm"
+                    placeholder="Cari berdasarkan nama atau NISN..." value="{{ $search ?? '' }}" />
                 <button type="submit"
                     class="absolute top-0 end-0 p-2.5 h-full text-white bg-blue-700 rounded border-blue-700
-               hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
+                   hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                     </svg>
                 </button>
             </div>
+
+            <!-- Filter Limit Tampilan -->
+            <div class="flex items-center gap-2 shrink-0">
+                <label for="limit" class="text-sm font-medium text-text">Lihat Data:</label>
+                <select name="limit" id="limit" onchange="this.form.submit()"
+                    class="bg-gray-50 border border-gray-300 text-text text-sm rounded focus:ring-blue-500 focus:border-blue-500 block p-2">
+                    <option value="10" {{ ($limit ?? 10) == 10 ? 'selected' : '' }}>10</option>
+                    <option value="50" {{ ($limit ?? 10) == 50 ? 'selected' : '' }}>50</option>
+                    <option value="100" {{ ($limit ?? 10) == 100 ? 'selected' : '' }}>100</option>
+                    <option value="all" {{ ($limit ?? 10) === 'all' ? 'selected' : '' }}>Semua</option>
+                </select>
+            </div>
         </form>
     </div>
 
+    {{-- Tombol Bulk Actions --}}
+    <div class="flex flex-wrap items-center gap-2 mb-4">
+        <button type="button" id="btn-bulk-terima"
+            class="inline-flex items-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Terima Terpilih
+        </button>
+    </div>
+
+    {{-- Form tersembunyi Bulk Action --}}
+    <form id="form-bulk-terima" action="{{ route('admin.pengembalian.bulkUpdate') }}" method="POST" class="hidden">
+        @csrf
+        @method('PUT')
+        <div id="bulk-ids-container"></div>
+    </form>
 
     <div class="overflow-x-auto relative rounded border border-gray-200">
         <table class="min-w-full text-sm text-left text-text">
             <thead class="text-xs uppercase bg-gray-100 text-text">
                 <tr>
+                    <th scope="col" class="px-6 py-3">
+                        <input type="checkbox" id="check-all"
+                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    </th>
                     <th scope="col" class="px-6 py-3 w-43 md:w-12">No</th>
                     <th scope="col" class="px-6 py-3">Nama peminjam</th>
                     <th scope="col" class="px-6 py-3">Judul Buku</th>
@@ -94,6 +127,14 @@
                     @endphp
 
                     <tr class="bg-white border-b border-gray-200">
+                        <td class="px-6 py-4">
+                            @if ($isDipinjam)
+                                <input type="checkbox" name="pengembalian_ids[]" value="{{ $pengembalianItem->id }}"
+                                    class="pengembalian-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
+                        </td>
                         <td class="px-6 py-4">{{ $pengembalian->firstItem() + $key }}</td>
 
                         <td class="px-6 py-4">
@@ -221,6 +262,54 @@
                 });
             });
         });
+
+        // Select All & Bulk Terima
+        const checkAll = document.getElementById('check-all');
+        if (checkAll) {
+            checkAll.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.pengembalian-checkbox');
+                checkboxes.forEach(cb => cb.checked = this.checked);
+            });
+        }
+
+        const btnBulkTerima = document.getElementById('btn-bulk-terima');
+        if (btnBulkTerima) {
+            btnBulkTerima.addEventListener('click', () => {
+                const selected = Array.from(document.querySelectorAll('.pengembalian-checkbox:checked'));
+                if (selected.length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Oops!',
+                        text: 'Pilih minimal satu data pengembalian terlebih dahulu.'
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Terima ' + selected.length + ' Pengembalian Terpilih?',
+                    text: 'Semua buku yang dipilih akan diproses pengembaliannya dan status eksemplar menjadi tersedia.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Terima Semua',
+                    confirmButtonColor: '#16a34a',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        const container = document.getElementById('bulk-ids-container');
+                        container.innerHTML = '';
+                        selected.forEach(cb => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'ids[]';
+                            input.value = cb.value;
+                            container.appendChild(input);
+                        });
+                        document.getElementById('form-bulk-terima').submit();
+                    }
+                });
+            });
+        }
     </script>
 
 

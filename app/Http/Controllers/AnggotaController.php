@@ -104,6 +104,76 @@ class AnggotaController extends Controller
         return redirect()->back()->with('success', 'Status anggota berhasil diubah menjadi alumni.');
     }
 
+    public function naikKelas(Request $request)
+    {
+        $ids = $request->anggota_ids;
+        $mode = $request->mode ?? 'manual';
+        $kelasId = $request->kelas_id;
+
+        if (!$ids || count($ids) === 0) {
+            return redirect()->back()->with('error', 'Tidak ada anggota yang dipilih.');
+        }
+
+        if ($mode === 'auto') {
+            $anggotas = Anggota::with('kelas')->whereIn('id', $ids)->get();
+            $updatedCount = 0;
+            $skippedCount = 0;
+
+            foreach ($anggotas as $anggota) {
+                if (!$anggota->kelas) {
+                    $skippedCount++;
+                    continue;
+                }
+
+                $currentNama = $anggota->kelas->nama_kelas;
+                $targetNama = $this->getNextNamaKelas($currentNama);
+
+                if ($targetNama) {
+                    $targetKelas = Kelas::firstOrCreate(['nama_kelas' => $targetNama]);
+                    $anggota->update(['kelas_id' => $targetKelas->id]);
+                    $updatedCount++;
+                } else {
+                    $skippedCount++;
+                }
+            }
+
+            $msg = "Berhasil menaikkan kelas $updatedCount anggota secara otomatis (+1 tingkat).";
+            if ($skippedCount > 0) {
+                $msg .= " ($skippedCount anggota dilewati karena belum memilih kelas atau sudah tingkat XII).";
+            }
+
+            return redirect()->back()->with('success', $msg);
+        }
+
+        if (!$kelasId) {
+            return redirect()->back()->with('error', 'Kelas tujuan belum dipilih.');
+        }
+
+        DB::table('anggota')
+            ->whereIn('id', $ids)
+            ->update(['kelas_id' => $kelasId]);
+
+        return redirect()->back()->with('success', 'Kelas anggota terpilih berhasil diperbarui.');
+    }
+
+    private function getNextNamaKelas(string $namaKelas): ?string
+    {
+        $namaKelas = trim($namaKelas);
+        if (preg_match('/^XI(?![I])/i', $namaKelas)) {
+            return preg_replace('/^XI/i', 'XII', $namaKelas);
+        }
+        if (preg_match('/^X(?![I])/i', $namaKelas)) {
+            return preg_replace('/^X/i', 'XI', $namaKelas);
+        }
+        if (preg_match('/^10(?=\D|$)/', $namaKelas)) {
+            return preg_replace('/^10/', '11', $namaKelas);
+        }
+        if (preg_match('/^11(?=\D|$)/', $namaKelas)) {
+            return preg_replace('/^11/', '12', $namaKelas);
+        }
+        return null;
+    }
+
 
     public function indexAlumni(Request $request)
     {

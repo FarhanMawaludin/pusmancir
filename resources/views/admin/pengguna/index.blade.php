@@ -183,6 +183,7 @@
                     <th scope="col" class="px-6 py-3 w-43 md:w-12">No</th>
                     <th scope="col" class="px-6 py-3">Pengguna</th>
                     <th scope="col" class="px-6 py-3">Posisi</th>
+                    <th scope="col" class="px-6 py-3">Kelas</th>
                     <th scope="col" class="px-6 py-3">Aksi</th>
                 </tr>
             </thead>
@@ -207,6 +208,13 @@
                             </div>
                         </td>
                         <td class="px-6 py-4">{{ ucwords(str_replace('_', ' ', $userItem->role)) }}</td>
+                        <td class="px-6 py-4">
+                            @if ($userItem->role === 'anggota' && $userItem->anggota && $userItem->anggota->kelas)
+                                {{ $userItem->anggota->kelas->nama_kelas }}
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
+                        </td>
                         <td class="px-6 py-4">
                             <div
                                 class="flex flex-row space-x-2 md:flex-row md:space-y-0 md:space-x-1 items-start md:items-center">
@@ -257,7 +265,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                             Tidak ada pengguna ditemukan.
                         </td>
                     </tr>

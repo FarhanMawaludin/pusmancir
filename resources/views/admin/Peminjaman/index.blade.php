@@ -115,16 +115,16 @@
     </div>
 
 
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 my-6">
         <form id="searchForm" method="GET" action="{{ route('admin.peminjaman.index') }}"
-            class="flex w-full max-w-lg my-6">
-            <div class="relative w-full">
+            class="flex flex-wrap items-center gap-4 w-full">
+            <div class="relative w-full max-w-lg">
                 <input type="search" id="search-dropdown" name="search"
                     class="block p-2.5 w-full z-20 text-sm text-text bg-gray-50 rounded-md border border-gray-300
                    focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Cari siswa" value="{{ $search ?? '' }}" />
+                    placeholder="Cari berdasarkan nama atau NISN..." value="{{ $search ?? '' }}" />
                 <button type="submit"
-                    class="absolute top-0 end-0 p-2.5 h-full text-white bg-primary700 rounded border-primary700
+                    class="absolute top-0 end-0 p-2.5 h-full text-white bg-blue-700 rounded border-blue-700
                    hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -132,13 +132,57 @@
                     </svg>
                 </button>
             </div>
+
+            <!-- Filter Limit Tampilan -->
+            <div class="flex items-center gap-2 shrink-0">
+                <label for="limit" class="text-sm font-medium text-text">Lihat Data:</label>
+                <select name="limit" id="limit" onchange="this.form.submit()"
+                    class="bg-gray-50 border border-gray-300 text-text text-sm rounded focus:ring-blue-500 focus:border-blue-500 block p-2">
+                    <option value="10" {{ ($limit ?? 10) == 10 ? 'selected' : '' }}>10</option>
+                    <option value="50" {{ ($limit ?? 10) == 50 ? 'selected' : '' }}>50</option>
+                    <option value="100" {{ ($limit ?? 10) == 100 ? 'selected' : '' }}>100</option>
+                    <option value="all" {{ ($limit ?? 10) === 'all' ? 'selected' : '' }}>Semua</option>
+                </select>
+            </div>
         </form>
     </div>
+
+    {{-- Tombol Bulk Actions --}}
+    <div class="flex flex-wrap items-center gap-2 mb-4">
+        <button type="button" id="btn-bulk-approve"
+            class="inline-flex items-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Setujui Terpilih
+        </button>
+
+        <button type="button" id="btn-bulk-tolak"
+            class="inline-flex items-center bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition text-sm font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Tolak Terpilih
+        </button>
+    </div>
+
+    {{-- Form tersembunyi Bulk Action --}}
+    <form id="form-bulk-action" action="{{ route('admin.peminjaman.bulkUpdateStatus') }}" method="POST" class="hidden">
+        @csrf
+        @method('PATCH')
+        <input type="hidden" name="aksi" id="bulk-aksi">
+        <input type="hidden" name="keterangan" id="bulk-keterangan">
+        <div id="bulk-ids-container"></div>
+    </form>
 
     <div class="overflow-x-auto relative rounded border border-gray-200">
         <table class="min-w-full text-sm text-left text-text">
             <thead class="text-xs uppercase bg-gray-100 text-text">
                 <tr>
+                    <th scope="col" class="px-6 py-3">
+                        <input type="checkbox" id="check-all"
+                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    </th>
                     <th scope="col" class="px-6 py-3 w-43 md:w-12">No</th>
                     <th scope="col" class="px-6 py-3">Nama Peminjam</th>
                     <th scope="col" class="px-6 py-3">Kelas</th>
@@ -158,6 +202,12 @@
                     @endphp
 
                     <tr class="bg-white border-b border-gray-200">
+                        {{-- Checkbox --}}
+                        <td class="px-6 py-4">
+                            <input type="checkbox" name="peminjaman_ids[]" value="{{ $peminjamanItem->id }}"
+                                class="peminjaman-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                        </td>
+
                         <td class="px-6 py-4">{{ $peminjaman->firstItem() + $key }}</td>
 
                         <td class="px-6 py-4">
@@ -237,6 +287,7 @@
                                     action="{{ route('admin.peminjaman.updateStatus', $pinjam->id) }}" method="POST">
                                     @csrf @method('PATCH')
                                     <input type="hidden" name="aksi" value="tolak">
+                                    <input type="hidden" name="keterangan" id="keterangan-{{ $pinjam->id }}">
                                 </form>
                             @else
                                 <span class="italic text-gray-500">Selesai diperiksa</span>
@@ -302,32 +353,130 @@
                 btn.addEventListener('click', () => {
                     const id = btn.dataset.id;
                     const form = document.getElementById('tolak-form-' + id);
+                    const keteranganInput = document.getElementById('keterangan-' + id);
 
                     Swal.fire({
-                        title: 'Tolak peminjaman?',
-                        text: 'Peminjaman akan ditolak.',
+                        title: 'Tolak Peminjaman Buku',
+                        input: 'textarea',
+                        inputLabel: 'Keterangan / Alasan Penolakan (Wajib):',
+                        inputPlaceholder: 'Tuliskan alasan penolakan di sini...',
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'Ya, tolak',
+                        confirmButtonText: 'Tolak Peminjaman',
+                        confirmButtonColor: '#dc2626',
                         cancelButtonText: 'Batal',
-                        reverseButtons: true
-                    }).then(first => {
-                        if (first.isConfirmed) {
-                            Swal.fire({
-                                title: 'Konfirmasi terakhir!',
-                                text: 'Tindakan ini tidak dapat dibatalkan.',
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonText: 'Tolak Sekarang',
-                                cancelButtonText: 'Batal',
-                                reverseButtons: true
-                            }).then(second => {
-                                if (second.isConfirmed) form.submit();
-                            });
+                        reverseButtons: true,
+                        inputValidator: (value) => {
+                            if (!value || !value.trim()) {
+                                return 'Keterangan penolakan wajib diisi!';
+                            }
+                        }
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            keteranganInput.value = result.value.trim();
+                            form.submit();
                         }
                     });
                 });
             });
+
+            // ------------ SELECT ALL & BULK ACTIONS ---------------
+            const checkAll = document.getElementById('check-all');
+            if (checkAll) {
+                checkAll.addEventListener('change', function() {
+                    const checkboxes = document.querySelectorAll('.peminjaman-checkbox');
+                    checkboxes.forEach(cb => cb.checked = this.checked);
+                });
+            }
+
+            function getSelectedIds() {
+                return Array.from(document.querySelectorAll('.peminjaman-checkbox:checked')).map(cb => cb.value);
+            }
+
+            function fillBulkForm(ids, aksi, keterangan = '') {
+                document.getElementById('bulk-aksi').value = aksi;
+                document.getElementById('bulk-keterangan').value = keterangan;
+                const container = document.getElementById('bulk-ids-container');
+                container.innerHTML = '';
+                ids.forEach(id => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'ids[]';
+                    input.value = id;
+                    container.appendChild(input);
+                });
+            }
+
+            // ------------ BULK APPROVE ---------------
+            const btnBulkApprove = document.getElementById('btn-bulk-approve');
+            if (btnBulkApprove) {
+                btnBulkApprove.addEventListener('click', () => {
+                    const ids = getSelectedIds();
+                    if (ids.length === 0) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Oops!',
+                            text: 'Pilih minimal satu data peminjaman terlebih dahulu.'
+                        });
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Setujui ' + ids.length + ' Peminjaman Terpilih?',
+                        text: 'Semua peminjaman yang dipilih akan disetujui.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Setujui Semua',
+                        confirmButtonColor: '#16a34a',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            fillBulkForm(ids, 'berhasil');
+                            document.getElementById('form-bulk-action').submit();
+                        }
+                    });
+                });
+            }
+
+            // ------------ BULK TOLAK ---------------
+            const btnBulkTolak = document.getElementById('btn-bulk-tolak');
+            if (btnBulkTolak) {
+                btnBulkTolak.addEventListener('click', () => {
+                    const ids = getSelectedIds();
+                    if (ids.length === 0) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Oops!',
+                            text: 'Pilih minimal satu data peminjaman terlebih dahulu.'
+                        });
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Tolak ' + ids.length + ' Peminjaman Terpilih',
+                        input: 'textarea',
+                        inputLabel: 'Keterangan / Alasan Penolakan untuk Semua Data Terpilih (Wajib):',
+                        inputPlaceholder: 'Tuliskan alasan penolakan di sini...',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Tolak Semua Terpilih',
+                        confirmButtonColor: '#dc2626',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true,
+                        inputValidator: (value) => {
+                            if (!value || !value.trim()) {
+                                return 'Keterangan penolakan wajib diisi untuk semua data terpilih!';
+                            }
+                        }
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            fillBulkForm(ids, 'tolak', result.value.trim());
+                            document.getElementById('form-bulk-action').submit();
+                        }
+                    });
+                });
+            }
         });
     </script>
 

@@ -109,10 +109,7 @@
         </form>
     </div>
 
-    <form id="form-alumni" action="{{ route('admin.anggota.setAlumni') }}" method="POST" class="mb-4">
-        @csrf
-        <input type="hidden" name="anggota_ids_selected" id="anggota_ids_selected">
-
+    <div class="flex flex-wrap items-center gap-2 mb-4">
         <button type="button" id="btn-alumni"
             class="inline-flex items-center bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-800 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"
@@ -121,6 +118,71 @@
             </svg>
             Jadikan Alumni
         </button>
+
+        <button type="button" id="btn-naik-kelas"
+            class="inline-flex items-center bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+            Naik / Ubah Kelas
+        </button>
+    </div>
+
+    <!-- Modal Naik / Ubah Kelas -->
+    <div id="modal-naik-kelas" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black bg-opacity-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded shadow-xl w-full max-w-md relative p-6">
+                <div class="flex justify-between items-center pb-3 border-b mb-4">
+                    <h3 class="text-lg font-semibold text-text">Naik / Ubah Kelas</h3>
+                    <button type="button" onclick="closeNaikKelasModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+                </div>
+                <form id="form-naik-kelas" action="{{ route('admin.anggota.naikKelas') }}" method="POST" class="space-y-4">
+                    @csrf
+                    <div id="container-ids-naik-kelas"></div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text mb-2">Metode Kenaikan Kelas:</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 p-3 border border-gray-200 rounded cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="mode" value="auto" checked onchange="toggleNaikKelasMode('auto')" class="text-blue-600 focus:ring-blue-500">
+                                <div>
+                                    <span class="font-medium text-sm block">Naik 1 Tingkat Otomatis</span>
+                                    <span class="text-xs text-gray-500 block">Mengubah X &rarr; XI, XI &rarr; XII (misal: XI IPA 2 menjadi XII IPA 2)</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-2 p-3 border border-gray-200 rounded cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="mode" value="manual" onchange="toggleNaikKelasMode('manual')" class="text-blue-600 focus:ring-blue-500">
+                                <div>
+                                    <span class="font-medium text-sm block">Pilih Kelas Tujuan Spesifik</span>
+                                    <span class="text-xs text-gray-500 block">Pilih satu kelas tertentu untuk semua siswa terpilih</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="select-kelas-manual-container" class="hidden">
+                        <label for="modal_kelas_id" class="block text-sm font-medium text-text mb-1">Pilih Kelas Tujuan:</label>
+                        <select name="kelas_id" id="modal_kelas_id" class="block w-full p-2.5 text-sm text-text bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">-- Pilih Kelas Tujuan --</option>
+                            @foreach ($list_kelas as $kelasOption)
+                                <option value="{{ $kelasOption->id }}">{{ $kelasOption->nama_kelas }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-3 border-t">
+                        <button type="button" onclick="closeNaikKelasModal()" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-sm font-medium">Batal</button>
+                        <button type="submit" class="px-4 py-2 rounded bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium">Proses Kenaikan Kelas</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <form id="form-alumni" action="{{ route('admin.anggota.setAlumni') }}" method="POST" class="mb-4">
+        @csrf
+        <input type="hidden" name="anggota_ids_selected" id="anggota_ids_selected">
 
         <div class="overflow-x-auto relative rounded border border-gray-200 mt-2">
             <table class="min-w-full text-sm text-left text-text">
@@ -249,6 +311,48 @@
             const checkboxes = document.querySelectorAll('.anggota-checkbox');
             checkboxes.forEach(cb => cb.checked = this.checked);
         });
+
+        // Naik Kelas Modal
+        document.getElementById('btn-naik-kelas').addEventListener('click', function() {
+            const selected = Array.from(document.querySelectorAll('.anggota-checkbox:checked'));
+
+            if (selected.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Oops!',
+                    text: 'Pilih minimal satu anggota terlebih dahulu untuk naik kelas.',
+                });
+                return;
+            }
+
+            const container = document.getElementById('container-ids-naik-kelas');
+            container.innerHTML = '';
+            selected.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'anggota_ids[]';
+                input.value = cb.value;
+                container.appendChild(input);
+            });
+
+            document.getElementById('modal-naik-kelas').classList.remove('hidden');
+        });
+
+        function closeNaikKelasModal() {
+            document.getElementById('modal-naik-kelas').classList.add('hidden');
+        }
+
+        function toggleNaikKelasMode(mode) {
+            const container = document.getElementById('select-kelas-manual-container');
+            const select = document.getElementById('modal_kelas_id');
+            if (mode === 'manual') {
+                container.classList.remove('hidden');
+                select.required = true;
+            } else {
+                container.classList.add('hidden');
+                select.required = false;
+            }
+        }
     </script>
 
 

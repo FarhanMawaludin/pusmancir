@@ -66,6 +66,47 @@ class BukuTamuController extends Controller
         return redirect()->back()->with('success', 'Kunjungan tamu berhasil dicatat.');
     }
 
+    public function inputManual()
+    {
+        $activeMenu = 'buku-tamu';
+        return view('admin.buku-tamu.input-manual', compact('activeMenu'));
+    }
+
+    public function storeManual(Request $request)
+    {
+        $request->validate([
+            'jumlah_pengunjung' => 'required|integer|min:1',
+            'tanggal' => 'required|date',
+            'keperluan' => 'nullable|string|max:255',
+            'asal_instansi' => 'nullable|string|max:255',
+        ], [
+            'jumlah_pengunjung.required' => 'Jumlah pengunjung wajib diisi.',
+            'jumlah_pengunjung.integer' => 'Jumlah pengunjung harus berupa angka.',
+            'jumlah_pengunjung.min' => 'Jumlah pengunjung minimal 1.',
+            'tanggal.required' => 'Tanggal kunjungan wajib diisi.',
+            'tanggal.date' => 'Format tanggal tidak valid.',
+        ]);
+
+        $jumlah = (int) $request->jumlah_pengunjung;
+        $tanggal = $request->tanggal . ' ' . date('H:i:s');
+        $keperluan = $request->keperluan ?? 'Kunjungan Buku Tamu Manual (Offline)';
+        $asalInstansi = $request->asal_instansi ?? 'Internal/Manual';
+
+        for ($i = 1; $i <= $jumlah; $i++) {
+            BukuTamu::create([
+                'anggota_id' => null,
+                'nisn' => '-',
+                'nama' => 'Pengunjung Manual #' . $i,
+                'asal_instansi' => $asalInstansi,
+                'keperluan' => $keperluan,
+                'created_at' => $tanggal,
+                'updated_at' => $tanggal,
+            ]);
+        }
+
+        return redirect()->route('admin.buku-tamu.log-tamu', ['tanggal_mulai' => $request->tanggal, 'tanggal_selesai' => $request->tanggal])
+            ->with('success', "Berhasil menambahkan $jumlah data pengunjung manual untuk tanggal {$request->tanggal}.");
+    }
 
     public function LogTamu(Request $request)
     {

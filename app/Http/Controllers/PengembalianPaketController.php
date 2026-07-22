@@ -31,11 +31,14 @@ class PengembalianPaketController extends Controller
             ->orderByDesc('peminjaman_paket.created_at');  // kemudian urutkan berdasarkan tanggal pembuatan
 
         /* ──────────────────────────────────────────
-         | 2.  Filter pencarian NISN
+         | 2.  Filter pencarian NISN atau Nama
          ──────────────────────────────────────────*/
         if ($search) {
             $query->whereHas('peminjamanPaket.anggota', function ($q) use ($search) {
-                $q->where('nisn', 'like', "%{$search}%");
+                $q->where('nisn', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -54,20 +57,63 @@ class PengembalianPaketController extends Controller
          ──────────────────────────────────────────*/
         $query->orderByDesc('peminjaman_paket.created_at');
 
+        $limit = $request->input('limit', 10);
+        $perPage = ($limit === 'all') ? 999999 : (int) $limit;
+
         /* ──────────────────────────────────────────
          | 5.  Paginate & kirim ke view
          ──────────────────────────────────────────*/
-        $pengembalian = $query->paginate(10)->appends([
+        $pengembalian = $query->paginate($perPage)->appends([
             'search'   => $search,
             'category' => $category,
+            'limit'    => $limit,
         ]);
 
         return view('admin.pengembalian-paket.index', [
-            'activeMenu'  => $activeMenu,
+            'activeMenu'   => $activeMenu,
             'pengembalian' => $pengembalian,
-            'category'    => $category,
-            'search'      => $search,
+            'category'     => $category,
+            'search'       => $search,
+            'limit'        => $limit,
         ]);
+    }
+
+    public function bulkUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'ids'   => 'required|array|min:1',
+            'ids.*' => 'exists:detail_peminjaman_paket,id',
+        ], [
+            'ids.required' => 'Pilih minimal satu data pengembalian.',
+        ]);
+
+        $detailIds = $validated['ids'];
+        $details = DetailPeminjamanPaket::with('peminjamanPaket', 'paketBuku')
+            ->whereIn('id', $detailIds)
+            ->get();
+
+        DB::beginTransaction();
+        try {
+            $count = 0;
+            foreach ($details as $detail) {
+                if ($detail->peminjamanPaket && $detail->peminjamanPaket->status === 'berhasil') {
+                    $detail->peminjamanPaket->update([
+                        'status'  => 'selesai',
+                        'user_id' => Auth::id(),
+                    ]);
+                    if ($detail->paketBuku) {
+                        $detail->paketBuku->increment('stok_tersedia');
+                    }
+                    $count++;
+                }
+            }
+
+            DB::commit();
+            return back()->with('success', "Berhasil menerima pengembalian $count pengembalian paket.");
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal memproses pengembalian: ' . $th->getMessage());
+        }
     }
 
     public function update(Request $request, $detailId)

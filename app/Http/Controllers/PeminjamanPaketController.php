@@ -29,10 +29,13 @@ class PeminjamanPaketController extends Controller
             ->whereHas('peminjamanPaket', function ($q) use ($search) {
                 $q->where('status', ['menunggu']);
 
-                // Filter berdasarkan NISN jika ada pencarian
+                // Filter berdasarkan NISN atau Nama jika ada pencarian
                 if (!empty($search)) {
                     $q->whereHas('anggota', function ($q2) use ($search) {
-                        $q2->where('nisn', 'like', "%{$search}%");
+                        $q2->where('nisn', 'like', "%{$search}%")
+                            ->orWhereHas('user', function ($q3) use ($search) {
+                                $q3->where('name', 'like', "%{$search}%");
+                            });
                     });
                 }
             });
@@ -48,9 +51,13 @@ class PeminjamanPaketController extends Controller
             });
         }
 
-        $peminjamanPaket = $query->paginate(10)->appends([
+        $limit = $request->input('limit', 10);
+        $perPage = ($limit === 'all') ? 999999 : (int) $limit;
+
+        $peminjamanPaket = $query->paginate($perPage)->appends([
             'search' => $search,
-            'category' => $category
+            'category' => $category,
+            'limit' => $limit,
         ]);
 
         return view('admin.peminjaman-paket.index', [
@@ -58,15 +65,68 @@ class PeminjamanPaketController extends Controller
             'peminjamanPaket' => $peminjamanPaket,
             'category' => $category,
             'search' => $search,
+            'limit' => $limit,
         ]);
+    }
+
+    public function bulkUpdateStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'exists:detail_peminjaman_paket,id',
+            'aksi' => 'required|in:berhasil,tolak',
+            'keterangan' => 'required_if:aksi,tolak|nullable|string|max:500',
+        ], [
+            'ids.required' => 'Pilih minimal satu data peminjaman.',
+            'keterangan.required_if' => 'Keterangan penolakan wajib diisi untuk semua data terpilih.',
+        ]);
+
+        $detailIds = $validated['ids'];
+        $aksi = $validated['aksi'];
+        $keterangan = $validated['keterangan'] ?? null;
+
+        $details = DetailPeminjamanPaket::with(['peminjamanPaket', 'paketBuku'])
+            ->whereIn('id', $detailIds)
+            ->get();
+
+        DB::beginTransaction();
+        try {
+            $updatedCount = 0;
+            foreach ($details as $detail) {
+                if ($detail->peminjamanPaket && $detail->peminjamanPaket->status === 'menunggu') {
+                    $updateData = [
+                        'status' => $aksi,
+                        'user_id' => Auth::id(),
+                    ];
+                    if ($aksi === 'tolak') {
+                        $updateData['keterangan'] = $keterangan;
+                        if ($detail->paketBuku) {
+                            $detail->paketBuku->increment('stok_tersedia');
+                        }
+                    }
+                    $detail->peminjamanPaket->update($updateData);
+                    $updatedCount++;
+                }
+            }
+
+            DB::commit();
+            $labelStatus = ($aksi === 'berhasil') ? 'disetujui' : 'ditolak';
+            return back()->with('success', "Berhasil memproses $updatedCount data peminjaman paket ($labelStatus).");
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal memproses peminjaman paket: ' . $th->getMessage());
+        }
     }
 
 
     public function updateStatus(Request $request, $id)
     {
-        // 1. Validasi aksi
+        // 1. Validasi aksi & keterangan penolakan
         $validated = $request->validate([
             'aksi' => 'required|in:berhasil,tolak',
+            'keterangan' => 'required_if:aksi,tolak|nullable|string|max:500',
+        ], [
+            'keterangan.required_if' => 'Keterangan penolakan wajib diisi.',
         ]);
         $aksiBaru = $validated['aksi'];     // 'berhasil' | 'tolak'
 
@@ -81,11 +141,17 @@ class PeminjamanPaketController extends Controller
 
         DB::beginTransaction();
         try {
-            // 4. Update status & petugas yang memproses
-            $peminjaman->update([
+            $updateData = [
                 'status'  => $aksiBaru,
                 'user_id' => Auth::id(),     // petugas login
-            ]);
+            ];
+
+            if ($aksiBaru === 'tolak') {
+                $updateData['keterangan'] = $validated['keterangan'] ?? null;
+            }
+
+            // 4. Update status & petugas yang memproses
+            $peminjaman->update($updateData);
 
             // 5. Jika ditolak, kembalikan stok
             if ($aksiBaru === 'tolak') {
