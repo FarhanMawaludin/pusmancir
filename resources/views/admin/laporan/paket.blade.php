@@ -7,26 +7,39 @@
             <!-- Judul -->
             <h1 class="text-2xl font-bold text-text mb-4">Laporan Peminjaman Paket</h1>
 
-            {{-- Filter tanggal --}}
+            {{-- Filter tanggal + status --}}
             <div class="mb-4">
                 <form method="GET" action="{{ route('admin.laporan.paket') }}"
-                    class="flex items-center gap-4 mb-4">
-                    <label for="tanggal_mulai" class="text-text font-medium">Dari:</label>
+                    class="flex flex-wrap items-center gap-3 mb-4">
+                    <label for="tanggal_mulai" class="text-text font-medium text-sm">Dari:</label>
                     <input type="date" name="tanggal_mulai" id="tanggal_mulai" value="{{ request('tanggal_mulai') }}"
                         class="border border-gray-300 rounded px-3 py-2 text-sm text-text">
 
-                    <label for="tanggal_selesai" class="text-text font-medium">Sampai:</label>
+                    <label for="tanggal_selesai" class="text-text font-medium text-sm">Sampai:</label>
                     <input type="date" name="tanggal_selesai" id="tanggal_selesai"
                         value="{{ request('tanggal_selesai') }}"
                         class="border border-gray-300 rounded px-3 py-2 text-sm text-text">
 
+                    <label for="status" class="text-text font-medium text-sm">Status:</label>
+                    <select name="status" id="status"
+                        class="border border-gray-300 rounded px-3 py-2 text-sm text-text bg-white">
+                        <option value="" {{ empty(request('status')) ? 'selected' : '' }}>Semua Status</option>
+                        <option value="menunggu" {{ request('status') == 'menunggu' ? 'selected' : '' }}>Menunggu</option>
+                        <option value="berhasil" {{ request('status') == 'berhasil' ? 'selected' : '' }}>Dipinjam</option>
+                        <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                        <option value="tolak" {{ request('status') == 'tolak' ? 'selected' : '' }}>Ditolak</option>
+                    </select>
+
                     <button type="submit"
-                        class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-primary800 transition text-sm">
+                        class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition text-sm">
                         Tampilkan
                     </button>
 
                     <a href="{{ route('admin.laporan.exportPaket', request()->all()) }}"
-                        class="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700">Export Excel</a>
+                        class="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700 transition">Export Excel</a>
+
+                    <a href="{{ route('admin.laporan.exportPaketPdf', request()->all()) }}"
+                        class="bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700 transition" target="_blank">Cetak PDF</a>
                 </form>
             </div>
         </section>

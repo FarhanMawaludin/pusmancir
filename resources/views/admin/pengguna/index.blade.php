@@ -72,9 +72,32 @@
         </form>
 
         <div class="flex flex-wrap gap-2">
-            <!-- Button Import Excel -->
+            <!-- Button Jadikan Alumni Bulk (Checkbox) -->
+            <button id="btn-alumni-bulk"
+                class="flex items-center gap-2 text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded text-sm px-4 py-2.5 text-center transition"
+                type="button">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Jadikan Alumni</span>
+            </button>
+
+            <!-- Button Upload Alumni Bulk (Excel) -->
+            <button id="importAlumniButton"
+                class="flex items-center gap-2 text-white bg-amber-600 hover:bg-amber-700 focus:ring-4 focus:outline-none focus:ring-amber-300 font-medium rounded text-sm px-4 py-2.5 text-center transition"
+                type="button">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                <span>Upload Alumni Bulk</span>
+            </button>
+
+            <!-- Button Import Excel Pengguna -->
             <button id="importExcelButton"
-                class="flex items-center gap-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded text-sm px-4 py-2.5 text-center "
+                class="flex items-center gap-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded text-sm px-4 py-2.5 text-center transition"
                 type="button">
 
                 <svg class="w-5 h-5 md:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
@@ -85,7 +108,7 @@
                 <span class="hidden md:inline">Import Excel</span>
             </button>
 
-            <!-- Modal Import Excel -->
+            <!-- Modal Import Excel Pengguna -->
             <div id="import-excel-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black bg-opacity-50">
                 <div class="flex items-center justify-center min-h-screen p-4">
                     <div class="bg-white rounded shadow-xl w-full max-w-md relative">
@@ -137,10 +160,6 @@
                                     </label>
                                     <input type="file" name="file_pengguna" id="excel_file" accept=".xlsx,.xls"
                                         class="hidden">
-                                    {{-- <input
-                                        class="block w-full text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none focus:ring focus:border-blue-300"
-                                        type="file" id="excel_file" name="file_pengguna" accept=".xlsx,.xls"
-                                        required> --}}
                                 </div>
 
                                 <!-- Footer -->
@@ -160,6 +179,84 @@
                 </div>
             </div>
 
+            <!-- Modal Import Alumni Bulk via Excel -->
+            <div id="import-alumni-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black bg-opacity-50">
+                <div class="flex items-center justify-center min-h-screen p-4">
+                    <div class="bg-white rounded shadow-xl w-full max-w-md relative">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-4 border-b">
+                            <h3 class="text-lg font-semibold text-gray-900">Import Alumni Bulk via Excel</h3>
+                            <button onclick="closeImportAlumniModal()"
+                                class="text-gray-500 hover:text-gray-700 text-2xl font-bold">
+                                &times;
+                            </button>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="p-4 space-y-4">
+                            <p class="text-xs text-gray-600">
+                                Upload file Excel yang berisi daftar nama siswa (misal siswa Kelas XII). Sistem akan otomatis mencari nama atau NISN di database dan mengubah statusnya menjadi <strong>Alumni</strong>.
+                            </p>
+
+                            <!-- Download Template -->
+                            <div class="flex items-center justify-between bg-gray-100 p-3 rounded">
+                                <span class="text-sm font-medium text-gray-700">Download Template Alumni:</span>
+                                <a href="{{ route('admin.pengguna.downloadTemplateAlumni') }}"
+                                    class="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                                    download>
+                                    <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                        width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01" />
+                                    </svg>
+                                    Download
+                                </a>
+                            </div>
+
+                            <!-- Upload Form -->
+                            <form action="{{ route('admin.pengguna.importAlumni') }}" method="POST" enctype="multipart/form-data"
+                                class="space-y-4">
+                                @csrf
+                                <div>
+                                    <label for="excel_file_alumni" class="block mb-1 text-sm font-medium text-gray-900">
+                                        Upload File Excel Alumni:
+                                    </label>
+                                    <label for="excel_file_alumni"
+                                        class="flex items-center cursor-pointer rounded-md overflow-hidden border border-gray-300 bg-white">
+                                        <span class="bg-gray-800 text-white text-sm font-semibold px-4 py-2">
+                                            Pilih File
+                                        </span>
+                                        <span id="file_name_alumni" class="ml-3 text-sm text-gray-500 truncate">
+                                            Tidak ada file dipilih
+                                        </span>
+                                    </label>
+                                    <input type="file" name="file_alumni" id="excel_file_alumni" accept=".xlsx,.xls"
+                                        class="hidden" required>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="flex justify-end gap-2 pt-4 border-t">
+                                    <button type="button" onclick="closeImportAlumniModal()"
+                                        class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-sm">
+                                        Batal
+                                    </button>
+                                    <button type="submit"
+                                        class="px-4 py-2 rounded bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium">
+                                        Proses Alumni
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Hidden untuk Bulk Alumni via Checkbox -->
+            <form id="form-alumni-bulk" action="{{ route('admin.pengguna.setAlumniBulk') }}" method="POST" class="hidden">
+                @csrf
+                <div id="container-selected-users"></div>
+            </form>
 
             <!-- Button Tambah -->
             <button id="dropdownDividerButton" data-dropdown-toggle="dropdownDivider"
@@ -174,12 +271,17 @@
                 <span class="hidden md:inline">Tambah</span>
             </button>
         </div>
+
     </div>
 
     <div class="overflow-x-auto relative rounded border border-gray-200">
         <table class="min-w-full text-sm text-left text-text">
             <thead class="text-xs uppercase bg-gray-100 text-text">
                 <tr>
+                    <th scope="col" class="px-6 py-3 w-4">
+                        <input type="checkbox" id="check-all-pengguna"
+                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    </th>
                     <th scope="col" class="px-6 py-3 w-43 md:w-12">No</th>
                     <th scope="col" class="px-6 py-3">Pengguna</th>
                     <th scope="col" class="px-6 py-3">Posisi</th>
@@ -190,6 +292,10 @@
             <tbody>
                 @forelse ($user as $key => $userItem)
                     <tr class="bg-white border-b border-gray-200">
+                        <td class="px-6 py-4">
+                            <input type="checkbox" value="{{ $userItem->id }}"
+                                class="pengguna-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                        </td>
                         <td class="px-6 py-4">{{ $user->firstItem() + $key }}</td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-2">
@@ -207,7 +313,14 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4">{{ ucwords(str_replace('_', ' ', $userItem->role)) }}</td>
+                        <td class="px-6 py-4">
+                            {{ ucwords(str_replace('_', ' ', $userItem->role)) }}
+                            @if ($userItem->role === 'anggota' && $userItem->anggota && $userItem->anggota->status === 'alumni')
+                                <span class="ml-1 px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs font-semibold">
+                                    Alumni
+                                </span>
+                            @endif
+                        </td>
                         <td class="px-6 py-4">
                             @if ($userItem->role === 'anggota' && $userItem->anggota && $userItem->anggota->kelas)
                                 {{ $userItem->anggota->kelas->nama_kelas }}
@@ -218,18 +331,6 @@
                         <td class="px-6 py-4">
                             <div
                                 class="flex flex-row space-x-2 md:flex-row md:space-y-0 md:space-x-1 items-start md:items-center">
-
-                                {{-- <!-- Detail -->
-                                <button
-                                    class="inline-flex items-center bg-blue-700 text-white px-3 py-2 rounded hover:bg-blue-800 transition"
-                                    onclick="location.href='{{ route('admin.pengguna.show', $userItem->id) }}'">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:mr-1" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <span class="hidden md:inline">Detail</span>
-                                </button> --}}
 
                                 <!-- Edit -->
                                 <a href="{{ route('admin.pengguna.edit', $userItem->id) }}"
@@ -274,35 +375,28 @@
         </table>
 
         <!-- Pagination -->
-        <!-- Pagination -->
         <div class="p-4 bg-white rounded border border-gray-200 mt-4">
             {{ $user->links('pagination::tailwind') }}
         </div>
     </div>
 
     <script>
-        document.getElementById('excel_file').addEventListener('change', function(e) {
+        document.getElementById('excel_file')?.addEventListener('change', function(e) {
             const fileName = e.target.files.length ? e.target.files[0].name : 'Tidak ada file dipilih';
             document.getElementById('file_name').textContent = fileName;
+        });
 
-            const preview = document.getElementById('cover_preview');
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                preview.src = event.target.result;
-                preview.classList.remove('hidden');
-            };
-            if (e.target.files[0]) {
-                reader.readAsDataURL(e.target.files[0]);
-            }
+        document.getElementById('excel_file_alumni')?.addEventListener('change', function(e) {
+            const fileName = e.target.files.length ? e.target.files[0].name : 'Tidak ada file dipilih';
+            document.getElementById('file_name_alumni').textContent = fileName;
         });
     </script>
 
     <script>
         document.querySelectorAll('.btn-delete').forEach(button => {
             button.addEventListener('click', function() {
-                const userId = this.getAttribute('data-id'); // Ambil ID dari data-id tombol
+                const userId = this.getAttribute('data-id');
 
-                // Menampilkan konfirmasi SweetAlert
                 Swal.fire({
                     title: 'Apakah Anda yakin?',
                     text: 'Data yang dihapus tidak dapat dikembalikan!',
@@ -313,7 +407,6 @@
                     reverseButtons: true,
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Jika ya, submit form untuk menghapus data
                         document.getElementById('delete-form-' + userId).submit();
                     }
                 });
@@ -321,58 +414,110 @@
         });
     </script>
 
-
-    <!-- JavaScript -->
+    <!-- JavaScript Dropdown & Modals -->
     <script>
         const dropdownButton = document.getElementById('dropdown-button');
         const dropdownMenu = document.getElementById('dropdown');
         const categoryButtons = document.querySelectorAll('.category-btn');
         const selectedCategoryInput = document.getElementById('selected-category');
 
-        // Toggle dropdown
-        dropdownButton.addEventListener('click', () => {
-            dropdownMenu.classList.toggle('hidden');
-        });
-
-        // Handle category selection and submit form
-        categoryButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const selectedValue = button.getAttribute('data-value');
-                const displayText = button.textContent.trim();
-
-                selectedCategoryInput.value = selectedValue;
-                dropdownButton.innerHTML = `${displayText}
-                <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 10 6">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="m1 1 4 4 4-4" />
-                </svg>`;
-
-                dropdownMenu.classList.add('hidden');
-
-                // Automatically submit the form when a category is selected
-                button.closest('form').submit();
+        if (dropdownButton && dropdownMenu) {
+            dropdownButton.addEventListener('click', () => {
+                dropdownMenu.classList.toggle('hidden');
             });
-        });
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                dropdownMenu.classList.add('hidden');
-            }
-        });
-    </script>
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const selectedValue = button.getAttribute('data-value');
+                    const displayText = button.textContent.trim();
 
-    <script>
-        // Show modal
-        document.getElementById('importExcelButton').addEventListener('click', function(event) {
+                    selectedCategoryInput.value = selectedValue;
+                    dropdownButton.innerHTML = `${displayText}
+                    <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 10 6">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m1 1 4 4 4-4" />
+                    </svg>`;
+
+                    dropdownMenu.classList.add('hidden');
+                    button.closest('form').submit();
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.add('hidden');
+                }
+            });
+        }
+
+        // Show/Hide Import Excel Pengguna Modal
+        document.getElementById('importExcelButton')?.addEventListener('click', function(event) {
             event.preventDefault();
             document.getElementById('import-excel-modal').classList.remove('hidden');
         });
 
-        // Hide modal
         function closeImportModal() {
             document.getElementById('import-excel-modal').classList.add('hidden');
         }
+
+        // Show/Hide Import Alumni Modal
+        document.getElementById('importAlumniButton')?.addEventListener('click', function(event) {
+            event.preventDefault();
+            document.getElementById('import-alumni-modal').classList.remove('hidden');
+        });
+
+        function closeImportAlumniModal() {
+            document.getElementById('import-alumni-modal').classList.add('hidden');
+        }
+
+        // Check All Checkboxes
+        const checkAll = document.getElementById('check-all-pengguna');
+        if (checkAll) {
+            checkAll.addEventListener('change', function() {
+                document.querySelectorAll('.pengguna-checkbox').forEach(cb => {
+                    cb.checked = checkAll.checked;
+                });
+            });
+        }
+
+        // Bulk Alumni Button Handler
+        document.getElementById('btn-alumni-bulk')?.addEventListener('click', function() {
+            const checked = document.querySelectorAll('.pengguna-checkbox:checked');
+            if (checked.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Oops!',
+                    text: 'Pilih minimal satu pengguna terlebih dahulu.',
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Konfirmasi Jadikan Alumni',
+                text: `Apakah Anda yakin ingin mengubah ${checked.length} pengguna terpilih menjadi Alumni?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ea580c',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Jadikan Alumni',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const container = document.getElementById('container-selected-users');
+                    container.innerHTML = '';
+                    checked.forEach(cb => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'user_ids[]';
+                        input.value = cb.value;
+                        container.appendChild(input);
+                    });
+                    document.getElementById('form-alumni-bulk').submit();
+                }
+            });
+        });
     </script>
 @endsection
+

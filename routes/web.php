@@ -39,8 +39,6 @@ use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\BukuElektronikController;
 use App\Http\Controllers\PengaduanController;
 use App\Http\Controllers\BackupController;
-use App\Http\Controllers\KoleksiController;
-use App\Http\Controllers\PeminjamanKoleksiController;
 use Illuminate\Support\Facades\Http;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
@@ -118,6 +116,10 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     Route::put('/pengguna/{id}', [PenggunaController::class, 'update'])->name('pengguna.update');
     Route::delete('/pengguna/{id}', [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
     Route::post('/import', [PenggunaController::class, 'import'])->name('pengguna.import');
+    Route::post('/pengguna/set-alumni-bulk', [PenggunaController::class, 'setAlumniBulk'])->name('pengguna.setAlumniBulk');
+    Route::post('/pengguna/import-alumni', [PenggunaController::class, 'importAlumni'])->name('pengguna.importAlumni');
+    Route::get('/pengguna/download-template-alumni', [PenggunaController::class, 'downloadTemplateAlumni'])->name('pengguna.downloadTemplateAlumni');
+
 
     //Daftar Anggota
     Route::get('/anggota', [AnggotaController::class, 'index'])->name('anggota.index');
@@ -189,15 +191,16 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     Route::post('/admin/inventori/import', [InventoriController::class, 'import'])->name('inventori.import');
 
     //inventori Koleksi
-    Route::get('/koleksi', [KoleksiController::class, 'index'])->name('koleksi.index');
-    Route::get('/koleksi/create', [KoleksiController::class, 'create'])->name('koleksi.create');
-    Route::post('/koleksi', [KoleksiController::class, 'store'])->name('koleksi.store');
-    Route::get('/koleksi/{id}', [KoleksiController::class, 'show'])->name('koleksi.show');
-    Route::get('/koleksi/{id}/edit', [KoleksiController::class, 'edit'])->name('koleksi.edit');
-    Route::put('/koleksi/{id}', [KoleksiController::class, 'update'])->name('koleksi.update');
-    Route::delete('/koleksi/{id}', [KoleksiController::class, 'destroy'])->name('koleksi.destroy');
-    Route::put('/admin/koleksi/{id}/ubah-status', [KoleksiController::class, 'ubahStatus'])->name('koleksi.ubahStatus');
-    Route::get('/admin/koleksi/export', [KoleksiController::class, 'exportExcel'])->name('koleksi.export');
+    // Route::get('/koleksi', [KoleksiController::class, 'index'])->name('koleksi.index');
+    // Route::get('/koleksi/create', [KoleksiController::class, 'create'])->name('koleksi.create');
+    // Route::post('/koleksi', [KoleksiController::class, 'store'])->name('koleksi.store');
+    // Route::get('/koleksi/{id}', [KoleksiController::class, 'show'])->name('koleksi.show');
+    // Route::get('/koleksi/{id}/edit', [KoleksiController::class, 'edit'])->name('koleksi.edit');
+    // Route::put('/koleksi/{id}', [KoleksiController::class, 'update'])->name('koleksi.update');
+    // Route::delete('/koleksi/{id}', [KoleksiController::class, 'destroy'])->name('koleksi.destroy');
+    // Route::put('/admin/koleksi/{id}/ubah-status', [KoleksiController::class, 'ubahStatus'])->name('koleksi.ubahStatus');
+    // Route::get('/admin/koleksi/export', [KoleksiController::class, 'exportExcel'])->name('koleksi.export');
+
 
 
 
@@ -275,13 +278,14 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     Route::put('/pengembalian-paket/update/{id}', [PengembalianPaketController::class, 'update'])->name('pengembalian-paket.update');
 
     //Peminjaman Koleksi
-    Route::get('/peminjaman-koleksi', [PeminjamanKoleksiController::class, 'index'])->name('peminjaman-koleksi.index');
-    Route::post('/peminjaman-koleksi/store', [PeminjamanKoleksiController::class, 'store'])->name('peminjaman-koleksi.store');
-    Route::patch('/peminjaman-koleksi/{id}/status', [PeminjamanKoleksiController::class, 'updateStatus'])
-        ->name('peminjaman-koleksi.updateStatus');
-    Route::patch('admin/peminjaman-koleksi/{id}/kembalikan', [PeminjamanKoleksiController::class, 'kembalikan'])
-        ->name('peminjaman-koleksi.kembalikan');
-    Route::get('/admin/peminjaman-koleksi/export', [PeminjamanKoleksiController::class, 'export'])->name('peminjaman-koleksi.export');
+    // Route::get('/peminjaman-koleksi', [PeminjamanKoleksiController::class, 'index'])->name('peminjaman-koleksi.index');
+    // Route::post('/peminjaman-koleksi/store', [PeminjamanKoleksiController::class, 'store'])->name('peminjaman-koleksi.store');
+    // Route::patch('/peminjaman-koleksi/{id}/status', [PeminjamanKoleksiController::class, 'updateStatus'])
+    //     ->name('peminjaman-koleksi.updateStatus');
+    // Route::patch('admin/peminjaman-koleksi/{id}/kembalikan', [PeminjamanKoleksiController::class, 'kembalikan'])
+    //     ->name('peminjaman-koleksi.kembalikan');
+    // Route::get('/admin/peminjaman-koleksi/export', [PeminjamanKoleksiController::class, 'export'])->name('peminjaman-koleksi.export');
+
 
 
     //Buku Tamu
@@ -343,6 +347,8 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     Route::get('/admin/laporan-peminjaman/paket/export', [PeminjamanPaketController::class, 'exportLaporanPaketExcel'])->name('laporan.exportPaket');
     Route::get('/laporan-peminjaman/non-paket', [PeminjamanController::class, 'laporanPeminjamanNonPaket'])->name('laporan.non-paket');
     Route::get('/admin/laporan-peminjaman/non-paket/export', [PeminjamanController::class, 'exportLaporanNonPaketExcel'])->name('laporan.exportNonPaket');
+    Route::get('/laporan-peminjaman/paket/export-pdf', [PeminjamanPaketController::class, 'exportLaporanPaketPdf'])->name('laporan.exportPaketPdf');
+    Route::get('/laporan-peminjaman/non-paket/export-pdf', [PeminjamanController::class, 'exportLaporanNonPaketPdf'])->name('laporan.exportNonPaketPdf');
 
     //PENGADUAN
     Route::get('/pengaduan-laporan', [PengaduanController::class, 'index'])->name('pengaduan.index');

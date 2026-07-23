@@ -299,14 +299,15 @@ class PeminjamanController extends Controller
     {
         try {
             $activeMenu = "laporanPaket";
-
             $tanggalMulai   = $request->input('tanggal_mulai');
             $tanggalSelesai = $request->input('tanggal_selesai');
+            $statusFilter   = $request->input('status');
 
-            $query = DetailPeminjaman::with(['eksemplar.inventori', 'peminjaman.anggota.user'])
-                ->whereHas('peminjaman', function ($q) use ($tanggalMulai, $tanggalSelesai) {
-                    $q->whereIn('status', ['selesai']);
-
+            $query = DetailPeminjaman::with(['eksemplar.inventori', 'peminjaman.anggota.user', 'peminjaman.anggota.kelas'])
+                ->whereHas('peminjaman', function ($q) use ($tanggalMulai, $tanggalSelesai, $statusFilter) {
+                    if ($statusFilter) {
+                        $q->where('status', $statusFilter);
+                    }
                     if ($tanggalMulai && $tanggalSelesai) {
                         $q->whereBetween('tanggal_pinjam', [
                             $tanggalMulai . ' 00:00:00',
@@ -318,6 +319,7 @@ class PeminjamanController extends Controller
             $peminjaman = $query->paginate(10)->appends([
                 'tanggal_mulai'   => $tanggalMulai,
                 'tanggal_selesai' => $tanggalSelesai,
+                'status'          => $statusFilter,
             ]);
 
             return view('admin.laporan.non-paket', [
@@ -325,6 +327,7 @@ class PeminjamanController extends Controller
                 'peminjaman'      => $peminjaman,
                 'tanggal_mulai'   => $tanggalMulai,
                 'tanggal_selesai' => $tanggalSelesai,
+                'statusFilter'    => $statusFilter,
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -480,5 +483,40 @@ class PeminjamanController extends Controller
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
+    }
+
+    public function exportLaporanNonPaketPdf(Request $request)
+    {
+        $tanggalMulai   = $request->input('tanggal_mulai');
+        $tanggalSelesai = $request->input('tanggal_selesai');
+        $statusFilter   = $request->input('status');
+
+        $query = DetailPeminjaman::with(['eksemplar.inventori', 'peminjaman.anggota.user', 'peminjaman.anggota.kelas'])
+            ->whereHas('peminjaman', function ($q) use ($tanggalMulai, $tanggalSelesai, $statusFilter) {
+                if ($statusFilter) {
+                    $q->where('status', $statusFilter);
+                }
+                if ($tanggalMulai && $tanggalSelesai) {
+                    $q->whereBetween('tanggal_pinjam', [
+                        $tanggalMulai . ' 00:00:00',
+                        $tanggalSelesai . ' 23:59:59'
+                    ]);
+                }
+            });
+
+        $data = $query->get();
+
+        $statusLabel = $statusFilter ? ucfirst($statusFilter) : 'Semua Status';
+        $periode = ($tanggalMulai && $tanggalSelesai)
+            ? $tanggalMulai . ' s.d. ' . $tanggalSelesai
+            : 'Semua Data';
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.laporan.pdf.non-paket', [
+            'data'        => $data,
+            'statusLabel' => $statusLabel,
+            'periode'     => $periode,
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->stream('laporan-peminjaman-non-paket.pdf');
     }
 }

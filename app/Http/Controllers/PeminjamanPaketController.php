@@ -176,10 +176,13 @@ class PeminjamanPaketController extends Controller
         $category = $request->input('category', 'all');
         $tanggalMulai = $request->input('tanggal_mulai');
         $tanggalSelesai = $request->input('tanggal_selesai');
+        $statusFilter = $request->input('status');
 
         $query = DetailPeminjamanPaket::with(['paketBuku', 'peminjamanPaket.anggota.user'])
-            ->whereHas('peminjamanPaket', function ($q) use ($search, $tanggalMulai, $tanggalSelesai) {
-                $q->where('status', 'selesai');
+            ->whereHas('peminjamanPaket', function ($q) use ($search, $tanggalMulai, $tanggalSelesai, $statusFilter) {
+                if ($statusFilter) {
+                    $q->where('status', $statusFilter);
+                }
 
                 if (!empty($search)) {
                     $q->whereHas('anggota', function ($q2) use ($search) {
@@ -211,6 +214,7 @@ class PeminjamanPaketController extends Controller
             'search' => $search,
             'tanggalMulai' => $tanggalMulai,
             'tanggalSelesai' => $tanggalSelesai,
+            'statusFilter' => $statusFilter,
         ]);
     }
 
@@ -382,5 +386,44 @@ class PeminjamanPaketController extends Controller
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
+    }
+
+    public function exportLaporanPaketPdf(Request $request)
+    {
+        $tanggalMulai = $request->input('tanggal_mulai');
+        $tanggalSelesai = $request->input('tanggal_selesai');
+        $statusFilter = $request->input('status');
+
+        $query = DetailPeminjamanPaket::with([
+            'paketBuku',
+            'peminjamanPaket.anggota.user',
+            'peminjamanPaket.anggota.kelas'
+        ])
+            ->whereHas('peminjamanPaket', function ($q) use ($tanggalMulai, $tanggalSelesai, $statusFilter) {
+                if ($statusFilter) {
+                    $q->where('status', $statusFilter);
+                }
+                if ($tanggalMulai && $tanggalSelesai) {
+                    $q->whereBetween('created_at', [
+                        $tanggalMulai . ' 00:00:00',
+                        $tanggalSelesai . ' 23:59:59'
+                    ]);
+                }
+            });
+
+        $data = $query->get();
+
+        $statusLabel = $statusFilter ? ucfirst($statusFilter) : 'Semua Status';
+        $periode = ($tanggalMulai && $tanggalSelesai)
+            ? $tanggalMulai . ' s.d. ' . $tanggalSelesai
+            : 'Semua Data';
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.laporan.pdf.paket', [
+            'data'        => $data,
+            'statusLabel' => $statusLabel,
+            'periode'     => $periode,
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->stream('laporan-peminjaman-paket.pdf');
     }
 }
