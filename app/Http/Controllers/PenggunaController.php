@@ -395,11 +395,57 @@ class PenggunaController extends Controller
     public function downloadTemplateAlumni()
     {
         $filePath = public_path('template_alumni_bulk.xlsx');
+
         if (file_exists($filePath)) {
-            return response()->download($filePath, 'template_alumni_bulk.xlsx');
+            return response()->download($filePath, 'template_alumni_bulk.xlsx', [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ]);
         }
 
-        return redirect()->back()->with('error', 'File template alumni tidak ditemukan.');
+        // Fallback: Jika file fisik belum ada di server, buat langsung di memory & stream
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Header
+        $sheet->setCellValue('A1', 'NISN');
+        $sheet->setCellValue('B1', 'Nama');
+        $sheet->setCellValue('C1', 'Kelas');
+        $sheet->setCellValue('D1', 'Keterangan');
+
+        // Style Header
+        $sheet->getStyle('A1:D1')->applyFromArray([
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '1E40AF'],
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+        ]);
+
+        // Sample Data
+        $sheet->setCellValue('A2', '1234567890');
+        $sheet->setCellValue('B2', 'Ahmad Fauzi');
+        $sheet->setCellValue('C2', 'XII IPA 1');
+        $sheet->setCellValue('D2', 'Lulus');
+
+        $sheet->setCellValue('A3', '0987654321');
+        $sheet->setCellValue('B3', 'Siti Aminah');
+        $sheet->setCellValue('C3', 'XII IPS 2');
+        $sheet->setCellValue('D3', 'Lulus');
+
+        foreach (range('A', 'D') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, 'template_alumni_bulk.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
     }
 }
 

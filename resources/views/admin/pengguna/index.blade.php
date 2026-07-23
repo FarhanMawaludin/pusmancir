@@ -75,6 +75,7 @@
             <!-- Button Jadikan Alumni Bulk (Checkbox) -->
             <button id="btn-alumni-bulk"
                 class="flex items-center gap-2 text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded text-sm px-4 py-2.5 text-center transition"
+                style="background-color: #ea580c; color: #ffffff;"
                 type="button">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -86,6 +87,7 @@
             <!-- Button Upload Alumni Bulk (Excel) -->
             <button id="importAlumniButton"
                 class="flex items-center gap-2 text-white bg-amber-600 hover:bg-amber-700 focus:ring-4 focus:outline-none focus:ring-amber-300 font-medium rounded text-sm px-4 py-2.5 text-center transition"
+                style="background-color: #d97706; color: #ffffff;"
                 type="button">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -98,6 +100,7 @@
             <!-- Button Import Excel Pengguna -->
             <button id="importExcelButton"
                 class="flex items-center gap-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded text-sm px-4 py-2.5 text-center transition"
+                style="background-color: #16a34a; color: #ffffff;"
                 type="button">
 
                 <svg class="w-5 h-5 md:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
@@ -201,9 +204,10 @@
                             <!-- Download Template -->
                             <div class="flex items-center justify-between bg-gray-100 p-3 rounded">
                                 <span class="text-sm font-medium text-gray-700">Download Template Alumni:</span>
-                                <a href="{{ route('admin.pengguna.downloadTemplateAlumni') }}"
+                                <a href="{{ asset('template_alumni_bulk.xlsx') }}"
                                     class="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                                    download>
+                                    download="template_alumni_bulk.xlsx"
+                                    style="background-color: #2563eb; color: #ffffff;">
                                     <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                         width="24" height="24" fill="none" viewBox="0 0 24 24">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
@@ -242,7 +246,8 @@
                                         Batal
                                     </button>
                                     <button type="submit"
-                                        class="px-4 py-2 rounded bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium">
+                                        class="px-4 py-2 rounded bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium"
+                                        style="background-color: #d97706; color: #ffffff;">
                                         Proses Alumni
                                     </button>
                                 </div>
