@@ -50,9 +50,28 @@
             <div class="w-full max-w-md space-y-6 mt-8">
 
                 <!-- Judul -->
-                <div class="text-center mb-6">
+                <div class="text-center mb-4">
                     <h1 class="text-2xl font-bold text-gray-800 mb-1">Form Buku Tamu</h1>
                     <p class="text-sm text-gray-500">Silakan isi form sesuai status Anda (anggota/non anggota)</p>
+                </div>
+
+                <!-- Card Informasi Pengunjung Hari Ini -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-3 bg-blue-600 text-white rounded-lg shadow">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-blue-900 uppercase tracking-wider">Pengunjung Hari Ini</p>
+                            <p class="text-xs text-gray-500">{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-2xl font-extrabold text-blue-700">{{ number_format($jumlahPengunjungHariIni ?? 0) }}</span>
+                        <span class="text-xs font-medium text-gray-500 block">Orang</span>
+                    </div>
                 </div>
 
                 <!-- Notifikasi -->

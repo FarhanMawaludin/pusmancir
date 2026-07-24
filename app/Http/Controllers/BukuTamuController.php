@@ -18,7 +18,8 @@ class BukuTamuController extends Controller
     public function create()
     {
         $activeMenu = 'buku-tamu';
-        return view('form', compact('activeMenu'));
+        $jumlahPengunjungHariIni = BukuTamu::whereDate('created_at', now()->toDateString())->count();
+        return view('form', compact('activeMenu', 'jumlahPengunjungHariIni'));
     }
 
     public function store(Request $request)
