@@ -67,7 +67,7 @@
                 @endif
 
                 <!-- Form -->
-                <form method="POST" action="{{ route('store') }}" class="space-y-4">
+                <form id="bukuTamuForm" method="POST" action="{{ route('store') }}" class="space-y-4">
                     @csrf
 
                     <!-- NISN -->
@@ -122,26 +122,76 @@
     <x-alert />
 
     <script>
-        function onScanSuccess(decodedText) {
-            const nisnInput = document.getElementById('nisn');
-            nisnInput.value = decodedText;
+        let html5QrCode = null;
+        let isSubmitting = false;
 
-            // Langsung submit form
-            const form = document.querySelector('form'); // atau pakai ID kalau form-nya banyak
+        function onScanSuccess(decodedText) {
+            if (isSubmitting) return;
+            isSubmitting = true;
+
+            const nisnInput = document.getElementById('nisn');
+            if (nisnInput) {
+                nisnInput.value = decodedText;
+            }
+
+            const form = document.getElementById('bukuTamuForm');
             if (form) {
-                form.submit();
+                if (html5QrCode && html5QrCode.isScanning) {
+                    html5QrCode.stop().then(() => {
+                        form.submit();
+                    }).catch(() => {
+                        form.submit();
+                    });
+                } else {
+                    form.submit();
+                }
             }
         }
 
-        const html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", {
-                fps: 10,
-                qrbox: 250
-            },
-            false
-        );
+        function startScanner() {
+            if (typeof Html5Qrcode === 'undefined') {
+                console.error('Html5Qrcode library not loaded');
+                return;
+            }
 
-        html5QrcodeScanner.render(onScanSuccess);
+            html5QrCode = new Html5Qrcode("reader");
+            const config = {
+                fps: 10,
+                qrbox: { width: 250, height: 250 }
+            };
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                onScanSuccess
+            ).catch(err => {
+                html5QrCode.start(
+                    { facingMode: "user" },
+                    config,
+                    onScanSuccess
+                ).catch(err2 => {
+                    console.error("Gagal mengakses kamera:", err2);
+                    const readerDiv = document.getElementById("reader");
+                    if (readerDiv) {
+                        readerDiv.innerHTML = `
+                            <div class="p-4 text-center text-red-600 bg-red-50 rounded-md">
+                                <svg class="w-8 h-8 mx-auto mb-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                <p class="font-bold text-sm">Gagal Mengakses Kamera</p>
+                                <p class="text-xs text-gray-600 mt-1">
+                                    Pastikan Anda telah memberikan izin kamera pada browser dan mengakses situs via <strong>HTTPS</strong> atau <strong>localhost</strong>.
+                                </p>
+                            </div>
+                        `;
+                    }
+                });
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            startScanner();
+        });
     </script>
 
 

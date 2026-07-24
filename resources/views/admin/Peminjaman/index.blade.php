@@ -626,20 +626,44 @@
                 document.getElementById('searchForm').submit();
             }
 
-            /* Jangan clear scanner supaya kamera tetap aktif
-               html5QrcodeScanner.clear();
-            */
+        let html5QrCode = null;
+        let isSubmitting = false;
+
+        function startScanner() {
+            if (typeof Html5Qrcode === 'undefined') return;
+
+            html5QrCode = new Html5Qrcode("reader");
+            const config = {
+                fps: 10,
+                qrbox: { width: 250, height: 250 }
+            };
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                onScanSuccess
+            ).catch(err => {
+                html5QrCode.start(
+                    { facingMode: "user" },
+                    config,
+                    onScanSuccess
+                ).catch(err2 => {
+                    console.error("Gagal mengakses kamera:", err2);
+                    const readerDiv = document.getElementById("reader");
+                    if (readerDiv) {
+                        readerDiv.innerHTML = `
+                            <div class="p-4 text-center text-red-600 bg-red-50 rounded-md">
+                                <p class="font-bold text-sm">Gagal Mengakses Kamera</p>
+                                <p class="text-xs text-gray-600 mt-1">Pastikan izin kamera sudah diberikan dan situs diakses via HTTPS/localhost.</p>
+                            </div>
+                        `;
+                    }
+                });
+            });
         }
 
-        // Inisialisasi scanner
-        const html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", {
-                fps: 10,
-                qrbox: 250
-            },
-            /* verbose=*/
-            false
-        );
-        html5QrcodeScanner.render(onScanSuccess);
+        document.addEventListener("DOMContentLoaded", function() {
+            startScanner();
+        });
     </script>
 @endsection
