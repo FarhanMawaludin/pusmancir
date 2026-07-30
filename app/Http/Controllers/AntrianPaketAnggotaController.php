@@ -32,12 +32,12 @@ class AntrianPaketAnggotaController extends Controller
             }
         }
 
-        $activeAntrian = null;
+        $antrianAktif = null;
         $riwayatAntrian = collect();
         $riwayatPeminjaman = collect();
 
         if ($anggota) {
-            $activeAntrian = AntrianPaket::where('anggota_id', $anggota->id)
+            $antrianAktif = AntrianPaket::where('anggota_id', $anggota->id)
                 ->where('status', 'menunggu')
                 ->first();
 
@@ -55,7 +55,7 @@ class AntrianPaketAnggotaController extends Controller
         return view('anggota.antrian-paket.index', compact(
             'activeMenu', 
             'availableDates', 
-            'activeAntrian', 
+            'antrianAktif', 
             'riwayatAntrian', 
             'riwayatPeminjaman'
         ));
