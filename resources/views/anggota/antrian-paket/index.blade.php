@@ -23,7 +23,7 @@
         </div>
     </div>
     
-    <form id="batal-form" action="{{ route('antrian-paket.batal', $antrianAktif->id) }}" method="POST">
+    <form id="batal-form" action="{{ route('anggota.antrian-paket.batal', $antrianAktif->id) }}" method="POST">
         @csrf
         <button type="button" onclick="confirmBatal()" class="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 focus:ring-4 focus:ring-red-300 w-full">Batalkan Antrian</button>
     </form>

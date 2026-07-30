@@ -15,7 +15,7 @@ class AntrianPaketAnggotaController extends Controller
     {
         $activeMenu = 'antrianPaket';
         $user = Auth::user();
-        $anggota = $user->anggota;
+        $anggota = $user ? $user->anggota : null;
 
         $availableSettings = AntrianPaketSetting::where('tanggal', '>=', Carbon::today()->format('Y-m-d'))
             ->orderBy('tanggal', 'asc')
@@ -32,19 +32,25 @@ class AntrianPaketAnggotaController extends Controller
             }
         }
 
-        $activeAntrian = AntrianPaket::where('anggota_id', $anggota->id)
-            ->where('status', 'menunggu')
-            ->first();
+        $activeAntrian = null;
+        $riwayatAntrian = collect();
+        $riwayatPeminjaman = collect();
 
-        $riwayatAntrian = AntrianPaket::where('anggota_id', $anggota->id)
-            ->where('status', '!=', 'menunggu')
-            ->orderBy('tanggal_kunjungan', 'desc')
-            ->get();
+        if ($anggota) {
+            $activeAntrian = AntrianPaket::where('anggota_id', $anggota->id)
+                ->where('status', 'menunggu')
+                ->first();
 
-        $riwayatPeminjaman = PeminjamanBukuPaket::with('detailPeminjamanBukuPaket.bukuPaketMapel')
-            ->where('anggota_id', $anggota->id)
-            ->orderBy('tanggal_pinjam', 'desc')
-            ->get();
+            $riwayatAntrian = AntrianPaket::where('anggota_id', $anggota->id)
+                ->where('status', '!=', 'menunggu')
+                ->orderBy('tanggal_kunjungan', 'desc')
+                ->get();
+
+            $riwayatPeminjaman = PeminjamanBukuPaket::with('detailPeminjamanBukuPaket.bukuPaketMapel')
+                ->where('anggota_id', $anggota->id)
+                ->orderBy('tanggal_pinjam', 'desc')
+                ->get();
+        }
 
         return view('anggota.antrian-paket.index', compact(
             'activeMenu', 
@@ -62,7 +68,11 @@ class AntrianPaketAnggotaController extends Controller
         ]);
 
         $user = Auth::user();
-        $anggota = $user->anggota;
+        $anggota = $user ? $user->anggota : null;
+
+        if (!$anggota) {
+            return back()->with('error', 'Data anggota Anda tidak ditemukan.');
+        }
 
         $hasActive = AntrianPaket::where('anggota_id', $anggota->id)
             ->where('status', 'menunggu')
@@ -97,7 +107,11 @@ class AntrianPaketAnggotaController extends Controller
     public function batal($id)
     {
         $user = Auth::user();
-        $anggota = $user->anggota;
+        $anggota = $user ? $user->anggota : null;
+
+        if (!$anggota) {
+            return back()->with('error', 'Data anggota Anda tidak ditemukan.');
+        }
 
         $antrian = AntrianPaket::where('id', $id)
             ->where('anggota_id', $anggota->id)
