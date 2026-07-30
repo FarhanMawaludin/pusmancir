@@ -101,6 +101,19 @@
                 </ul>
             </li>
 
+            <li class="mb-4">
+                <a href="{{ route('anggota.antrian-paket.index') }}"
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'antrianPaket' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100' }}">
+                    <svg class="w-5 h-5 {{ $activeMenu == 'antrianPaket' ? 'text-white' : 'text-gray-400' }}"
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15.583 8.445h.01M10.86 19.71l-6.573-6.63a.993.993 0 0 1 0-1.4l7.329-7.394A.98.98 0 0 1 12.31 4l5.734.007A1.968 1.968 0 0 1 20 5.983v5.5a.992.992 0 0 1-.316.727l-7.44 7.5a.974.974 0 0 1-1.384.001Z" />
+                    </svg>
+                    <span class="ml-3 {{ $activeMenu == 'antrianPaket' ? 'text-white' : 'text-gray-400' }}">Antrian Buku Paket</span>
+                </a>
+            </li>
+
             <!-- Logout -->
             <li class="mt-4">
                 <form method="POST" action="{{ route('logout') }}" id="logout-form">

@@ -39,6 +39,10 @@ use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\BukuElektronikController;
 use App\Http\Controllers\PengaduanController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\AntrianPaketSettingController;
+use App\Http\Controllers\AntrianPaketAdminController;
+use App\Http\Controllers\BukuPaketMapelController;
+use App\Http\Controllers\AntrianPaketAnggotaController;
 use Illuminate\Support\Facades\Http;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
@@ -271,6 +275,28 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     Route::patch('/peminjaman-paket/{id}/status', [PeminjamanPaketController::class, 'updateStatus'])
         ->name('peminjaman-paket.updateStatus');
 
+    //Antrian Paket - Pengaturan Kuota
+    Route::get('/antrian-paket/setting', [AntrianPaketSettingController::class, 'index'])->name('antrian-paket.setting');
+    Route::post('/antrian-paket/setting', [AntrianPaketSettingController::class, 'store'])->name('antrian-paket.setting.store');
+    Route::put('/antrian-paket/setting/{id}', [AntrianPaketSettingController::class, 'update'])->name('antrian-paket.setting.update');
+    Route::delete('/antrian-paket/setting/{id}', [AntrianPaketSettingController::class, 'destroy'])->name('antrian-paket.setting.destroy');
+
+    //Antrian Paket - Kelola Harian
+    Route::get('/antrian-paket', [AntrianPaketAdminController::class, 'index'])->name('antrian-paket.index');
+    Route::patch('/antrian-paket/{id}/status', [AntrianPaketAdminController::class, 'updateStatus'])->name('antrian-paket.updateStatus');
+    Route::get('/antrian-paket/{id}/proses', [AntrianPaketAdminController::class, 'prosesPeminjaman'])->name('antrian-paket.proses');
+    Route::post('/antrian-paket/store-peminjaman', [AntrianPaketAdminController::class, 'storePeminjaman'])->name('antrian-paket.storePeminjaman');
+    Route::get('/antrian-paket/export-pdf', [AntrianPaketAdminController::class, 'exportPdf'])->name('antrian-paket.exportPdf');
+    Route::get('/antrian-paket/riwayat', [AntrianPaketAdminController::class, 'riwayat'])->name('antrian-paket.riwayat');
+
+    //Buku Paket Mata Pelajaran
+    Route::get('/buku-paket-mapel', [BukuPaketMapelController::class, 'index'])->name('buku-paket-mapel.index');
+    Route::get('/buku-paket-mapel/create', [BukuPaketMapelController::class, 'create'])->name('buku-paket-mapel.create');
+    Route::post('/buku-paket-mapel', [BukuPaketMapelController::class, 'store'])->name('buku-paket-mapel.store');
+    Route::get('/buku-paket-mapel/{id}/edit', [BukuPaketMapelController::class, 'edit'])->name('buku-paket-mapel.edit');
+    Route::put('/buku-paket-mapel/{id}', [BukuPaketMapelController::class, 'update'])->name('buku-paket-mapel.update');
+    Route::delete('/buku-paket-mapel/{id}', [BukuPaketMapelController::class, 'destroy'])->name('buku-paket-mapel.destroy');
+
 
     //Pengembalian Paket
     Route::get('/pengembalian-paket', [PengembalianPaketController::class, 'index'])->name('pengembalian-paket.index');
@@ -465,6 +491,11 @@ Route::middleware(['auth', 'role:anggota', 'prevent.back'])->prefix('anggota')->
     Route::get('/peminjaman-paket', [PeminjamanPaketAnggotaController::class, 'index'])->name('peminjaman-paket.index');
     Route::post('/peminjaman-paket/store', [PeminjamanPaketAnggotaController::class, 'store'])->name('peminjaman-paket.store');
     Route::post('/anggota/peminjaman-paket/{id}/batal', [PeminjamanPaketAnggotaController::class, 'batal'])->name('peminjaman-paket.batal');
+
+    //Antrian Paket - Booking
+    Route::get('/antrian-paket', [AntrianPaketAnggotaController::class, 'index'])->name('antrian-paket.index');
+    Route::post('/antrian-paket/store', [AntrianPaketAnggotaController::class, 'store'])->name('antrian-paket.store');
+    Route::post('/antrian-paket/{id}/batal', [AntrianPaketAnggotaController::class, 'batal'])->name('antrian-paket.batal');
 });
 
 
