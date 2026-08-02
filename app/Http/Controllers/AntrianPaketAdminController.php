@@ -8,6 +8,7 @@ use App\Models\AntrianPaketSetting;
 
 use App\Models\PeminjamanBukuPaket;
 use App\Models\DetailPeminjamanBukuPaket;
+use App\Models\BukuPaketMapel;
 use App\Models\Kelas;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -31,7 +32,9 @@ class AntrianPaketAdminController extends Controller
             ->where('status', '!=', 'batal')
             ->count();
 
-        return view('admin.antrian-paket.index', compact('activeMenu', 'antrians', 'setting', 'tanggal', 'terisi'));
+        $allBukuMapel = BukuPaketMapel::orderBy('tingkat_kelas')->orderBy('nama_buku')->get();
+
+        return view('admin.antrian-paket.index', compact('activeMenu', 'antrians', 'setting', 'tanggal', 'terisi', 'allBukuMapel'));
     }
 
     public function rekap(Request $request)
@@ -150,9 +153,11 @@ class AntrianPaketAdminController extends Controller
         $kelas = $request->kelas;
         $perPage = $perPageInput;
 
+        $allBukuMapel = BukuPaketMapel::orderBy('tingkat_kelas')->orderBy('nama_buku')->get();
+
         return view('admin.antrian-paket.riwayat', compact(
             'activeMenu', 'riwayat', 'search', 'tanggalMulai', 'tanggalSelesai',
-            'totalPeminjam', 'totalBukuDipinjam', 'bukuPopuler', 'kelas', 'kelasList', 'perPage'
+            'totalPeminjam', 'totalBukuDipinjam', 'bukuPopuler', 'kelas', 'kelasList', 'perPage', 'allBukuMapel'
         ));
     }
 
@@ -169,5 +174,35 @@ class AntrianPaketAdminController extends Controller
         }
 
         return back()->with('success', 'Buku berhasil ditandai telah dikembalikan pada tanggal ' . Carbon::now()->format('d-m-Y') . '.');
+    }
+
+    public function updateBuku(Request $request, $id)
+    {
+        $peminjaman = PeminjamanBukuPaket::findOrFail($id);
+
+        $request->validate([
+            'buku_ids' => 'nullable|array',
+            'buku_ids.*' => 'exists:buku_paket_mapel,id',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            DetailPeminjamanBukuPaket::where('peminjaman_buku_paket_id', $peminjaman->id)->delete();
+
+            if ($request->has('buku_ids') && is_array($request->buku_ids)) {
+                foreach ($request->buku_ids as $buku_id) {
+                    DetailPeminjamanBukuPaket::create([
+                        'peminjaman_buku_paket_id' => $peminjaman->id,
+                        'buku_paket_mapel_id' => $buku_id,
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return back()->with('success', 'Data pilihan buku berhasil diperbarui oleh Admin.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal memperbarui data buku: ' . $e->getMessage());
+        }
     }
 }

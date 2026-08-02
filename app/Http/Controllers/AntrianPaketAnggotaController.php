@@ -212,8 +212,12 @@ class AntrianPaketAnggotaController extends Controller
                     'buku_paket_mapel_id' => $buku_id,
                 ]);
             }
+
+            // Tandai antrian sebagai 'selesai' setelah siswa menyimpan pilihan buku
+            $antrian->update(['status' => 'selesai']);
+
             DB::commit();
-            return back()->with('success', 'Pilihan buku berhasil disimpan.');
+            return back()->with('success', 'Pilihan buku berhasil disimpan. Antrian Anda telah selesai.');
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Terjadi kesalahan saat menyimpan pilihan buku.');

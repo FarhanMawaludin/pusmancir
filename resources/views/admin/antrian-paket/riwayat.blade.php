@@ -84,7 +84,12 @@
                     <td class="px-6 py-4">{{ $item->anggota->nisn ?? '-' }}</td>
                     <td class="px-6 py-4 font-semibold text-blue-700">{{ $item->anggota->kelas->nama_kelas ?? '-' }}</td>
                     <td class="px-6 py-4 max-w-xs">
-                        {{ $item->detailPeminjamanBukuPaket->pluck('bukuPaketMapel.nama_buku')->join(', ') ?: '-' }}
+                        <div class="flex items-center justify-between gap-2">
+                            <span>{{ $item->detailPeminjamanBukuPaket->pluck('bukuPaketMapel.nama_buku')->join(', ') ?: '-' }}</span>
+                            <button type="button" onclick="openEditBukuModal({{ $item->id }})" class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline shrink-0">
+                                Edit Buku
+                            </button>
+                        </div>
                     </td>
                     <td class="px-6 py-4 text-center font-bold">
                         {{ $item->detailPeminjamanBukuPaket->count() }}
@@ -135,7 +140,74 @@
     @endif
 </div>
 
+<!-- Modal Edit Pilihan Buku Paket oleh Admin -->
+<div id="modal-edit-buku" class="fixed inset-0 z-50 hidden overflow-y-auto bg-gray-900 bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 relative">
+        <button type="button" onclick="closeEditBukuModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+        <h3 class="text-lg font-bold text-gray-800 mb-1">Edit Pilihan Buku Paket</h3>
+        <p class="text-xs text-gray-500 mb-4" id="modal-siswa-info">Siswa: -</p>
+        
+        <form id="form-edit-buku" method="POST" action="">
+            @csrf
+            <div class="space-y-2 max-h-60 overflow-y-auto mb-4 pr-1" id="modal-buku-container">
+                <!-- Checkboxes populated dynamically by JS -->
+            </div>
+            
+            <div class="flex justify-end space-x-2 border-t pt-4">
+                <button type="button" onclick="closeEditBukuModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium rounded-md">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-md">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+const allBukuMapelData = @json($allBukuMapel);
+const riwayatData = @json($riwayat->items());
+
+function openEditBukuModal(peminjamanId) {
+    const item = riwayatData.find(r => r.id === peminjamanId);
+    if (!item) return;
+    
+    document.getElementById('modal-siswa-info').innerText = `Siswa: ${item.anggota?.user?.name || '-'} (${item.anggota?.kelas?.nama_kelas || '-'})`;
+    
+    const form = document.getElementById('form-edit-buku');
+    form.action = `/admin/antrian-paket/${peminjamanId}/update-buku`;
+    
+    const selectedBukuIds = item.detail_peminjaman_buku_paket ? item.detail_peminjaman_buku_paket.map(d => d.buku_paket_mapel_id) : [];
+    
+    const namaKelas = item.anggota?.kelas?.nama_kelas || '';
+    let tingkatKelas = 'X';
+    if (/XII/i.test(namaKelas)) {
+        tingkatKelas = /IPA/i.test(namaKelas) ? 'XII IPA' : (/IPS/i.test(namaKelas) ? 'XII IPS' : 'XII');
+    } else if (/XI/i.test(namaKelas)) {
+        tingkatKelas = /IPA/i.test(namaKelas) ? 'XI IPA' : (/IPS/i.test(namaKelas) ? 'XI IPS' : 'XI');
+    }
+    
+    const container = document.getElementById('modal-buku-container');
+    container.innerHTML = '';
+    
+    const filteredBuku = allBukuMapelData.filter(b => b.tingkat_kelas === tingkatKelas || b.tingkat_kelas === 'Semua' || !b.tingkat_kelas);
+    const booksToRender = filteredBuku.length > 0 ? filteredBuku : allBukuMapelData;
+    
+    booksToRender.forEach(buku => {
+        const isChecked = selectedBukuIds.includes(buku.id) ? 'checked' : '';
+        const label = document.createElement('label');
+        label.className = 'flex items-center space-x-3 p-2.5 border rounded-md hover:bg-gray-50 cursor-pointer text-sm text-gray-700';
+        label.innerHTML = `
+            <input type="checkbox" name="buku_ids[]" value="${buku.id}" ${isChecked} class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+            <span>${buku.nama_buku} <span class="text-xs text-gray-400">(${buku.tingkat_kelas})</span></span>
+        `;
+        container.appendChild(label);
+    });
+    
+    document.getElementById('modal-edit-buku').classList.remove('hidden');
+}
+
+function closeEditBukuModal() {
+    document.getElementById('modal-edit-buku').classList.add('hidden');
+}
+
 function confirmKembali(id, namaSiswa) {
     Swal.fire({
         title: 'Konfirmasi Pengembalian Buku',
