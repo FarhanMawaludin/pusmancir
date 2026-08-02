@@ -269,7 +269,8 @@
                 </ul>
             </li>
 
-            <li class="mb-4">
+            <!-- Paket (Disembunyikan dari UI tapi fungsi & route tetap ada) -->
+            <li class="mb-4 hidden" aria-hidden="true">
                 <button type="button"
                     class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'peminjamanPaket' ? 'text-white bg-blue-700' : 'text-gray-400 hover:bg-gray-100  ' }}"
                     aria-controls="dropdown-example" data-collapse-toggle="dropdown-example-paket">
