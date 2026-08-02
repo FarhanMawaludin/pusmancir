@@ -314,7 +314,7 @@
                     </svg>
                     <span
                         class="flex-1 ms-3  text-left {{ $activeMenu == 'antrianPaket' ? 'text-white' : 'text-gray-400' }}
-                        rtl:text-right whitespace-nowrap">Antrian Paket</span>
+                        rtl:text-right whitespace-nowrap">Peminjaman Buku Paket</span>
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                         viewBox="0 0 10 6">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -330,7 +330,7 @@
                     <li>
                         <a href="{{ route('admin.antrian-paket.index') }}"
                             class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
-                            Daftar Antrian</a>
+                            Daftar Peminjam</a>
                     </li>
                     <li>
                         <a href="{{ route('admin.buku-paket-mapel.index') }}"
@@ -340,7 +340,12 @@
                     <li>
                         <a href="{{ route('admin.antrian-paket.riwayat') }}"
                             class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
-                            Riwayat Peminjaman</a>
+                            Rekap Data</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.antrian-paket.rekap') }}"
+                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
+                            Rekap Per Buku</a>
                     </li>
                 </ul>
             </li>

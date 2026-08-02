@@ -3,14 +3,33 @@
 
 @section('content')
 <div class="mb-6 flex justify-between items-center">
-    <h2 class="text-2xl font-bold text-text">Riwayat Peminjaman Buku Paket</h2>
+    <h2 class="text-2xl font-bold text-text">Rekap Data Peminjaman Buku Paket</h2>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <span class="text-sm font-medium text-gray-500">Total Peminjam</span>
+        <span class="text-2xl font-bold text-blue-600 block mt-1">{{ $totalPeminjam }}</span>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <span class="text-sm font-medium text-gray-500">Total Buku Dipinjam</span>
+        <span class="text-2xl font-bold text-green-600 block mt-1">{{ $totalBukuDipinjam }}</span>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <span class="text-sm font-medium text-gray-500">Buku Terpopuler</span>
+        <span class="text-2xl font-bold text-purple-600 block mt-1">{{ $bukuPopuler->first()->bukuPaketMapel->nama_buku ?? '-' }}</span>
+    </div>
 </div>
 
 <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
-    <form action="{{ route('admin.antrian-paket.riwayat') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+    <form action="{{ route('admin.antrian-paket.riwayat') }}" method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Cari (Nama/NISN)</label>
             <input type="text" name="search" value="{{ $search ?? '' }}" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text border border-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+            <input type="text" name="kelas" value="{{ $kelas ?? '' }}" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
         </div>
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
@@ -37,6 +56,7 @@
                     <th class="px-6 py-4">NISN</th>
                     <th class="px-6 py-4">Kelas</th>
                     <th class="px-6 py-4">Buku Dipinjam</th>
+                    <th class="px-6 py-4">Jumlah Buku</th>
                     <th class="px-6 py-4">Tanggal Pinjam</th>
                     <th class="px-6 py-4">Status</th>
                 </tr>
@@ -51,6 +71,9 @@
                     <td class="px-6 py-4">
                         {{ $item->detailPeminjamanBukuPaket->pluck('bukuPaketMapel.nama_buku')->join(', ') ?: '-' }}
                     </td>
+                    <td class="px-6 py-4 text-center">
+                        {{ $item->detailPeminjamanBukuPaket->count() }}
+                    </td>
                     <td class="px-6 py-4">{{ \Carbon\Carbon::parse($item->tanggal_pinjam)->format('d-m-Y') }}</td>
                     <td class="px-6 py-4">
                         @if($item->status == 'dipinjam')
@@ -62,7 +85,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="px-6 py-4 text-center">Tidak ada riwayat peminjaman.</td>
+                    <td colspan="8" class="px-6 py-4 text-center">Tidak ada riwayat peminjaman.</td>
                 </tr>
                 @endforelse
             </tbody>

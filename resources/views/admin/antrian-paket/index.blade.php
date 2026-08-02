@@ -3,7 +3,7 @@
 
 @section('content')
 <div class="mb-6 flex justify-between items-center">
-    <h2 class="text-2xl font-bold text-text">Daftar Antrian Buku Paket</h2>
+    <h2 class="text-2xl font-bold text-text">Sistem Peminjaman Buku Paket Pelajaran v.2.0</h2>
     <a href="{{ route('admin.antrian-paket.exportPdf', ['tanggal' => $tanggal]) }}" target="_blank" class="bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-800">Print PDF</a>
 </div>
 
@@ -34,7 +34,7 @@
                     <th class="px-6 py-4">NISN</th>
                     <th class="px-6 py-4">Kelas</th>
                     <th class="px-6 py-4">Status</th>
-                    <th class="px-6 py-4">Aksi</th>
+                    <th class="px-6 py-4">Buku Dipilih</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,29 +47,19 @@
                     <td class="px-6 py-4">
                         @if($antrian->status == 'menunggu')
                             <span class="px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-600">Menunggu</span>
-                        @elseif($antrian->status == 'hadir')
-                            <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-600">Hadir</span>
                         @elseif($antrian->status == 'batal')
                             <span class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600">Batal</span>
-                        @elseif($antrian->status == 'tidak_hadir')
-                            <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-600">Tidak Hadir</span>
                         @endif
                     </td>
                     <td class="px-6 py-4">
-                        @if($antrian->status == 'menunggu')
-                            <div class="flex space-x-2">
-                                <a href="{{ route('admin.antrian-paket.proses', $antrian->id) }}" class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">Proses</a>
-                                <form action="{{ route('admin.antrian-paket.updateStatus', $antrian->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="tidak_hadir">
-                                    <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600" onclick="return confirm('Tandai siswa sebagai tidak hadir?')">Tidak Hadir</button>
-                                </form>
+                        @if($antrian->peminjamanBukuPaket && $antrian->peminjamanBukuPaket->detailPeminjamanBukuPaket->count() > 0)
+                            <div class="flex flex-wrap gap-1">
+                                @foreach($antrian->peminjamanBukuPaket->detailPeminjamanBukuPaket as $detail)
+                                    <span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800">{{ $detail->bukuPaketMapel->nama_buku ?? '-' }}</span>
+                                @endforeach
                             </div>
-                        @elseif($antrian->status == 'hadir')
-                            <span class="text-sm text-gray-500 italic">Sudah Diproses</span>
                         @else
-                            -
+                            <span class="text-gray-400 text-sm italic">Belum memilih</span>
                         @endif
                     </td>
                 </tr>

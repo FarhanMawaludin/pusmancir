@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Daftar Antrian Peminjaman Buku Paket</title>
+    <title>Sistem Peminjaman Buku Paket Pelajaran v.2.0</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -30,7 +30,7 @@
     </style>
 </head>
 <body>
-    <h2>Daftar Antrian Peminjaman Buku Paket</h2>
+    <h2>Sistem Peminjaman Buku Paket Pelajaran v.2.0</h2>
     <h3>Tanggal: {{ \Carbon\Carbon::parse($tanggal)->format('d-m-Y') }}</h3>
 
     <table>
@@ -40,7 +40,7 @@
                 <th>Nama Siswa</th>
                 <th>NISN</th>
                 <th>Kelas</th>
-                <th class="text-center">Status</th>
+                <th>Buku Dipilih</th>
             </tr>
         </thead>
         <tbody>
@@ -50,16 +50,8 @@
                 <td>{{ $antrian->anggota->user->name ?? '-' }}</td>
                 <td>{{ $antrian->anggota->nisn ?? '-' }}</td>
                 <td>{{ $antrian->anggota->kelas->nama_kelas ?? '-' }}</td>
-                <td class="text-center">
-                    @if($antrian->status == 'menunggu')
-                        Menunggu
-                    @elseif($antrian->status == 'hadir')
-                        Hadir
-                    @elseif($antrian->status == 'batal')
-                        Batal
-                    @elseif($antrian->status == 'tidak_hadir')
-                        Tidak Hadir
-                    @endif
+                <td>
+                    {{ $antrian->peminjamanBukuPaket ? $antrian->peminjamanBukuPaket->detailPeminjamanBukuPaket->pluck('bukuPaketMapel.nama_buku')->join(', ') : 'Belum memilih' }}
                 </td>
             </tr>
             @empty

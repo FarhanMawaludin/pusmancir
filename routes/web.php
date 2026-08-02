@@ -281,13 +281,11 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     Route::put('/antrian-paket/setting/{id}', [AntrianPaketSettingController::class, 'update'])->name('antrian-paket.setting.update');
     Route::delete('/antrian-paket/setting/{id}', [AntrianPaketSettingController::class, 'destroy'])->name('antrian-paket.setting.destroy');
 
-    //Antrian Paket - Kelola Harian
+    //Antrian Paket - Daftar Peminjam (read-only, no admin processing)
     Route::get('/antrian-paket', [AntrianPaketAdminController::class, 'index'])->name('antrian-paket.index');
-    Route::patch('/antrian-paket/{id}/status', [AntrianPaketAdminController::class, 'updateStatus'])->name('antrian-paket.updateStatus');
-    Route::get('/antrian-paket/{id}/proses', [AntrianPaketAdminController::class, 'prosesPeminjaman'])->name('antrian-paket.proses');
-    Route::post('/antrian-paket/store-peminjaman', [AntrianPaketAdminController::class, 'storePeminjaman'])->name('antrian-paket.storePeminjaman');
     Route::get('/antrian-paket/export-pdf', [AntrianPaketAdminController::class, 'exportPdf'])->name('antrian-paket.exportPdf');
     Route::get('/antrian-paket/riwayat', [AntrianPaketAdminController::class, 'riwayat'])->name('antrian-paket.riwayat');
+    Route::get('/antrian-paket/rekap', [AntrianPaketAdminController::class, 'rekap'])->name('antrian-paket.rekap');
 
     //Buku Paket Mata Pelajaran
     Route::get('/buku-paket-mapel', [BukuPaketMapelController::class, 'index'])->name('buku-paket-mapel.index');
@@ -492,9 +490,10 @@ Route::middleware(['auth', 'role:anggota', 'prevent.back'])->prefix('anggota')->
     Route::post('/peminjaman-paket/store', [PeminjamanPaketAnggotaController::class, 'store'])->name('peminjaman-paket.store');
     Route::post('/anggota/peminjaman-paket/{id}/batal', [PeminjamanPaketAnggotaController::class, 'batal'])->name('peminjaman-paket.batal');
 
-    //Antrian Paket - Booking
+    //Antrian Paket - Booking & Self-Service Pilih Buku
     Route::get('/antrian-paket', [AntrianPaketAnggotaController::class, 'index'])->name('antrian-paket.index');
     Route::post('/antrian-paket/store', [AntrianPaketAnggotaController::class, 'store'])->name('antrian-paket.store');
+    Route::post('/antrian-paket/{id}/pilih-buku', [AntrianPaketAnggotaController::class, 'pilihBuku'])->name('antrian-paket.pilih-buku');
     Route::post('/antrian-paket/{id}/batal', [AntrianPaketAnggotaController::class, 'batal'])->name('antrian-paket.batal');
 });
 
