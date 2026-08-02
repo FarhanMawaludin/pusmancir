@@ -46,9 +46,15 @@
                     <td class="px-6 py-4">{{ $antrian->anggota->kelas->nama_kelas ?? '-' }}</td>
                     <td class="px-6 py-4">
                         @if($antrian->status == 'menunggu')
-                            <span class="px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-600">Menunggu</span>
+                            <span class="px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-600 font-medium">Menunggu</span>
+                        @elseif($antrian->status == 'selesai')
+                            <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700 font-medium">Selesai</span>
                         @elseif($antrian->status == 'batal')
-                            <span class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600">Batal</span>
+                            <span class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600 font-medium">Batal</span>
+                        @elseif($antrian->status == 'hangus')
+                            <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-600 font-medium">Hangus</span>
+                        @else
+                            <span class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600 font-medium">{{ ucfirst($antrian->status) }}</span>
                         @endif
                     </td>
                     <td class="px-6 py-4">

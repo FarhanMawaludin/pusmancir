@@ -42,6 +42,14 @@ class AntrianPaketAnggotaController extends Controller
         $peminjamanAktif = null;
 
         if ($anggota) {
+            // Otomatis ubah status antrian menjadi 'selesai' jika peminjaman buku paketnya sudah dikembalikan
+            AntrianPaket::where('anggota_id', $anggota->id)
+                ->where('status', 'menunggu')
+                ->whereHas('peminjamanBukuPaket', function($q) {
+                    $q->where('status', 'dikembalikan');
+                })
+                ->update(['status' => 'selesai']);
+
             // Otomatis ubah status antrian 'menunggu' yang tanggal kunjungannya sudah lewat (sebelum hari ini) menjadi 'hangus'
             AntrianPaket::where('anggota_id', $anggota->id)
                 ->where('status', 'menunggu')
@@ -96,6 +104,14 @@ class AntrianPaketAnggotaController extends Controller
         if (!$anggota) {
             return back()->with('error', 'Data anggota Anda tidak ditemukan.');
         }
+
+        // Sync antrian jika peminjaman sudah dikembalikan
+        AntrianPaket::where('anggota_id', $anggota->id)
+            ->where('status', 'menunggu')
+            ->whereHas('peminjamanBukuPaket', function($q) {
+                $q->where('status', 'dikembalikan');
+            })
+            ->update(['status' => 'selesai']);
 
         // Cek antrian aktif hanya untuk tanggal yang belum lewat
         $hasActive = AntrianPaket::where('anggota_id', $anggota->id)

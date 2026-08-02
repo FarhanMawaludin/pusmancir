@@ -164,6 +164,10 @@ class AntrianPaketAdminController extends Controller
             'tanggal_kembali' => Carbon::now()->format('Y-m-d')
         ]);
 
+        if ($peminjaman->antrianPaket) {
+            $peminjaman->antrianPaket->update(['status' => 'selesai']);
+        }
+
         return back()->with('success', 'Buku berhasil ditandai telah dikembalikan pada tanggal ' . Carbon::now()->format('d-m-Y') . '.');
     }
 }
