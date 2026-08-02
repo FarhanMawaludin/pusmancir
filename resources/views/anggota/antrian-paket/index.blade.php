@@ -7,7 +7,7 @@
 </div>
 
 <!-- Card Panduan & Prosedur Peminjaman -->
-<div class="bg-white rounded-lg shadow-sm border border-blue-100 p-6 mb-8">
+<div class="bg-white rounded-lg shadow-sm border border-blue-100 p-6 mb-6">
     <div class="flex items-center space-x-3 mb-4 pb-3 border-b border-gray-100">
         <div class="p-2 bg-blue-100 text-blue-600 rounded-lg">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,7 +29,7 @@
                     <h4 class="font-bold text-sm text-blue-950">Booking Tanggal</h4>
                 </div>
                 <p class="text-xs text-gray-600 leading-relaxed">
-                    Lakukan booking peminjaman buku paket pelajaran di tanggal yang masih memiliki sisa kuota.
+                    Lakukan booking peminjaman di tanggal yang masih tersedia kuotanya. Nomor antrian <strong>hanya berlaku di tanggal booking tersebut</strong>.
                 </p>
             </div>
         </div>
@@ -42,7 +42,7 @@
                     <h4 class="font-bold text-sm text-blue-950">Datang Sesuai Tanggal</h4>
                 </div>
                 <p class="text-xs text-gray-600 leading-relaxed">
-                    Siswa datang langsung ke perpustakaan sesuai dengan tanggal kunjungan yang telah dibooking.
+                    Hadir ke perpustakaan pada tanggal yang dibooking. <em>Jika tidak hadir, antrian hangus & Anda bisa booking di tanggal berikutnya.</em>
                 </p>
             </div>
         </div>
@@ -107,6 +107,23 @@
     </div>
 </div>
 
+<!-- Banner Informasi Ketentuan Antrian -->
+<div class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg mb-8">
+    <div class="flex items-start">
+        <svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div class="text-xs text-blue-900 leading-relaxed">
+            <strong class="text-sm font-bold block mb-1">📌 Ketentuan Penting Booking Antrian:</strong>
+            <ul class="list-disc list-inside space-y-1">
+                <li>Nomor antrian <strong>hanya berlaku pada tanggal kunjungan</strong> yang Anda pilih saat booking.</li>
+                <li>Jika Anda <strong>tidak hadir/tidak mengambil buku pada tanggal booking</strong>, nomor antrian tersebut otomatis <strong>HANGUS</strong>.</li>
+                <li>Setelah tanggal booking lewat (hangus), Anda secara otomatis dapat melakukan <strong>booking ulang untuk tanggal berikutnya</strong> yang masih tersedia kuotanya.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
 @if($antrianAktif)
 <!-- Section 1: Active Queue -->
 <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-8 text-center max-w-2xl mx-auto">
@@ -116,7 +133,7 @@
     <div class="grid grid-cols-2 gap-4 text-left my-6 border-t border-b py-4">
         <div>
             <span class="block text-sm text-gray-500">Tanggal Kunjungan</span>
-            <span class="font-medium text-text">{{ \Carbon\Carbon::parse($antrianAktif->tanggal_kunjungan)->format('d F Y') }}</span>
+            <span class="font-medium text-text">{{ \Carbon\Carbon::parse($antrianAktif->tanggal_kunjungan)->translatedFormat('d F Y') }}</span>
         </div>
         <div>
             <span class="block text-sm text-gray-500">Status</span>
@@ -156,42 +173,21 @@
     </div>
 
     <!-- Info box -->
-    <div class="bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-md text-left mb-6 text-xs leading-relaxed">
+    <div class="bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-md text-left mb-2 text-xs leading-relaxed">
         <div class="font-bold text-sm mb-1 text-amber-900 flex items-center gap-1.5">
             <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            Petunjuk Saat Di Perpustakaan:
+            Petunjuk & Ketentuan Antrian:
         </div>
-        <ul class="list-disc list-inside space-y-1 pl-1">
-            <li>Tunjukkan nomor antrian di atas kepada petugas perpustakaan.</li>
+        <ul class="list-disc list-inside space-y-1.5 pl-1">
+            <li>Tunjukkan nomor antrian di atas kepada petugas perpustakaan pada tanggal <strong>{{ \Carbon\Carbon::parse($antrianAktif->tanggal_kunjungan)->translatedFormat('d F Y') }}</strong>.</li>
+            <li><strong>Masa Berlaku:</strong> Nomor antrian ini <strong>hanya berlaku di tanggal booking</strong>. Jika Anda tidak hadir pada tanggal tersebut, antrian otomatis <strong>hangus</strong> dan Anda dapat booking ulang untuk jadwal berikutnya.</li>
             <li>Pastikan Anda melakukan <strong>CEKLIST MANDIRI</strong> untuk setiap buku yang diambil. Siswa bertanggung jawab penuh atas buku yang diceklist.</li>
             <li>Disarankan membawa <strong>goodie bag / tas besar</strong> untuk kemudahan membawa buku paket.</li>
         </ul>
     </div>
-
-    <form id="batal-form" action="{{ route('anggota.antrian-paket.batal', $antrianAktif->id) }}" method="POST">
-        @csrf
-        <button type="button" onclick="confirmBatal()" class="bg-red-500 text-white px-6 py-2.5 rounded-md hover:bg-red-600 focus:ring-4 focus:ring-red-300 w-full text-sm font-medium transition">Batalkan Antrian</button>
-    </form>
 </div>
 
 <script>
-function confirmBatal() {
-    Swal.fire({
-        title: 'Batalkan Antrian?',
-        text: "Anda yakin ingin membatalkan antrian kunjungan ini?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, batalkan!',
-        cancelButtonText: 'Kembali'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            document.getElementById('batal-form').submit();
-        }
-    });
-}
-
 function confirmPilihBuku() {
     Swal.fire({
         title: 'Simpan Pilihan Buku?',
@@ -282,9 +278,11 @@ function confirmBooking(id, dateStr) {
                     </td>
                     <td class="px-6 py-4">
                         @if($riwayat->status == 'dipinjam')
-                            <span class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800">Dipinjam</span>
+                            <span class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 font-medium">Dipinjam</span>
                         @elseif($riwayat->status == 'dikembalikan')
-                            <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800">Dikembalikan</span>
+                            <span class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-800 font-semibold inline-block">
+                                Dikembalikan @if($riwayat->tanggal_kembali) pada {{ \Carbon\Carbon::parse($riwayat->tanggal_kembali)->format('d-m-Y') }} @endif
+                            </span>
                         @endif
                     </td>
                 </tr>

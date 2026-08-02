@@ -8,6 +8,7 @@ use App\Models\AntrianPaketSetting;
 
 use App\Models\PeminjamanBukuPaket;
 use App\Models\DetailPeminjamanBukuPaket;
+use App\Models\Kelas;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -82,6 +83,8 @@ class AntrianPaketAdminController extends Controller
     {
         $activeMenu = 'antrianPaket';
         
+        $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
+
         $query = PeminjamanBukuPaket::with([
             'anggota.user', 
             'anggota.kelas', 
@@ -95,7 +98,7 @@ class AntrianPaketAdminController extends Controller
         }
         if ($request->kelas) {
             $statsQuery->whereHas('anggota.kelas', function($q) use ($request) {
-                $q->where('nama_kelas', 'like', "%{$request->kelas}%");
+                $q->where('id', $request->kelas)->orWhere('nama_kelas', 'like', "%{$request->kelas}%");
             });
         }
         $totalPeminjam = (clone $statsQuery)->distinct('anggota_id')->count('anggota_id');
@@ -116,7 +119,7 @@ class AntrianPaketAdminController extends Controller
 
         if ($request->kelas) {
             $query->whereHas('anggota.kelas', function($q) use ($request) {
-                $q->where('nama_kelas', 'like', "%{$request->kelas}%");
+                $q->where('id', $request->kelas)->orWhere('nama_kelas', 'like', "%{$request->kelas}%");
             });
         }
 
@@ -131,16 +134,36 @@ class AntrianPaketAdminController extends Controller
             });
         }
 
-        $riwayat = $query->orderBy('created_at', 'desc')->paginate(20)->appends($request->all());
+        $perPageInput = $request->per_page ?? 10;
+        if ($perPageInput === 'all' || $perPageInput === 'semua') {
+            $totalCount = (clone $query)->count();
+            $perPage = $totalCount > 0 ? $totalCount : 10;
+        } else {
+            $perPage = (int) $perPageInput;
+        }
+
+        $riwayat = $query->orderBy('created_at', 'desc')->paginate($perPage)->appends($request->all());
 
         $search = $request->search;
         $tanggalMulai = $request->tanggal_mulai;
         $tanggalSelesai = $request->tanggal_selesai;
         $kelas = $request->kelas;
+        $perPage = $perPageInput;
 
         return view('admin.antrian-paket.riwayat', compact(
             'activeMenu', 'riwayat', 'search', 'tanggalMulai', 'tanggalSelesai',
-            'totalPeminjam', 'totalBukuDipinjam', 'bukuPopuler', 'kelas'
+            'totalPeminjam', 'totalBukuDipinjam', 'bukuPopuler', 'kelas', 'kelasList', 'perPage'
         ));
+    }
+
+    public function kembali($id)
+    {
+        $peminjaman = PeminjamanBukuPaket::findOrFail($id);
+        $peminjaman->update([
+            'status' => 'dikembalikan',
+            'tanggal_kembali' => Carbon::now()->format('Y-m-d')
+        ]);
+
+        return back()->with('success', 'Buku berhasil ditandai telah dikembalikan pada tanggal ' . Carbon::now()->format('d-m-Y') . '.');
     }
 }

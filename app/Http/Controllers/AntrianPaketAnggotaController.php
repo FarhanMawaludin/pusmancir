@@ -42,8 +42,16 @@ class AntrianPaketAnggotaController extends Controller
         $peminjamanAktif = null;
 
         if ($anggota) {
+            // Otomatis ubah status antrian 'menunggu' yang tanggal kunjungannya sudah lewat (sebelum hari ini) menjadi 'hangus'
+            AntrianPaket::where('anggota_id', $anggota->id)
+                ->where('status', 'menunggu')
+                ->where('tanggal_kunjungan', '<', Carbon::today()->format('Y-m-d'))
+                ->update(['status' => 'hangus']);
+
+            // Antrian aktif hanya yang statusnya 'menunggu' DAN tanggal_kunjungan >= hari ini
             $antrianAktif = AntrianPaket::where('anggota_id', $anggota->id)
                 ->where('status', 'menunggu')
+                ->where('tanggal_kunjungan', '>=', Carbon::today()->format('Y-m-d'))
                 ->first();
 
             if ($antrianAktif) {
@@ -89,17 +97,20 @@ class AntrianPaketAnggotaController extends Controller
             return back()->with('error', 'Data anggota Anda tidak ditemukan.');
         }
 
+        // Cek antrian aktif hanya untuk tanggal yang belum lewat
         $hasActive = AntrianPaket::where('anggota_id', $anggota->id)
             ->where('status', 'menunggu')
+            ->where('tanggal_kunjungan', '>=', Carbon::today()->format('Y-m-d'))
             ->exists();
 
         if ($hasActive) {
-            return back()->with('error', 'Anda masih memiliki antrian yang aktif (menunggu).');
+            return back()->with('error', 'Anda masih memiliki antrian yang aktif. Antrian hanya berlaku pada tanggal booking.');
         }
 
         $setting = AntrianPaketSetting::where('tanggal', $request->tanggal_kunjungan)->first();
         $terisi = AntrianPaket::where('tanggal_kunjungan', $request->tanggal_kunjungan)
                               ->where('status', '!=', 'batal')
+                              ->where('status', '!=', 'hangus')
                               ->count();
 
         if ($terisi >= $setting->kuota) {

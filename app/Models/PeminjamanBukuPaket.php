@@ -16,11 +16,13 @@ class PeminjamanBukuPaket extends Model
         'anggota_id',
         'user_id',
         'tanggal_pinjam',
+        'tanggal_kembali',
         'status',
     ];
 
     protected $casts = [
         'tanggal_pinjam' => 'date',
+        'tanggal_kembali' => 'date',
     ];
 
     public function antrianPaket()

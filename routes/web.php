@@ -286,6 +286,7 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     Route::get('/antrian-paket/export-pdf', [AntrianPaketAdminController::class, 'exportPdf'])->name('antrian-paket.exportPdf');
     Route::get('/antrian-paket/riwayat', [AntrianPaketAdminController::class, 'riwayat'])->name('antrian-paket.riwayat');
     Route::get('/antrian-paket/rekap', [AntrianPaketAdminController::class, 'rekap'])->name('antrian-paket.rekap');
+    Route::post('/antrian-paket/{id}/kembali', [AntrianPaketAdminController::class, 'kembali'])->name('antrian-paket.kembali');
 
     //Buku Paket Mata Pelajaran
     Route::get('/buku-paket-mapel', [BukuPaketMapelController::class, 'index'])->name('buku-paket-mapel.index');
