@@ -93,7 +93,7 @@
         <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 hover:shadow-sm transition flex flex-col justify-between md:col-span-3 lg:col-span-1">
             <div>
                 <div class="flex items-center space-x-3 mb-2">
-                    <span class="w-7 h-7 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shadow-sm shrink-0">6</span>
+                    <span class="w-7 h-7 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shadow-sm shrink-0" style="background-color: #059669; color: #ffffff;">6</span>
                     <h4 class="font-bold text-sm text-emerald-950">Selesai & Bawa Tas</h4>
                 </div>
                 <p class="text-xs text-emerald-900 leading-relaxed">

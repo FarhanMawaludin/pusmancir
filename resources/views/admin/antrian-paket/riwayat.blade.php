@@ -103,7 +103,7 @@
                                 <span class="px-2.5 py-1 text-xs rounded-full bg-blue-100 text-blue-800 font-medium">Dipinjam</span>
                                 <form id="form-kembali-{{ $item->id }}" action="{{ route('admin.antrian-paket.kembali', $item->id) }}" method="POST" class="inline">
                                     @csrf
-                                    <button type="button" onclick="confirmKembali({{ $item->id }}, '{{ addslashes($item->anggota->user->name ?? '') }}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded text-xs font-semibold shadow-sm transition">
+                                    <button type="button" onclick="confirmKembali({{ $item->id }}, '{{ addslashes($item->anggota->user->name ?? '') }}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded text-xs font-semibold shadow-sm transition inline-flex items-center gap-1" style="background-color: #059669; color: #ffffff;">
                                         Kembali
                                     </button>
                                 </form>
