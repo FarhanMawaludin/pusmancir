@@ -33,37 +33,32 @@
 
             <li class="text-xs px-2 text-text uppercase">Manajemen Buku</li>
 
-            <li class="mb-4">
-                <button type="button"
-                    class="flex items-center w-full p-2 text-base rounded group {{ $activeMenu == 'katalog' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100  ' }}"
-                    aria-controls="dropdown-example" data-collapse-toggle="dropdown-example-katalog">
-                    <svg class="w-5 h-5 {{ $activeMenu == 'katalog' ? 'text-white' : 'text-gray-400 ' }}"
+            <li class="mb-2">
+                <a href="{{ route('anggota.katalog.index') }}"
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'katalog' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100' }}">
+                    <svg class="w-5 h-5 {{ $activeMenu == 'katalog' ? 'text-white' : 'text-gray-400' }}"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linejoin="round" stroke-width="2"
                             d="M12.1429 11v9m0-9c-2.50543-.7107-3.19099-1.39543-6.13657-1.34968-.48057.00746-.86348.38718-.86348.84968v7.2884c0 .4824.41455.8682.91584.8617 2.77491-.0362 3.45995.6561 6.08421 1.3499m0-9c2.5053-.7107 3.1067-1.39542 6.0523-1.34968.4806.00746.9477.38718.9477.84968v7.2884c0 .4824-.4988.8682-1 .8617-2.775-.0362-3.3758.6561-6 1.3499m2-14c0 1.10457-.8955 2-2 2-1.1046 0-2-.89543-2-2s.8954-2 2-2c1.1045 0 2 .89543 2 2Z" />
                     </svg>
-                    <span
-                        class="flex-1 ms-3  text-left {{ $activeMenu == 'katalog' ? 'text-white' : 'text-gray-400' }}
-                        rtl:text-right whitespace-nowrap">Katalog</span>
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 10 6">
+                    <span class="ml-3 {{ $activeMenu == 'katalog' ? 'text-white' : 'text-gray-400' }}">Katalog Buku</span>
+                </a>
+                <!-- Hidden Link Katalog Paket (fungsi tetap ada tapi disembunyikan dari sidebar) -->
+                <a href="{{ route('anggota.katalog-paket.index') }}" class="hidden" aria-hidden="true">Katalog Paket</a>
+            </li>
+
+            <li class="mb-4">
+                <a href="{{ route('anggota.antrian-paket.index') }}"
+                    class="flex items-center p-2 rounded group {{ $activeMenu == 'antrianPaket' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100' }}">
+                    <svg class="w-5 h-5 {{ $activeMenu == 'antrianPaket' ? 'text-white' : 'text-gray-400' }}"
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="m1 1 4 4 4-4" />
+                            d="M15.583 8.445h.01M10.86 19.71l-6.573-6.63a.993.993 0 0 1 0-1.4l7.329-7.394A.98.98 0 0 1 12.31 4l5.734.007A1.968 1.968 0 0 1 20 5.983v5.5a.992.992 0 0 1-.316.727l-7.44 7.5a.974.974 0 0 1-1.384.001Z" />
                     </svg>
-                </button>
-                <ul id="dropdown-example-katalog" class="hidden py-2 space-y-2">
-                    <li>
-                        <a href="{{ route('anggota.katalog.index') }}"
-                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
-                            Non Paket</a>
-                    </li>
-                    <li>
-                        <a href="{{ route('anggota.katalog-paket.index') }}"
-                            class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
-                            Paket</a>
-                    </li>
-                </ul>
+                    <span class="ml-3 {{ $activeMenu == 'antrianPaket' ? 'text-white' : 'text-gray-400' }}">Peminjaman Buku Paket</span>
+                </a>
             </li>
 
             <li class="text-xs px-2 text-text uppercase">Riwayat Peminjaman</li>
@@ -99,19 +94,6 @@
                             Paket</a>
                     </li>
                 </ul>
-            </li>
-
-            <li class="mb-4">
-                <a href="{{ route('anggota.antrian-paket.index') }}"
-                    class="flex items-center p-2 rounded group {{ $activeMenu == 'antrianPaket' ? 'text-white bg-blue-700' : 'text-gray-900 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5 {{ $activeMenu == 'antrianPaket' ? 'text-white' : 'text-gray-400' }}"
-                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                        fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15.583 8.445h.01M10.86 19.71l-6.573-6.63a.993.993 0 0 1 0-1.4l7.329-7.394A.98.98 0 0 1 12.31 4l5.734.007A1.968 1.968 0 0 1 20 5.983v5.5a.992.992 0 0 1-.316.727l-7.44 7.5a.974.974 0 0 1-1.384.001Z" />
-                    </svg>
-                    <span class="ml-3 {{ $activeMenu == 'antrianPaket' ? 'text-white' : 'text-gray-400' }}">Peminjaman Buku Paket</span>
-                </a>
             </li>
 
             <!-- Logout -->
