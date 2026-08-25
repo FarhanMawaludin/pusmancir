@@ -227,11 +227,22 @@ class AntrianPaketAnggotaController extends Controller
     private function getTingkatKelas($anggota)
     {
         $namaKelas = $anggota->kelas->nama_kelas ?? '';
-        if (preg_match('/^(XII)\s+(IPA|IPS)/i', $namaKelas, $m)) {
-            return strtoupper($m[1]) . ' ' . strtoupper($m[2]);
-        } elseif (preg_match('/^(XI)\s+(IPA|IPS)/i', $namaKelas, $m)) {
-            return strtoupper($m[1]) . ' ' . strtoupper($m[2]);
+        
+        // Match XII / 12
+        if (preg_match('/^(XII|12)\s+(IPA|IPS)/i', $namaKelas, $m)) {
+            return 'XII ' . strtoupper($m[2]);
         }
-        return 'X';
+        
+        // Match XI / 11
+        if (preg_match('/^(XI|11)\s+(IPA|IPS)/i', $namaKelas, $m)) {
+            return 'XI ' . strtoupper($m[2]);
+        }
+        
+        // Match X / 10
+        if (preg_match('/^(X|10)\b/i', $namaKelas)) {
+            return 'X';
+        }
+        
+        return '';
     }
 }

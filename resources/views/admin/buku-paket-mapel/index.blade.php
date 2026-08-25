@@ -2,9 +2,26 @@
 @php $activeMenu = 'antrianPaket'; @endphp
 
 @section('content')
-<div class="mb-6 flex justify-between items-center">
+<div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
     <h2 class="text-2xl font-bold text-text">Kelola Buku Paket Mata Pelajaran</h2>
-    <a href="{{ route('admin.buku-paket-mapel.create') }}" class="bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-800">Tambah</a>
+    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+        @if(!empty($tingkatKelas))
+            <form action="{{ route('admin.buku-paket-mapel.copy') }}" method="POST" class="flex items-center space-x-2 bg-gray-100 p-1 px-2 rounded-md border border-gray-200">
+                @csrf
+                <input type="hidden" name="to_class" value="{{ $tingkatKelas }}">
+                <span class="text-xs font-semibold text-gray-600">Salin dari:</span>
+                <select name="from_class" class="text-xs rounded border-gray-300 py-1 px-2 bg-white">
+                    @foreach(['X', 'XI IPA', 'XI IPS', 'XII IPA', 'XII IPS'] as $c)
+                        @if($c !== $tingkatKelas)
+                            <option value="{{ $c }}">Kelas {{ $c }}</option>
+                        @endif
+                    @endforeach
+                </select>
+                <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded-md text-xs hover:bg-green-700 font-semibold transition">Salin</button>
+            </form>
+        @endif
+        <a href="{{ route('admin.buku-paket-mapel.create') }}" class="bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-800">Tambah</a>
+    </div>
 </div>
 
 <div class="mb-6 overflow-x-auto">

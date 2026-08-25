@@ -291,6 +291,7 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
 
     //Buku Paket Mata Pelajaran
     Route::get('/buku-paket-mapel', [BukuPaketMapelController::class, 'index'])->name('buku-paket-mapel.index');
+    Route::post('/buku-paket-mapel/copy', [BukuPaketMapelController::class, 'copy'])->name('buku-paket-mapel.copy');
     Route::get('/buku-paket-mapel/create', [BukuPaketMapelController::class, 'create'])->name('buku-paket-mapel.create');
     Route::post('/buku-paket-mapel', [BukuPaketMapelController::class, 'store'])->name('buku-paket-mapel.store');
     Route::get('/buku-paket-mapel/{id}/edit', [BukuPaketMapelController::class, 'edit'])->name('buku-paket-mapel.edit');

@@ -67,4 +67,47 @@ class BukuPaketMapelController extends Controller
 
         return redirect()->route('admin.buku-paket-mapel.index')->with('success', 'Buku Paket berhasil dihapus.');
     }
+
+    public function copy(Request $request)
+    {
+        $request->validate([
+            'from_class' => 'required|in:X,XI IPA,XI IPS,XII IPA,XII IPS',
+            'to_class' => 'required|in:X,XI IPA,XI IPS,XII IPA,XII IPS',
+        ]);
+
+        $fromClass = $request->from_class;
+        $toClass = $request->to_class;
+
+        if ($fromClass === $toClass) {
+            return back()->with('error', 'Kelas asal dan kelas tujuan tidak boleh sama.');
+        }
+
+        // Get all books in source class
+        $sourceBooks = BukuPaketMapel::where('tingkat_kelas', $fromClass)->get();
+
+        if ($sourceBooks->isEmpty()) {
+            return back()->with('error', "Tidak ada data buku di Kelas $fromClass untuk disalin.");
+        }
+
+        // Get existing books in destination class to avoid duplication
+        $existingBooks = BukuPaketMapel::where('tingkat_kelas', $toClass)
+            ->pluck('nama_buku')
+            ->map(fn($item) => strtolower(trim($item)))
+            ->toArray();
+
+        $copiedCount = 0;
+        foreach ($sourceBooks as $book) {
+            $cleanedName = strtolower(trim($book->nama_buku));
+            if (!in_array($cleanedName, $existingBooks)) {
+                BukuPaketMapel::create([
+                    'nama_buku' => $book->nama_buku,
+                    'tingkat_kelas' => $toClass,
+                ]);
+                $copiedCount++;
+            }
+        }
+
+        return redirect()->route('admin.buku-paket-mapel.index', ['tingkat_kelas' => $toClass])
+            ->with('success', "$copiedCount buku berhasil disalin dari Kelas $fromClass ke Kelas $toClass.");
+    }
 }
