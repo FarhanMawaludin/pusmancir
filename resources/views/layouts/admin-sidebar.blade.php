@@ -503,17 +503,23 @@
                                 stroke-width="2" d="m1 1 4 4 4-4" />
                         </svg>
                     </button>
-                    <ul id="dropdown-example-laporanPaket" class="hidden py-2 space-y-2">
-                        <li>
-                            <a href="{{ route('admin.laporan.non-paket') }}"
-                                class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
-                                Non Paket</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.laporan.paket') }}"
-                                class="flex items-center w-full p-2 text-gray-400 transition duration-75 rounded pl-11 group hover:bg-gray-100  ">
-                                Paket</a>
-                        </li>
+                    <ul id="dropdown-example-laporanPaket" class="{{ $activeMenu == 'laporanPaket' ? '' : 'hidden' }} py-2 space-y-2">
+                        @php
+                            $submenuLaporan = [
+                                ['admin.laporan.non-paket', 'Non Paket'],
+                                ['admin.laporan.paket', 'Paket'],
+                                ['admin.laporan.jumlah-buku', 'Jumlah Buku Dipinjam'],
+                                ['admin.laporan.peminjam', 'Data Peminjam'],
+                                ['admin.laporan.buku-induk', 'Buku Induk'],
+                            ];
+                        @endphp
+                        @foreach ($submenuLaporan as [$routeName, $labelMenu])
+                            <li>
+                                <a href="{{ route($routeName) }}"
+                                    class="flex items-center w-full p-2 transition duration-75 rounded pl-11 group {{ request()->routeIs($routeName) ? 'text-blue-700 bg-blue-50 font-semibold' : 'text-gray-400 hover:bg-gray-100' }}">
+                                    {{ $labelMenu }}</a>
+                            </li>
+                        @endforeach
                     </ul>
                 </li>
 

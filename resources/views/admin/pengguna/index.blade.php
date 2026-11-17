@@ -14,7 +14,7 @@
                 <!-- Tombol Dropdown -->
                 <button id="dropdown-button" type="button"
                     class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-text bg-gray-100 border border-gray-300 rounded-l hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 ">
-                    {{ $category === 'all' ? 'Semua Posisi' : ucfirst(str_replace('_', ' ', $category)) }}
+                    {{ $category === 'all' ? 'Semua Posisi' : ($category === 'siswa' ? 'Anggota Siswa' : ($category === 'guru' ? 'Anggota Guru' : ucfirst(str_replace('_', ' ', $category)))) }}
                     <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                         viewBox="0 0 10 6">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -50,6 +50,18 @@
                                 Anggota
                             </button>
                         </li>
+                        <li>
+                            <button type="button" data-value="siswa"
+                                class="category-btn w-full text-left px-4 py-2 hover:bg-gray-100">
+                                Anggota Siswa
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" data-value="guru"
+                                class="category-btn w-full text-left px-4 py-2 hover:bg-gray-100">
+                                Anggota Guru
+                            </button>
+                        </li>
                     </ul>
                 </div>
 
@@ -57,7 +69,7 @@
                 <div class="relative w-full">
                     <input type="search" id="search-dropdown" name="search"
                         class="block p-2.5 w-full z-20 text-sm text-text bg-gray-50 rounded-r-md border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 "
-                        placeholder="Cari pengguna berdasarkan nama atau NISN..." value="{{ $search ?? '' }}" />
+                        placeholder="Cari nama, NISN atau NIP/NIK..." value="{{ $search ?? '' }}" />
                     <button type="submit"
                         class="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-blue-700 border rounded border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
                         <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -182,6 +194,66 @@
                 </div>
             </div>
 
+            <!-- Modal Import Guru via Excel -->
+            <div id="import-guru-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" style="background-color: rgba(0,0,0,.5);">
+                <div class="flex items-center justify-center min-h-screen p-4">
+                    <div class="bg-white rounded shadow-xl w-full max-w-md relative">
+                        <div class="flex justify-between items-center p-4 border-b">
+                            <h3 class="text-lg font-semibold text-gray-900">Import Data Guru (NIP / NIK)</h3>
+                            <button type="button" onclick="closeImportGuruModal()"
+                                class="text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
+                        </div>
+
+                        <div class="p-4 space-y-4">
+                            <p class="text-xs text-gray-600">
+                                Tambahkan banyak guru sekaligus. Kolom template: <strong>Nama, Jenis Identitas (NIP/NIK),
+                                Nomor NIP/NIK, Password, No. Telp, Email</strong>. Username login = nomor NIP/NIK,
+                                dan jika password dikosongkan maka password default = nomor NIP/NIK.
+                            </p>
+
+                            <div class="flex items-center justify-between bg-gray-100 p-3 rounded">
+                                <span class="text-sm font-medium text-gray-700">Download Template Guru:</span>
+                                <a href="{{ route('admin.pengguna.downloadTemplateGuru') }}"
+                                    class="flex items-center gap-2 px-3 py-1.5 text-sm text-white rounded transition"
+                                    style="background-color: #2563eb; color: #ffffff;">
+                                    <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01" />
+                                    </svg>
+                                    Download
+                                </a>
+                            </div>
+
+                            <form action="{{ route('admin.pengguna.importGuru') }}" method="POST" enctype="multipart/form-data"
+                                class="space-y-4">
+                                @csrf
+                                <div>
+                                    <label for="excel_file_guru" class="block mb-1 text-sm font-medium text-gray-900">
+                                        Upload File Excel Guru:
+                                    </label>
+                                    <label for="excel_file_guru"
+                                        class="flex items-center cursor-pointer rounded-md overflow-hidden border border-gray-300 bg-white">
+                                        <span class="bg-gray-800 text-white text-sm font-semibold px-4 py-2">Pilih File</span>
+                                        <span id="file_name_guru" class="ml-3 text-sm text-gray-500 truncate">Tidak ada file dipilih</span>
+                                    </label>
+                                    <input type="file" name="file_guru" id="excel_file_guru" accept=".xlsx,.xls,.csv"
+                                        class="hidden" required>
+                                </div>
+
+                                <div class="flex justify-end gap-2 pt-4 border-t">
+                                    <button type="button" onclick="closeImportGuruModal()"
+                                        class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-sm">Batal</button>
+                                    <button type="submit" class="px-4 py-2 rounded text-white text-sm font-medium"
+                                        style="background-color: #7c3aed; color: #ffffff;">Import Guru</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Modal Import Alumni Bulk via Excel -->
             <div id="import-alumni-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black bg-opacity-50">
                 <div class="flex items-center justify-center min-h-screen p-4">
@@ -263,6 +335,29 @@
                 <div id="container-selected-users"></div>
             </form>
 
+            <!-- Button Import Guru -->
+            <button id="importGuruButton" type="button"
+                class="flex items-center gap-2 font-medium rounded text-sm px-4 py-2.5 text-center transition"
+                style="background-color: #7c3aed; color: #ffffff;">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                <span>Import Guru</span>
+            </button>
+
+            <!-- Button Tambah Guru -->
+            <a href="{{ route('admin.pengguna.create', ['jenis' => 'guru']) }}"
+                class="flex items-center gap-2 font-medium rounded text-sm px-4 py-2.5 text-center transition"
+                style="background-color: #0d9488; color: #ffffff;">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Tambah Guru</span>
+            </a>
+
             <!-- Button Tambah -->
             <button id="dropdownDividerButton" data-dropdown-toggle="dropdownDivider"
                 class="flex items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm px-4 py-2.5 text-center"
@@ -290,7 +385,7 @@
                     <th scope="col" class="px-6 py-3 w-43 md:w-12">No</th>
                     <th scope="col" class="px-6 py-3">Pengguna</th>
                     <th scope="col" class="px-6 py-3">Posisi</th>
-                    <th scope="col" class="px-6 py-3">Kelas</th>
+                    <th scope="col" class="px-6 py-3">Kelas / Identitas</th>
                     <th scope="col" class="px-6 py-3">Aksi</th>
                 </tr>
             </thead>
@@ -320,6 +415,10 @@
                         </td>
                         <td class="px-6 py-4">
                             {{ ucwords(str_replace('_', ' ', $userItem->role)) }}
+                            @if ($userItem->role === 'anggota' && $userItem->anggota && $userItem->anggota->isGuru())
+                                <span class="ml-1 px-2 py-0.5 rounded-full text-xs font-semibold"
+                                    style="background-color:#ede9fe; color:#6d28d9;">Guru</span>
+                            @endif
                             @if ($userItem->role === 'anggota' && $userItem->anggota && $userItem->anggota->status === 'alumni')
                                 <span class="ml-1 px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs font-semibold">
                                     Alumni
@@ -327,7 +426,10 @@
                             @endif
                         </td>
                         <td class="px-6 py-4">
-                            @if ($userItem->role === 'anggota' && $userItem->anggota && $userItem->anggota->kelas)
+                            @if ($userItem->role === 'anggota' && $userItem->anggota && $userItem->anggota->isGuru())
+                                <span class="text-xs text-gray-500">{{ $userItem->anggota->label_identitas }}:</span>
+                                <span class="font-medium">{{ $userItem->anggota->nisn }}</span>
+                            @elseif ($userItem->role === 'anggota' && $userItem->anggota && $userItem->anggota->kelas)
                                 {{ $userItem->anggota->kelas->nama_kelas }}
                             @else
                                 <span class="text-gray-400">-</span>
@@ -475,6 +577,21 @@
         function closeImportAlumniModal() {
             document.getElementById('import-alumni-modal').classList.add('hidden');
         }
+
+        // Show/Hide Import Guru Modal
+        document.getElementById('importGuruButton')?.addEventListener('click', function(event) {
+            event.preventDefault();
+            document.getElementById('import-guru-modal').classList.remove('hidden');
+        });
+
+        function closeImportGuruModal() {
+            document.getElementById('import-guru-modal').classList.add('hidden');
+        }
+
+        document.getElementById('excel_file_guru')?.addEventListener('change', function(e) {
+            const fileName = e.target.files.length ? e.target.files[0].name : 'Tidak ada file dipilih';
+            document.getElementById('file_name_guru').textContent = fileName;
+        });
 
         // Check All Checkboxes
         const checkAll = document.getElementById('check-all-pengguna');

@@ -43,6 +43,8 @@ use App\Http\Controllers\AntrianPaketSettingController;
 use App\Http\Controllers\AntrianPaketAdminController;
 use App\Http\Controllers\BukuPaketMapelController;
 use App\Http\Controllers\AntrianPaketAnggotaController;
+use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\BukuIndukController;
 use Illuminate\Support\Facades\Http;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
@@ -123,6 +125,8 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     Route::post('/pengguna/set-alumni-bulk', [PenggunaController::class, 'setAlumniBulk'])->name('pengguna.setAlumniBulk');
     Route::post('/pengguna/import-alumni', [PenggunaController::class, 'importAlumni'])->name('pengguna.importAlumni');
     Route::get('/pengguna/download-template-alumni', [PenggunaController::class, 'downloadTemplateAlumni'])->name('pengguna.downloadTemplateAlumni');
+    Route::post('/pengguna/import-guru', [PenggunaController::class, 'importGuru'])->name('pengguna.importGuru');
+    Route::get('/pengguna-guru/template', [PenggunaController::class, 'downloadTemplateGuru'])->name('pengguna.downloadTemplateGuru');
 
 
     //Daftar Anggota
@@ -376,6 +380,21 @@ Route::middleware(['auth', 'role:admin,pustakawan', 'prevent.back'])->prefix('ad
     Route::get('/admin/laporan-peminjaman/non-paket/export', [PeminjamanController::class, 'exportLaporanNonPaketExcel'])->name('laporan.exportNonPaket');
     Route::get('/laporan-peminjaman/paket/export-pdf', [PeminjamanPaketController::class, 'exportLaporanPaketPdf'])->name('laporan.exportPaketPdf');
     Route::get('/laporan-peminjaman/non-paket/export-pdf', [PeminjamanController::class, 'exportLaporanNonPaketPdf'])->name('laporan.exportNonPaketPdf');
+
+    //Laporan Jumlah Buku Dipinjam (judul & eksemplar)
+    Route::get('/laporan/jumlah-buku-dipinjam', [LaporanController::class, 'jumlahBuku'])->name('laporan.jumlah-buku');
+    Route::get('/laporan/jumlah-buku-dipinjam/pdf', [LaporanController::class, 'jumlahBukuPdf'])->name('laporan.jumlah-buku.pdf');
+
+    //Laporan Data Peminjam & Buku yang Dipinjam
+    Route::get('/laporan/peminjam', [LaporanController::class, 'peminjam'])->name('laporan.peminjam');
+    Route::get('/laporan/peminjam/pdf', [LaporanController::class, 'peminjamPdf'])->name('laporan.peminjam.pdf');
+
+    //Buku Induk (otomatis dari koleksi non paket)
+    Route::get('/laporan/buku-induk', [BukuIndukController::class, 'index'])->name('laporan.buku-induk');
+    Route::get('/laporan/buku-induk/pdf', [BukuIndukController::class, 'exportPdf'])->name('laporan.buku-induk.pdf');
+    Route::get('/laporan/buku-induk/excel', [BukuIndukController::class, 'exportExcel'])->name('laporan.buku-induk.excel');
+    Route::get('/laporan/buku-induk/template', [BukuIndukController::class, 'template'])->name('laporan.buku-induk.template');
+    Route::post('/laporan/buku-induk/import', [BukuIndukController::class, 'import'])->name('laporan.buku-induk.import');
 
     //PENGADUAN
     Route::get('/pengaduan-laporan', [PengaduanController::class, 'index'])->name('pengaduan.index');

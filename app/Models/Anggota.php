@@ -19,8 +19,21 @@ class Anggota extends Model
         'user_id',
         'kelas_id',
         'status',
-        'qr_code'
+        'qr_code',
+        'jenis_anggota',
+        'jenis_identitas',
     ];
+
+    public function isGuru(): bool
+    {
+        return ($this->jenis_anggota ?? 'siswa') === 'guru';
+    }
+
+    /** Label nomor identitas, mis. "NISN", "NIP", "NIK". */
+    public function getLabelIdentitasAttribute(): string
+    {
+        return $this->jenis_identitas ?: ($this->isGuru() ? 'NIP' : 'NISN');
+    }
 
     public function user()
     {

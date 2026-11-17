@@ -25,6 +25,7 @@ class Inventori extends Model
         'id_penerbit',
         'harga_satuan',
         'total_harga',
+        'bahasa',
     ];
 
     // Relasi ke JenisMedia
