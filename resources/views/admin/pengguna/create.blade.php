@@ -28,9 +28,11 @@
                                 class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text 
                                         border border-gray-300 placeholder:text-gray-400
                                         focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
-                                <option value="admin">Admin</option>
-                                <option value="pustakawan">Pustakawan</option>
-                                <option value="anggota" selected>Anggota</option>
+                                @php $roleTerpilih = old('role', $defaultRole ?? 'anggota'); @endphp
+                                <option value="admin" {{ $roleTerpilih === 'admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="pustakawan" {{ $roleTerpilih === 'pustakawan' ? 'selected' : '' }}>Pustakawan</option>
+                                <option value="anggota" {{ $roleTerpilih === 'anggota' ? 'selected' : '' }}>Anggota (Siswa)</option>
+                                <option value="guru" {{ $roleTerpilih === 'guru' ? 'selected' : '' }}>Guru (NIP / NIK)</option>
                             </select>
                         </div>
                     </div>
@@ -54,6 +56,8 @@
                             @enderror
                         </div>
                     </div>
+
+                    @include('admin.pengguna._guru-fields')
 
                     <div class="col-span-full">
                         <label for="username" class="block text-sm/6 font-medium text-text">Username</label>
@@ -111,21 +115,4 @@
         </div>
     </form>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const roleSelect = document.getElementById('role');
-            const kelasField = document.getElementById('kelas-field');
-
-            function toggleKelasField() {
-                if (roleSelect.value === 'anggota') {
-                    kelasField.style.display = '';
-                } else {
-                    kelasField.style.display = 'none';
-                }
-            }
-
-            toggleKelasField();
-            roleSelect.addEventListener('change', toggleKelasField);
-        });
-    </script>
 @endsection

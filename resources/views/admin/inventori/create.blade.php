@@ -192,6 +192,21 @@
                         @enderror
                     </div>
 
+                    {{-- Bahasa (untuk Buku Induk) --}}
+                    <div class="sm:col-span-3">
+                        <label for="bahasa" class="block text-sm font-medium text-text mb-2">Bahasa Buku</label>
+                        @php $bahasaDipilih = old('bahasa', 'Indonesia'); @endphp
+                        <select name="bahasa" id="bahasa"
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-text border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 sm:text-sm">
+                            @foreach (['Indonesia', 'Inggris', 'Lainnya'] as $bhs)
+                                <option value="{{ $bhs }}" {{ $bahasaDipilih === $bhs ? 'selected' : '' }}>{{ $bhs }}</option>
+                            @endforeach
+                        </select>
+                        @error('bahasa')
+                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     {{-- Total Harga --}}
                     <div class="sm:col-span-3">
                         <label for="total_harga" class="block text-sm font-medium text-text mb-2">Total Harga</label>

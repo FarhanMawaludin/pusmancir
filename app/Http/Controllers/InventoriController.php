@@ -96,6 +96,7 @@ class InventoriController extends Controller
             'id_sekolah'         => 'required|exists:sekolah,id',
             'id_penerbit'        => 'nullable|exists:penerbit,id',
             'harga_satuan'       => 'nullable|numeric|min:0',
+            'bahasa'             => 'nullable|in:Indonesia,Inggris,Lainnya',
         ]);
 
         $validated['total_harga'] = $validated['harga_satuan'] * $validated['jumlah_eksemplar'];
@@ -191,6 +192,7 @@ class InventoriController extends Controller
             'id_sekolah'         => 'required|exists:sekolah,id',
             'id_penerbit'        => 'nullable|exists:penerbit,id',
             'harga_satuan'       => 'nullable|numeric|min:0',
+            'bahasa'             => 'nullable|in:Indonesia,Inggris,Lainnya',
         ]);
 
         $validated['total_harga'] = $validated['harga_satuan'] * $validated['jumlah_eksemplar'];

@@ -10,6 +10,7 @@ use App\Models\Inventori;
 use App\Models\BukuTamu;
 use App\Models\DetailPeminjaman;
 use App\Models\WebVisit;  // Import model WebVisit
+use App\Services\StatistikPeminjaman;
 use Illuminate\Support\Facades\DB;
 
 class DashboardAdminController extends Controller
@@ -403,7 +404,9 @@ class DashboardAdminController extends Controller
             ->limit(10)
             ->get();
 
-        return view('admin.dashboard', compact(
+        $statistik = $this->statistikPeminjamanBuku($selectedYear, $selectedMonth);
+
+        return view('admin.dashboard', $statistik + compact(
             'activeMenu',
             'totalAnggota',
             'totalPeminjamanMenunggu',
@@ -427,5 +430,115 @@ class DashboardAdminController extends Controller
             'totalPengunjungHariIni',
             'totalPengunjungKeseluruhan'
         ));
+    }
+
+    /**
+     * Data tambahan dashboard: statistik judul & eksemplar dipinjam (sedang / selesai)
+     * per tahun / bulan / hari mengikuti filter, ditambah data koleksi & anggota.
+     */
+    private function statistikPeminjamanBuku($selectedYear, $selectedMonth): array
+    {
+        $tahun = $selectedYear !== 'all' ? (int) $selectedYear : null;
+        $bulan = ($tahun && $selectedMonth !== 'all') ? (int) $selectedMonth : null;
+
+        [$dari, $sampai] = StatistikPeminjaman::rentang($tahun, $bulan);
+        $rows = StatistikPeminjaman::rows($dari, $sampai);
+
+        $statPeriode = StatistikPeminjaman::ringkasan($rows);
+        $rekapPeriode = StatistikPeminjaman::perPeriode($rows, $tahun, $bulan);
+        if ($tahun && !$bulan) {
+            // label bulan singkat agar muat di sumbu X
+            foreach ($rekapPeriode as $i => $r) {
+                $rekapPeriode[$i]['label_chart'] = StatistikPeminjaman::BULAN_SINGKAT[$r['key']];
+            }
+        }
+
+        $labelPeriode = !$tahun ? 'Semua Tahun'
+            : ($bulan ? StatistikPeminjaman::BULAN[$bulan] . ' ' . $tahun : 'Tahun ' . $tahun);
+
+        // Snapshot kondisi saat ini (tidak terpengaruh filter)
+        $aktifQuery = DB::table('detail_peminjaman as dp')
+            ->join('peminjaman as p', 'p.id', '=', 'dp.peminjaman_id')
+            ->join('eksemplar as e', 'e.id', '=', 'dp.eksemplar_id')
+            ->where('p.status', 'berhasil')
+            ->whereNull('dp.tanggal_kembali_asli');
+
+        $snapshot = [
+            'eks_aktif' => (clone $aktifQuery)->count(),
+            'judul_aktif' => (clone $aktifQuery)->distinct()->count('e.id_inventori'),
+            'eks_terlambat' => (clone $aktifQuery)->whereDate('p.tanggal_kembali', '<', now()->toDateString())->count(),
+            'peminjam_aktif' => (clone $aktifQuery)->distinct()->count('p.anggota_id'),
+        ];
+
+        $bukuTerlambat = DetailPeminjaman::with(['eksemplar.inventori', 'peminjaman.anggota.user', 'peminjaman.anggota.kelas'])
+            ->whereNull('tanggal_kembali_asli')
+            ->whereHas('peminjaman', fn($q) => $q->where('status', 'berhasil')
+                ->whereDate('tanggal_kembali', '<', now()->toDateString()))
+            ->get()
+            ->sortBy(fn($d) => $d->peminjaman->tanggal_kembali)
+            ->take(8)
+            ->values();
+
+        // Kondisi eksemplar koleksi
+        $statusEksemplar = Eksemplar::select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+        $statusEksemplar = [
+            'Tersedia' => (int) ($statusEksemplar['tersedia'] ?? 0),
+            'Dipinjam' => (int) ($statusEksemplar['dipinjam'] ?? 0),
+            'Rusak' => (int) ($statusEksemplar['rusak'] ?? 0),
+            'Hilang' => (int) ($statusEksemplar['hilang'] ?? 0),
+        ];
+
+        // Komposisi anggota
+        $komposisiAnggota = [
+            'siswa' => Anggota::where('status', 'aktif')->where(fn($q) => $q->where('jenis_anggota', '!=', 'guru')->orWhereNull('jenis_anggota'))->count(),
+            'guru' => Anggota::where('jenis_anggota', 'guru')->count(),
+            'alumni' => Anggota::where('status', 'alumni')->count(),
+        ];
+
+        // Pertumbuhan koleksi (judul & eksemplar baru) berdasarkan tanggal pembelian
+        $koleksiRows = Inventori::withCount('eksemplar')->get(['id', 'tanggal_pembelian']);
+        $pertumbuhanKoleksi = ['labels' => [], 'judul' => [], 'eksemplar' => []];
+        if (!$tahun) {
+            $grup = $koleksiRows->groupBy(fn($i) => (int) substr((string) $i->tanggal_pembelian, 0, 4))->sortKeys();
+            foreach ($grup as $t => $g) {
+                $pertumbuhanKoleksi['labels'][] = (string) $t;
+                $pertumbuhanKoleksi['judul'][] = $g->count();
+                $pertumbuhanKoleksi['eksemplar'][] = (int) $g->sum('eksemplar_count');
+            }
+        } else {
+            $grup = $koleksiRows->filter(fn($i) => (int) substr((string) $i->tanggal_pembelian, 0, 4) === $tahun)
+                ->groupBy(fn($i) => (int) substr((string) $i->tanggal_pembelian, 5, 2));
+            foreach (StatistikPeminjaman::BULAN_SINGKAT as $b => $nama) {
+                $g = $grup->get($b, collect());
+                $pertumbuhanKoleksi['labels'][] = $nama;
+                $pertumbuhanKoleksi['judul'][] = $g->count();
+                $pertumbuhanKoleksi['eksemplar'][] = (int) $g->sum('eksemplar_count');
+            }
+        }
+
+        // Buku paket yang sedang dipinjam siswa (antrian paket)
+        $paketAktif = DB::table('detail_peminjaman_buku_paket as d')
+            ->join('peminjaman_buku_paket as p', 'p.id', '=', 'd.peminjaman_buku_paket_id')
+            ->where('p.status', 'dipinjam')
+            ->count();
+
+        return [
+            'statLabelPeriode' => $labelPeriode,
+            'statPeriode' => $statPeriode,
+            'statRekapPeriode' => $rekapPeriode,
+            'statSnapshot' => $snapshot,
+            'statPerKategori' => StatistikPeminjaman::perKategori($rows),
+            'statPerKelompok' => StatistikPeminjaman::perKelompokPeminjam($rows)->take(10)->values(),
+            'statBukuTerlambat' => $bukuTerlambat,
+            'statStatusEksemplar' => $statusEksemplar,
+            'statKomposisiAnggota' => $komposisiAnggota,
+            'statPertumbuhanKoleksi' => $pertumbuhanKoleksi,
+            'statPaketAktif' => $paketAktif,
+            'statTahunFilter' => $tahun,
+            'statBulanFilter' => $bulan,
+        ];
     }
 }

@@ -114,6 +114,9 @@
         @endif
     </form>
 
+    {{-- Statistik Peminjaman Buku (judul & eksemplar) --}}
+    @include('admin.dashboard._statistik-peminjaman')
+
     {{-- Grafik Peminjaman --}}
     <div class="flex flex-col md:flex-row gap-6 mt-5 mb-5">
 
