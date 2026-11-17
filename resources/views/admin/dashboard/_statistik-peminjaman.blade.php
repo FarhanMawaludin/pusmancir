@@ -281,8 +281,8 @@
                             <td>{{ \Illuminate\Support\Str::limit($d->eksemplar->inventori->judul_buku ?? '-', 40) }}</td>
                             <td>{{ $batas->format('d-m-Y') }}</td>
                             <td class="text-right">
-                                <span class="badge-status" style="background:#fde8e8;color:#9b1c1c;">
-                                    <span aria-hidden="true">&#9888;</span>{{ $batas->diffInDays(now()) }} hari
+                                <span class="badge-status" style="background:#fde8e8;color:#9b1c1c;white-space:nowrap;">
+                                    <span aria-hidden="true">&#9888;</span>{{ (int) $batas->copy()->startOfDay()->diffInDays(\Carbon\Carbon::today()) }} hari
                                 </span>
                             </td>
                         </tr>
